@@ -328,13 +328,13 @@ export function getUniversitiesByLevel(materialLevel: string, score: number, tes
       );
       recommendedUniversities = topTierSchools.slice(0, 15);
     } else if (materialLevel === "good") {
-      // 较好材料 - 推荐密歇根、NYU等前30学校
+      // 较好材料 - 推荐密歇根、NYU、南加大等前20商学院
       const goodTierSchools = candidates.filter(uni => 
-        ["University of Michigan--Ann Arbor", "New York University", "Boston University",
-         "University of Rochester", "Northeastern University", "Case Western Reserve University",
-         "Tulane University", "University of Miami", "Syracuse University",
-         "Fordham University", "American University", "University of Connecticut",
-         "University of South Carolina", "University of Iowa", "Arizona State University"].includes(uni)
+        ["University of Michigan--Ann Arbor", "New York University", "University of Southern California",
+         "Carnegie Mellon University", "University of North Carolina--Chapel Hill", "University of Texas at Austin",
+         "Cornell University", "Indiana University--Bloomington", "University of Notre Dame", 
+         "University of Virginia", "Emory University", "Georgetown University", "Boston University",
+         "University of Rochester", "Northeastern University", "Case Western Reserve University"].includes(uni)
       );
       recommendedUniversities = goodTierSchools.slice(0, 15);
     } else {
