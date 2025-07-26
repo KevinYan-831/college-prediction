@@ -3,7 +3,7 @@ import { pgTable, serial, text, integer, timestamp, jsonb } from "drizzle-orm/pg
 import { createInsertSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 
-// 预测请求数据结构
+// 预测请求数据结构  
 export const predictionRequestSchema = z.object({
   // 生辰八字
   year: z.number().min(1950).max(2010),
@@ -18,11 +18,7 @@ export const predictionRequestSchema = z.object({
   gender: z.enum(["male", "female"]),
   major: z.string().min(1),
   
-  // 语言成绩
-  testType: z.enum(["toefl", "ielts"]),
-  score: z.number().min(0),
-  
-  // 申请材料水平
+  // 整体申请材料水平（包含语言成绩、GPA、活动等）
   materialLevel: z.enum(["very-poor", "poor", "average", "good", "excellent"])
 });
 

@@ -324,8 +324,8 @@ function getMonthElement(month: number): string {
   return "earth";
 }
 
-// 根据申请材料水平和成绩推荐合适排名的大学
-export function getUniversitiesByLevel(materialLevel: string, score: number, testType: string, major: string, birthYear?: number, birthMonth?: number) {
+// 根据申请材料水平和专业推荐合适排名的大学，按命理因素排序
+export function getUniversitiesByLevel(materialLevel: string, major: string, birthYear?: number, birthMonth?: number) {
   // 首先根据专业筛选合适的大学
   const suitableUniversities = getUniversitiesForMajor(major);
   console.log(`为专业"${major}"筛选到${suitableUniversities.length}所合适的大学`);
@@ -339,90 +339,68 @@ export function getUniversitiesByLevel(materialLevel: string, score: number, tes
     candidates = suitableUniversities;
   }
   
-  // 根据托福成绩和材料水平进行乐观预测，更多基于命理因素
+  // 根据申请材料水平选择合适的大学范围
   let recommendedUniversities: string[] = [];
   
-  // 前10大学池（通常需要托福110+，但极好材料可以突破）
-  const top10Schools = [
-    "Harvard University", "Stanford University", "Massachusetts Institute of Technology",
-    "University of Pennsylvania", "Princeton University", "Yale University",
-    "Columbia University", "University of Chicago", "Northwestern University",
-    "Duke University", "Cornell University", "Dartmouth College"
-  ];
-  
-  // 前30大学池（通常需要托福100+，但更加包容）
-  const top30Schools = [
-    "University of California--Berkeley", "University of California--Los Angeles", 
-    "University of Michigan--Ann Arbor", "New York University", "Carnegie Mellon University",
-    "University of North Carolina--Chapel Hill", "University of Southern California",
-    "Georgetown University", "Emory University", "University of Virginia",
-    "Washington University in St. Louis", "Vanderbilt University", "Rice University",
-    "University of Notre Dame", "Brown University", "University of Rochester",
-    "Boston University", "Brandeis University", "Case Western Reserve University",
-    "University of California--San Diego", "University of California--Davis"
-  ];
-  
-  if (testType === "toefl" && score >= 115) {
-    // 托福115+ - 推荐前5名商学院
-    const top5BusinessSchools = candidates.filter(uni => 
-      BUSINESS_SCHOOL_RANKINGS.slice(0, 5).includes(uni)
-    );
-    // 如果前5个不够15所，补充6-15名
-    const additional = candidates.filter(uni => 
-      BUSINESS_SCHOOL_RANKINGS.slice(5, 15).includes(uni)
-    );
-    recommendedUniversities = top5BusinessSchools.concat(additional).slice(0, 15);
+  if (materialLevel === "excellent") {
+    // 极好材料 - 可以推荐顶尖大学
+    const topTierCandidates = candidates.filter(uni => {
+      const majorKey = getMajorKey(major);
+      if (majorKey === "business") {
+        return BUSINESS_SCHOOL_RANKINGS.slice(0, 15).includes(uni);
+      } else {
+        return USNEWS_TOP100_UNIVERSITIES.slice(0, 20).includes(uni);
+      }
+    });
+    recommendedUniversities = topTierCandidates.slice(0, 15);
     
-  } else if (testType === "toefl" && score >= 110) {
-    // 托福110+ - 推荐第6-10名 + 第11-15名商学院
-    const rank6to10 = candidates.filter(uni => 
-      BUSINESS_SCHOOL_RANKINGS.slice(5, 10).includes(uni)
-    );
-    const rank11to15 = candidates.filter(uni => 
-      BUSINESS_SCHOOL_RANKINGS.slice(10, 15).includes(uni)
-    );
-    // 如果不够15所，补充16-25名
-    const additional = candidates.filter(uni => 
-      BUSINESS_SCHOOL_RANKINGS.slice(15, 25).includes(uni)
-    );
-    recommendedUniversities = rank6to10.concat(rank11to15).concat(additional).slice(0, 15);
+  } else if (materialLevel === "good") {
+    // 较好材料 - 推荐中上等大学
+    const goodTierCandidates = candidates.filter(uni => {
+      const majorKey = getMajorKey(major);
+      if (majorKey === "business") {
+        return BUSINESS_SCHOOL_RANKINGS.slice(10, 30).includes(uni);
+      } else {
+        return USNEWS_TOP100_UNIVERSITIES.slice(15, 40).includes(uni);
+      }
+    });
+    recommendedUniversities = goodTierCandidates.slice(0, 15);
     
-  } else if (testType === "toefl" && score >= 100) {
-    // 托福100+ - 推荐第11-20名 + 第21-30名商学院
-    const rank11to20 = candidates.filter(uni => 
-      BUSINESS_SCHOOL_RANKINGS.slice(10, 20).includes(uni)
-    );
-    const rank21to30 = candidates.filter(uni => 
-      BUSINESS_SCHOOL_RANKINGS.slice(20, 30).includes(uni)
-    );
-    // 如果不够15所，补充31-40名
-    const additional = candidates.filter(uni => 
-      BUSINESS_SCHOOL_RANKINGS.slice(30, 40).includes(uni)
-    );
-    recommendedUniversities = rank11to20.concat(rank21to30).concat(additional).slice(0, 15);
+  } else if (materialLevel === "average") {
+    // 一般材料 - 推荐中等大学
+    const averageTierCandidates = candidates.filter(uni => {
+      const majorKey = getMajorKey(major);
+      if (majorKey === "business") {
+        return BUSINESS_SCHOOL_RANKINGS.slice(20, 50).includes(uni);
+      } else {
+        return USNEWS_TOP100_UNIVERSITIES.slice(30, 70).includes(uni);
+      }
+    });
+    recommendedUniversities = averageTierCandidates.slice(0, 15);
     
-  } else if (testType === "toefl" && score >= 90) {
-    // 托福90-99 - 推荐前50商学院
-    const midTierBusinessSchools = candidates.filter(uni => 
-      BUSINESS_SCHOOL_RANKINGS.slice(20, 50).includes(uni)
-    );
+  } else if (materialLevel === "poor") {
+    // 较差材料 - 推荐中下等大学
+    const poorTierCandidates = candidates.filter(uni => {
+      const majorKey = getMajorKey(major);
+      if (majorKey === "business") {
+        return BUSINESS_SCHOOL_RANKINGS.slice(40, 80).includes(uni);
+      } else {
+        return USNEWS_TOP100_UNIVERSITIES.slice(50, 90).includes(uni);
+      }
+    });
+    recommendedUniversities = poorTierCandidates.slice(0, 15);
     
-    if (materialLevel === "excellent") {
-      // 极好材料可以冲击前30商学院
-      const top30BusinessSchools = candidates.filter(uni => 
-        BUSINESS_SCHOOL_RANKINGS.slice(0, 30).includes(uni)
-      );
-      recommendedUniversities = [...top30BusinessSchools.slice(10, 20), ...midTierBusinessSchools.slice(0, 5)];
-    } else {
-      recommendedUniversities = midTierBusinessSchools.slice(0, 15);
-    }
-    
-  } else {
-    // 托福90以下 - 推荐前80商学院
-    const basicBusinessSchools = candidates.filter(uni => 
-      BUSINESS_SCHOOL_RANKINGS.slice(30, 80).includes(uni)
-    );
-    recommendedUniversities = basicBusinessSchools.slice(0, 15);
+  } else { // very-poor
+    // 极差材料 - 推荐较低档次大学
+    const basicTierCandidates = candidates.filter(uni => {
+      const majorKey = getMajorKey(major);
+      if (majorKey === "business") {
+        return BUSINESS_SCHOOL_RANKINGS.slice(60, 100).includes(uni);
+      } else {
+        return USNEWS_TOP100_UNIVERSITIES.slice(70, 100).includes(uni);
+      }
+    });
+    recommendedUniversities = basicTierCandidates.slice(0, 15);
   }
   
   // 如果推荐数量不足15所，从其他合适但较低排名的大学补充

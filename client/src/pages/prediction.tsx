@@ -38,8 +38,6 @@ export default function PredictionPage() {
       birthTime: "",
       gender: "male",
       major: "",
-      testType: "toefl",
-      score: 0,
       materialLevel: "average"
     }
   });
@@ -308,66 +306,7 @@ export default function PredictionPage() {
                   />
                 </div>
 
-                {/* 语言成绩 */}
-                <div className="bg-gradient-to-r from-yellow-500/10 to-amber-500/10 backdrop-blur-sm rounded-2xl p-6 border border-orange-200/30">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
-                    <Languages className="text-yellow-600 mr-3" size={20} />
-                    语言成绩
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="testType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-800 font-medium">考试类型</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="bg-white/90 border-orange-200 text-gray-800 focus:bg-white focus:border-orange-400 rounded-xl h-12">
-                                <SelectValue placeholder="选择考试类型" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent className="bg-white border-orange-200">
-                              <SelectItem value="toefl" className="text-gray-800 focus:bg-orange-50">托福 (TOEFL)</SelectItem>
-                              <SelectItem value="ielts" className="text-gray-800 focus:bg-orange-50">雅思 (IELTS)</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="score"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-800 font-medium">分数</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="number" 
-                              placeholder="如：105" 
-                              {...field}
-                              className="bg-white/90 border-orange-200 text-gray-800 placeholder:text-gray-400 focus:bg-white focus:border-orange-400 rounded-xl h-12"
-                              value={field.value || ""}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                if (value === "") {
-                                  field.onChange(0);
-                                } else {
-                                  const numValue = parseInt(value);
-                                  if (!isNaN(numValue) && numValue >= 0) {
-                                    field.onChange(numValue);
-                                  }
-                                }
-                              }}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
+
 
                 {/* 申请材料水平 */}
                 <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 backdrop-blur-sm rounded-2xl p-6 border border-orange-200/30">
@@ -385,11 +324,11 @@ export default function PredictionPage() {
                         </FormLabel>
                         <div className="mb-4 p-4 bg-white/50 rounded-xl border border-orange-100">
                           <div className="text-sm text-gray-700 space-y-2">
-                            <div><span className="font-semibold text-red-600">极差:</span> GPA &lt; 3.0，无突出活动经历，无竞赛奖项</div>
-                            <div><span className="font-semibold text-orange-600">较差:</span> GPA 3.0-3.3，有基础活动参与，少量校级奖项</div>
-                            <div><span className="font-semibold text-yellow-600">一般:</span> GPA 3.3-3.7，有一定活动经历，有州级或地区性奖项</div>
-                            <div><span className="font-semibold text-green-600">较好:</span> GPA 3.7-3.9，有显著活动领导经历，有国家级奖项或知名竞赛奖项</div>
-                            <div><span className="font-semibold text-emerald-600">极好:</span> GPA 3.9+，有卓越活动成就和领导力，有顶级竞赛奖项(如USAMO、Intel ISEF等)</div>
+                            <div><span className="font-semibold text-red-600">极差:</span> GPA &lt; 3.0，托福&lt;90/雅思&lt;6.5，无突出活动经历，无竞赛奖项</div>
+                            <div><span className="font-semibold text-orange-600">较差:</span> GPA 3.0-3.3，托福90-100/雅思6.5-7.0，有基础活动参与，少量校级奖项</div>
+                            <div><span className="font-semibold text-yellow-600">一般:</span> GPA 3.3-3.7，托福100-110/雅思7.0-7.5，有一定活动经历，有州级或地区性奖项</div>
+                            <div><span className="font-semibold text-green-600">较好:</span> GPA 3.7-3.9，托福110-115/雅思7.5-8.0，有显著活动领导经历，有国家级奖项或知名竞赛奖项</div>
+                            <div><span className="font-semibold text-emerald-600">极好:</span> GPA 3.9+，托福115+/雅思8.0+，有卓越活动成就和领导力，有顶级竞赛奖项(如USAMO、Intel ISEF等)</div>
                           </div>
                         </div>
                         <Select onValueChange={field.onChange} value={field.value}>
@@ -402,31 +341,31 @@ export default function PredictionPage() {
                             <SelectItem value="very-poor" className="text-gray-800 focus:bg-orange-50">
                               <div className="flex flex-col">
                                 <span className="font-medium">极差</span>
-                                <span className="text-xs text-gray-500">GPA &lt; 3.0，无突出经历</span>
+                                <span className="text-xs text-gray-500">GPA &lt; 3.0，托福&lt;90，无突出经历</span>
                               </div>
                             </SelectItem>
                             <SelectItem value="poor" className="text-gray-800 focus:bg-orange-50">
                               <div className="flex flex-col">
                                 <span className="font-medium">较差</span>
-                                <span className="text-xs text-gray-500">GPA 3.0-3.3，基础活动</span>
+                                <span className="text-xs text-gray-500">GPA 3.0-3.3，托福90-100，基础活动</span>
                               </div>
                             </SelectItem>
                             <SelectItem value="average" className="text-gray-800 focus:bg-orange-50">
                               <div className="flex flex-col">
                                 <span className="font-medium">一般</span>
-                                <span className="text-xs text-gray-500">GPA 3.3-3.7，有地区奖项</span>
+                                <span className="text-xs text-gray-500">GPA 3.3-3.7，托福100-110，有地区奖项</span>
                               </div>
                             </SelectItem>
                             <SelectItem value="good" className="text-gray-800 focus:bg-orange-50">
                               <div className="flex flex-col">
                                 <span className="font-medium">较好</span>
-                                <span className="text-xs text-gray-500">GPA 3.7-3.9，有国家级奖项</span>
+                                <span className="text-xs text-gray-500">GPA 3.7-3.9，托福110-115，有国家级奖项</span>
                               </div>
                             </SelectItem>
                             <SelectItem value="excellent" className="text-gray-800 focus:bg-orange-50">
                               <div className="flex flex-col">
                                 <span className="font-medium">极好</span>
-                                <span className="text-xs text-gray-500">GPA 3.9+，顶级竞赛奖项</span>
+                                <span className="text-xs text-gray-500">GPA 3.9+，托福115+，顶级竞赛奖项</span>
                               </div>
                             </SelectItem>
                           </SelectContent>

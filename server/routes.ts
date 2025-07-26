@@ -15,7 +15,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = predictionRequestSchema.parse(req.body);
       
       // 准备API调用数据
-      const { year, month, day, hour, minute, gender, major, testType, score, materialLevel } = validatedData;
+      const { year, month, day, hour, minute, gender, major, materialLevel } = validatedData;
       
       // 并行调用两个API
       const [fortuneResponse, universityResponse] = await Promise.all([
@@ -358,7 +358,7 @@ async function callDeepSeekAPI(data: PredictionRequest) {
 - 出生时间：${data.year}年${data.month}月${data.day}日 ${data.hour}:${data.minute}
 - 性别：${data.gender === "male" ? "男" : "女"}
 - 申请专业：${data.major}
-- 语言成绩：${data.testType === "toefl" ? "托福" : "雅思"} ${data.score || '未提供'}分
+- 语言成绩：已整合在申请材料水平评估中
 - 申请材料水平：${getMaterialLevelText(data.materialLevel)}
 
 【命理分析要求】
@@ -422,7 +422,7 @@ async function callDeepSeekAPI(data: PredictionRequest) {
     "chineseName": "中文校名",
     "major": "確實存在的本科專業名稱",
     "location": "城市，州名",
-    "reasons": "详细说明为什么这所大学会录取该学生，结合命理分析排出优先级。每所大学必须使用完全不同的命理角度，严禁重复。必须包含：1）基于出生年份${data.year}、月份${data.month}、日期${data.day}、时辰${data.hour}的具体五行命盘分析 2）该校地理位置的独特风水格局与学生八字的深度匹配分析 3）学校的学术氛围、校园布局如何与学生的命理特质形成最佳互补 4）结合托福${data.score}分说明录取可能性。每所大学必须用不同维度：如纳音五行、十二生肖、八卦方位、二十四节气、天干地支组合等，确保每个推荐理由在命理分析角度上完全独特，至少180字"
+    "reasons": "详细说明为什么这所大学会录取该学生，结合命理分析排出优先级。每所大学必须使用完全不同的命理角度，严禁重复。必须包含：1）基于出生年份${data.year}、月份${data.month}、日期${data.day}、时辰${data.hour}的具体五行命盘分析 2）该校地理位置的独特风水格局与学生八字的深度匹配分析 3）学校的学术氛围、校园布局如何与学生的命理特质形成最佳互补 4）结合申请材料水平${getMaterialLevelText(data.materialLevel)}说明录取可能性。每所大学必须用不同维度：如纳音五行、十二生肖、八卦方位、二十四节气、天干地支组合等，确保每个推荐理由在命理分析角度上完全独特，至少180字"
   }
 ]
 
@@ -525,8 +525,6 @@ function getDefaultUniversityPredictions(data: PredictionRequest) {
   // 使用新的排名系统推荐合适的大学
   const recommendedUniversities = getUniversitiesByLevel(
     data.materialLevel, 
-    data.score, 
-    data.testType, 
     data.major,
     data.year,
     data.month
@@ -538,7 +536,7 @@ function getDefaultUniversityPredictions(data: PredictionRequest) {
     chineseName: getChineseName(universityName),
     major: data.major,
     location: getUniversityLocation(universityName),
-    reasons: generateReasonBasedOnLevel(data.materialLevel, data.score, data.testType, universityName)
+    reasons: generateReasonBasedOnLevel(data.materialLevel, universityName)
   }));
 }
 
@@ -583,12 +581,8 @@ function getUniversityLocation(universityName: string): string {
 }
 
 // 根据水平和命理特质生成推荐理由 - 提供更详细的分析
-function generateReasonBasedOnLevel(materialLevel: string, score: number, testType: string, universityName: string): string {
+function generateReasonBasedOnLevel(materialLevel: string, universityName: string): string {
   const universityAnalysis = getUniversityFortuneAnalysis(universityName);
-  const scoreText = testType === "toefl" 
-    ? `托福${score}分的成绩` 
-    : `雅思${score}分的成绩`;
-  
   const levelText = {
     "very-poor": "虽然申请材料还需提升，但",
     "poor": "以目前的申请条件，",
@@ -597,7 +591,7 @@ function generateReasonBasedOnLevel(materialLevel: string, score: number, testTy
     "excellent": "以您优秀的条件，"
   }[materialLevel] || "以您的条件，";
   
-  return `${levelText}结合命理分析显示您${universityAnalysis.element}，${universityAnalysis.location}的地理环境${universityAnalysis.locationMatch}。该校的${universityAnalysis.academicMatch}，特别适合您的${universityAnalysis.personalityMatch}。${scoreText}也符合该校的录取要求。`;
+  return `${levelText}结合命理分析显示您${universityAnalysis.element}，${universityAnalysis.location}的地理环境${universityAnalysis.locationMatch}。该校的${universityAnalysis.academicMatch}，特别适合您的${universityAnalysis.personalityMatch}。您的申请材料水平符合该校的录取要求。`;
 }
 
 // 根据大学名称提供命理匹配分析
