@@ -302,68 +302,31 @@ export function getUniversitiesByLevel(materialLevel: string, score: number, tes
   ];
   
   if (testType === "toefl" && score >= 115) {
-    // 托福115+ - 可以推荐顶尖商学院包括宾大、MIT等
-    const top15BusinessSchools = candidates.filter(uni => 
-      BUSINESS_SCHOOL_RANKINGS.slice(0, 15).includes(uni)
+    // 托福115+ - 推荐沃顿、MIT等顶尖商学院
+    const topBusinessSchools = candidates.filter(uni => 
+      BUSINESS_SCHOOL_RANKINGS.slice(0, 5).includes(uni) // 前5顶尖商学院
     );
-    
-    if (materialLevel === "excellent") {
-      // 极好材料 - 前10商学院
-      recommendedUniversities = top15BusinessSchools.slice(0, 15);
-    } else {
-      // 其他材料 - 前15商学院
-      recommendedUniversities = top15BusinessSchools.slice(0, 15);
-    }
+    recommendedUniversities = topBusinessSchools.concat(
+      candidates.filter(uni => BUSINESS_SCHOOL_RANKINGS.slice(5, 15).includes(uni))
+    ).slice(0, 15);
     
   } else if (testType === "toefl" && score >= 110) {
-    // 托福110-114 - 可以推荐包括密歇根、NYU等优秀学校
-    if (materialLevel === "excellent") {
-      // 极好材料 - 可以冲击顶尖商学院
-      const topTierSchools = candidates.filter(uni => 
-        ["University of Michigan--Ann Arbor", "New York University", "University of Southern California",
-         "Boston University", "Carnegie Mellon University", "Georgetown University",
-         "University of Rochester", "Northeastern University", "Case Western Reserve University",
-         "Tulane University", "University of Miami", "Syracuse University",
-         "Fordham University", "American University", "University of Connecticut"].includes(uni)
-      );
-      recommendedUniversities = topTierSchools.slice(0, 15);
-    } else if (materialLevel === "good") {
-      // 较好材料 - 推荐密歇根、NYU、南加大等前20商学院
-      const goodTierSchools = candidates.filter(uni => 
-        ["University of Michigan--Ann Arbor", "New York University", "University of Southern California",
-         "Carnegie Mellon University", "University of North Carolina--Chapel Hill", "University of Texas at Austin",
-         "Cornell University", "Indiana University--Bloomington", "University of Notre Dame", 
-         "University of Virginia", "Emory University", "Georgetown University", "Boston University",
-         "University of Rochester", "Northeastern University", "Case Western Reserve University"].includes(uni)
-      );
-      recommendedUniversities = goodTierSchools.slice(0, 15);
-    } else {
-      // 其他材料 - 主要推荐前30商学院
-      const suitableBusinessSchools = candidates.filter(uni => 
-        BUSINESS_SCHOOL_RANKINGS.slice(8, 30).includes(uni)
-      );
-      recommendedUniversities = suitableBusinessSchools.slice(0, 15);
-    }
+    // 托福110+ - 推荐前10商学院
+    const top10BusinessSchools = candidates.filter(uni => 
+      BUSINESS_SCHOOL_RANKINGS.slice(0, 10).includes(uni)
+    );
+    recommendedUniversities = top10BusinessSchools.concat(
+      candidates.filter(uni => BUSINESS_SCHOOL_RANKINGS.slice(10, 20).includes(uni))
+    ).slice(0, 15);
     
   } else if (testType === "toefl" && score >= 100) {
-    // 托福100-109 - 推荐前30商学院
-    const top30BusinessSchools = candidates.filter(uni => 
-      BUSINESS_SCHOOL_RANKINGS.slice(0, 30).includes(uni)
+    // 托福100+ - 推荐前20商学院
+    const top20BusinessSchools = candidates.filter(uni => 
+      BUSINESS_SCHOOL_RANKINGS.slice(0, 20).includes(uni)
     );
-    
-    if (materialLevel === "excellent") {
-      // 极好材料可以冲击前15商学院
-      const top15BusinessSchools = candidates.filter(uni => 
-        BUSINESS_SCHOOL_RANKINGS.slice(0, 15).includes(uni)
-      );
-      recommendedUniversities = [...top15BusinessSchools.slice(0, 10), ...top30BusinessSchools.slice(15, 20)];
-    } else if (materialLevel === "good") {
-      // 较好材料重点前25商学院
-      recommendedUniversities = top30BusinessSchools.slice(0, 15);
-    } else {
-      // 一般材料前30商学院
-      recommendedUniversities = top30BusinessSchools.slice(5, 20);
-    }
+    recommendedUniversities = top20BusinessSchools.concat(
+      candidates.filter(uni => BUSINESS_SCHOOL_RANKINGS.slice(20, 30).includes(uni))
+    ).slice(0, 15);
     
   } else if (testType === "toefl" && score >= 90) {
     // 托福90-99 - 推荐前50商学院
