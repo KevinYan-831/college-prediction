@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { predictionRequestSchema, type PredictionRequest, type PredictionResult } from "@shared/schema";
-import { GraduationCap, Calendar, Languages, Edit, Wind, University, Loader2, RotateCcw, MapPin, Upload, X } from "lucide-react";
+import { GraduationCap, Calendar, Languages, Edit, Wind, University, Loader2, RotateCcw, MapPin } from "lucide-react";
 
 export default function PredictionPage() {
   const [results, setResults] = useState<PredictionResult | null>(null);
@@ -19,7 +19,7 @@ export default function PredictionPage() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingMessage, setLoadingMessage] = useState("");
   const [estimatedTime, setEstimatedTime] = useState(20);
-  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+
   const { toast } = useToast();
 
   const form = useForm<PredictionRequest>({
@@ -113,27 +113,9 @@ export default function PredictionPage() {
     form.reset();
     setResults(null);
     setIsLoading(false);
-    setUploadedImages([]);
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files) {
-      Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          if (e.target?.result) {
-            setUploadedImages(prev => [...prev, e.target!.result as string]);
-          }
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-  };
 
-  const removeImage = (index: number) => {
-    setUploadedImages(prev => prev.filter((_, i) => i !== index));
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -341,56 +323,7 @@ export default function PredictionPage() {
                   )}
                 />
 
-                {/* 图片上传功能 */}
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                    <Upload className="text-green-600 mr-2" size={20} />
-                    上传相关材料图片 (可选)
-                  </h3>
-                  <div className="space-y-4">
-                    <Label htmlFor="image-upload" className="cursor-pointer">
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-                        <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                        <p className="mt-2 text-sm text-gray-600">
-                          点击上传图片或拖拽文件到此处
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          支持 JPG, PNG, GIF 格式，最大 10MB
-                        </p>
-                      </div>
-                      <Input
-                        id="image-upload"
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        className="hidden"
-                        onChange={handleImageUpload}
-                      />
-                    </Label>
-                    
-                    {/* 已上传图片预览 */}
-                    {uploadedImages.length > 0 && (
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {uploadedImages.map((image, index) => (
-                          <div key={index} className="relative group">
-                            <img
-                              src={image}
-                              alt={`上传的图片 ${index + 1}`}
-                              className="w-full h-24 object-cover rounded-lg border"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => removeImage(index)}
-                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              <X size={12} />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
+
 
                 {/* 提交按钮 */}
                 <div className="pt-4">
