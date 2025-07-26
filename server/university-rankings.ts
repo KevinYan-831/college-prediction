@@ -289,44 +289,53 @@ export function getUniversitiesByLevel(materialLevel: string, score: number, tes
     "Duke University", "Cornell University", "Dartmouth College"
   ];
   
-  // 前30大学池（通常需要托福100+）
+  // 前30大学池（通常需要托福100+，但更加包容）
   const top30Schools = [
     "University of California--Berkeley", "University of California--Los Angeles", 
     "University of Michigan--Ann Arbor", "New York University", "Carnegie Mellon University",
     "University of North Carolina--Chapel Hill", "University of Southern California",
     "Georgetown University", "Emory University", "University of Virginia",
     "Washington University in St. Louis", "Vanderbilt University", "Rice University",
-    "University of Notre Dame", "Brown University"
+    "University of Notre Dame", "Brown University", "University of Rochester",
+    "Boston University", "Brandeis University", "Case Western Reserve University",
+    "University of California--San Diego", "University of California--Davis"
   ];
   
   if (testType === "toefl" && score >= 110) {
-    // 托福110+ - 重点推荐前10和前30大学
+    // 托福110+ - 非常乐观的推荐策略
     const availableTop10 = candidates.filter(uni => top10Schools.includes(uni));
     const availableTop30 = candidates.filter(uni => top30Schools.includes(uni) && !top10Schools.includes(uni));
     
     if (materialLevel === "excellent") {
-      // 极好材料 - 大胆推荐前10大学
-      recommendedUniversities = [...availableTop10.slice(0, 6), ...availableTop30.slice(0, 9)];
+      // 极好材料 - 冲击顶尖大学
+      recommendedUniversities = [...availableTop10.slice(0, 8), ...availableTop30.slice(0, 7)];
+    } else if (materialLevel === "good") {
+      // 较好材料 - 重点推荐前30，包含一些前10
+      recommendedUniversities = [...availableTop10.slice(0, 5), ...availableTop30.slice(0, 10)];
     } else {
-      // 一般/较好材料 - 重点推荐前30大学
-      recommendedUniversities = [...availableTop10.slice(0, 3), ...availableTop30.slice(0, 12)];
+      // 一般材料 - 主要前30大学
+      recommendedUniversities = [...availableTop10.slice(0, 2), ...availableTop30.slice(0, 13)];
     }
     
   } else if (testType === "toefl" && score >= 100) {
-    // 托福100-109 - 重点推荐前30大学
+    // 托福100-109 - 乐观推荐前30大学
     const availableTop30 = candidates.filter(uni => top30Schools.includes(uni));
     const availableGood = candidates.filter(uni => 
       !top30Schools.includes(uni) && !top10Schools.includes(uni) && 
-      BUSINESS_SCHOOL_RANKINGS.slice(0, 50).includes(uni)
+      BUSINESS_SCHOOL_RANKINGS.slice(0, 40).includes(uni)
     );
     
     if (materialLevel === "excellent") {
-      // 极好材料可以冲击前10
+      // 极好材料大胆冲击前10
       const availableTop10 = candidates.filter(uni => top10Schools.includes(uni));
-      recommendedUniversities = [...availableTop10.slice(0, 4), ...availableTop30.slice(0, 11)];
+      recommendedUniversities = [...availableTop10.slice(0, 6), ...availableTop30.slice(0, 9)];
+    } else if (materialLevel === "good") {
+      // 较好材料重点前30
+      const availableTop10 = candidates.filter(uni => top10Schools.includes(uni));
+      recommendedUniversities = [...availableTop10.slice(0, 3), ...availableTop30.slice(0, 12)];
     } else {
-      // 一般/较好材料 - 前30为主
-      recommendedUniversities = [...availableTop30.slice(0, 12), ...availableGood.slice(0, 3)];
+      // 一般材料前30+优秀商学院
+      recommendedUniversities = [...availableTop30.slice(0, 10), ...availableGood.slice(0, 5)];
     }
     
   } else if (testType === "toefl" && score >= 90) {
