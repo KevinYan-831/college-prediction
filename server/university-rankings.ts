@@ -189,10 +189,15 @@ export const UNIVERSITY_MAJORS: Record<string, string[]> = {
   "University of Tennessee": ["business", "computer science", "engineering", "economics"],
   
   // 其他常见大学
-  "University of Central Florida": ["business", "computer science", "engineering"],
-  "Florida State University": ["business", "computer science", "economics"],
-  "Auburn University": ["business", "computer science", "engineering"],
+  "University of Central Florida": ["business", "computer science", "engineering", "environmental science"],
+  "Florida State University": ["business", "computer science", "economics", "environmental science"],
+  "Auburn University": ["business", "computer science", "engineering", "environmental science"],
   "University of Alabama--Tuscaloosa": ["business", "computer science", "economics"],
+  "University of Vermont": ["environmental science", "liberal arts"],
+  "Colorado State University": ["environmental science", "engineering"],
+  "Oregon State University": ["environmental science", "engineering"],
+  "University of New Hampshire": ["environmental science"],
+  "University of Maine": ["environmental science", "engineering"],
 };
 
 // 根据专业筛选合适的大学
@@ -220,6 +225,8 @@ function getMajorKey(major: string): string {
     return 'engineering';
   } else if (majorLower.includes('economics') || majorLower.includes('经济')) {
     return 'economics';
+  } else if (majorLower.includes('环境') || majorLower.includes('environmental')) {
+    return 'environmental science';
   } else if (majorLower.includes('liberal') || majorLower.includes('文科') || majorLower.includes('人文')) {
     return 'liberal arts';
   }
@@ -236,44 +243,68 @@ export function getUniversitiesByLevel(materialLevel: string, score: number, tes
   let candidates: string[];
   if (suitableUniversities.length === 0) {
     console.log("警告：没有找到合适专业的大学，使用默认列表");
-    candidates = USNEWS_TOP100_UNIVERSITIES.slice(0, 50);
+    candidates = USNEWS_TOP100_UNIVERSITIES.slice(20, 80); // 中低档次大学
   } else {
     candidates = suitableUniversities;
   }
   
-  // 根据学生水平筛选合适的大学（分为三个层次）
+  // 根据学生水平更严格地筛选合适的大学
   let recommendedUniversities: string[] = [];
   
-  if (materialLevel === "excellent" && testType === "toefl" && score >= 115) {
-    // 顶尖水平 - 推荐排名前15的大学（如果专业匹配）
+  if (materialLevel === "excellent" && testType === "toefl" && score >= 110) {
+    // 顶尖水平 - 推荐排名前20的大学（如果专业匹配）
     const topTier = candidates.filter(uni => 
       ["University of Pennsylvania", "Massachusetts Institute of Technology", 
        "University of California--Berkeley", "University of Michigan--Ann Arbor",
-       "New York University", "Carnegie Mellon University"].includes(uni)
+       "New York University", "Carnegie Mellon University", "Duke University",
+       "University of North Carolina--Chapel Hill", "Cornell University"].includes(uni)
     );
-    recommendedUniversities = topTier.slice(0, 15);
-  } else if ((materialLevel === "excellent" || materialLevel === "good") && 
-             testType === "toefl" && score >= 105) {
-    // 优秀水平 - 推荐排名前30的大学
+    recommendedUniversities = topTier.slice(0, 8);
+    
+    // 补充一些稍次一级的优秀大学
+    const secondTier = candidates.filter(uni => 
+      !topTier.includes(uni) && BUSINESS_SCHOOL_RANKINGS.slice(0, 30).includes(uni)
+    );
+    recommendedUniversities = [...recommendedUniversities, ...secondTier.slice(0, 7)];
+    
+  } else if (materialLevel === "good" && testType === "toefl" && score >= 105) {
+    // 优秀水平 - 推荐排名20-50的大学
     const highTier = candidates.filter(uni => 
-      BUSINESS_SCHOOL_RANKINGS.slice(0, 25).includes(uni)
+      !["University of Pennsylvania", "Harvard University", "Stanford University", 
+        "Massachusetts Institute of Technology", "Princeton University"].includes(uni) &&
+      BUSINESS_SCHOOL_RANKINGS.slice(5, 40).includes(uni)
     );
     recommendedUniversities = highTier.slice(0, 15);
-  } else if (materialLevel === "good" || materialLevel === "average") {
-    // 中等水平 - 推荐排名前50的大学
+    
+  } else if (materialLevel === "average" && testType === "toefl" && score >= 95) {
+    // 中等水平 - 推荐排名40-80的大学
     const midTier = candidates.filter(uni => 
-      BUSINESS_SCHOOL_RANKINGS.slice(0, 45).includes(uni)
+      USNEWS_TOP100_UNIVERSITIES.slice(35, 75).includes(uni) ||
+      ["University of Central Florida", "Florida State University", "Auburn University",
+       "University of Alabama--Tuscaloosa", "University of South Carolina"].includes(uni)
     );
     recommendedUniversities = midTier.slice(0, 15);
+    
   } else {
-    // 基础水平 - 推荐所有有该专业的大学
-    recommendedUniversities = candidates.slice(0, 15);
+    // 基础水平 - 推荐排名较低的州立大学和地区性大学
+    const basicTier = candidates.filter(uni => 
+      USNEWS_TOP100_UNIVERSITIES.slice(50, 100).includes(uni) ||
+      ["University of Central Florida", "Florida State University", "Auburn University",
+       "University of Alabama--Tuscaloosa", "University of Vermont", "University of Maine",
+       "Oregon State University", "University of New Hampshire"].includes(uni)
+    );
+    recommendedUniversities = basicTier.slice(0, 15);
   }
   
-  // 如果推荐数量不足15所，从其他合适大学补充
+  // 如果推荐数量不足15所，从其他合适但较低排名的大学补充
   if (recommendedUniversities.length < 15) {
     const remaining = candidates.filter(uni => !recommendedUniversities.includes(uni));
-    recommendedUniversities = [...recommendedUniversities, ...remaining].slice(0, 15);
+    // 优先补充州立大学和地区性大学
+    const stateFallback = ["University of Vermont", "University of Maine", "Oregon State University", 
+                          "University of New Hampshire", "Colorado State University", "University of Connecticut",
+                          "University of Delaware", "University of Rhode Island"];
+    const fallbackOptions = [...remaining, ...stateFallback.filter(uni => !recommendedUniversities.includes(uni))];
+    recommendedUniversities = [...recommendedUniversities, ...fallbackOptions].slice(0, 15);
   }
   
   console.log(`最终推荐${recommendedUniversities.length}所大学:`, recommendedUniversities.slice(0, 5));

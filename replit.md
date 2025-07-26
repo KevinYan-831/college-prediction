@@ -111,9 +111,12 @@ The application is designed for easy deployment on platforms like Replit, Vercel
 ### Major UI Overhaul & Feature Changes
 - ✓ **Payment System Removed**: Completely eliminated payment functionality for fully free experience
 - ✓ **New Color Scheme**: Updated from dark glassmorphism to bright blue-themed design
-- ✓ **OFFERSTUDIO Integration**: Added promotional content during loading with official website link
+- ✓ **OFFERSTUDIO Integration**: Added promotional content during loading with official website link and WeChat contact
 - ✓ **Complete Free Access**: All 15 university recommendations now shown without payment
 - ✓ **Enhanced Loading Experience**: Added OFFERSTUDIO branding and website promotion during AI analysis
+- ✓ **Fixed Fortune Analysis**: Eliminated repetitive "computer science" recommendations, now dynamically matches user's major
+- ✓ **Improved University Recommendations**: More realistic admission predictions based on actual student qualifications
+- ✓ **Added WeChat Contact**: Display founder WeChat "TauPsc-0317" during loading for user consultation
 
 ### UI/UX Updates (最新：橙色主题)
 - ✓ **全新橙色主题**：采用OFFERSTUDIO网站的橙色、黄色、白色、黑色配色方案

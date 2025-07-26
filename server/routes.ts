@@ -144,18 +144,18 @@ ${data.十神 ? `十神配置：年柱${data.十神.年柱}，月柱${data.十�
         
         recommendations: `${data.大运 && data.大运.length > 0 ? 
 `【大运分析】
-当前大运：${data.大运.find(d => {
+当前大运：${data.大运.find((d: any) => {
   const [start, end] = d.年份.split('-').map(Number);
   const currentYear = new Date().getFullYear();
   return currentYear >= start && currentYear <= end;
-})?.大运 || '分析中'} (${data.大运.find(d => {
+})?.大运 || '分析中'} (${data.大运.find((d: any) => {
   const [start, end] = d.年份.split('-').map(Number);
   const currentYear = new Date().getFullYear();
   return currentYear >= start && currentYear <= end;
 })?.十神 || ''})
 
 未来十年大运趋势：
-${data.大运.slice(0, 3).map(d => `${d.年份}: ${d.大运} (${d.十神})`).join('\n')}` : '暂无大运分析'}`
+${data.大运.slice(0, 3).map((d: any) => `${d.年份}: ${d.大运} (${d.十神})`).join('\n')}` : '暂无大运分析'}`
       };
     }
     
@@ -187,6 +187,10 @@ ${JSON.stringify(apiResult, null, 2)}
     const timeAnalysis = getTimeAnalysis(hour);
     const elementAnalysis = getElementByYear(year);
     
+    // 构建专业信息字符串以替代validatedData
+    const majorForAnalysis = `专业选择：${major || '未指定'}`; 
+    const majorAnalysis = getMajorAnalysis(major || '', elementAnalysis);
+    
     return {
       analysis: `【八字命盘】
 八字：基于${year}年${month}月${day}日${hour}时${minute}分计算
@@ -196,10 +200,10 @@ ${JSON.stringify(apiResult, null, 2)}
 基于您的出生年份和时辰分析，您体型中等，面容清秀，眼神较为锐利，给人一种聪明伶俐的感觉。${elementAnalysis.element}特质明显。
 
 【学业运势】
-您在学业上表现较为出色，${elementAnalysis.analysis}。${timeAnalysis.analysis}特别适合在理工科或${elementAnalysis.major}领域发展，海外求学运势良好。
+您在学业上表现较为出色，${elementAnalysis.analysis}。${timeAnalysis.analysis}${majorAnalysis.compatibility}，海外求学运势良好。
 
 【事业发展】
-${timeAnalysis.fortune}，事业上会有较好的发展机会。您的${elementAnalysis.strength}优势明显，适合在技术创新或学术研究领域发展。
+${timeAnalysis.fortune}，事业上会有较好的发展机会。您的${elementAnalysis.strength}优势明显，${majorAnalysis.careerPath}。
 
 【财运状况】
 整体财运稳定，通过学术成就和专业技能可获得良好收入。${season.analysis}
@@ -211,7 +215,7 @@ ${timeAnalysis.fortune}，事业上会有较好的发展机会。您的${element
 身体状况总体良好，注意用眼卫生和作息规律，避免过度疲劳。
 
 【总体评价】
-您的命盘显示具有良好的学术天赋和发展潜力，${elementAnalysis.balance}，适合深造发展。特别在计算机科学领域有较大发展空间。`,
+您的命盘显示具有良好的学术天赋和发展潜力，${elementAnalysis.balance}，适合深造发展。${majorAnalysis.suitability}`,
       fiveElements: `五行配置：${elementAnalysis.element}，${season.element}，整体五行配置${elementAnalysis.balance}`,
       academicFortune: `学业运势向好，${timeAnalysis.fortune}，${season.fortune}，特别适合海外求学。`,
       recommendations: `【大运分析】
@@ -219,7 +223,7 @@ ${timeAnalysis.fortune}，事业上会有较好的发展机会。您的${element
 未来发展：专业技能将成为您的核心竞争力
 
 【专业建议】
-基于您的命理特质，强烈建议选择${elementAnalysis.major}相关专业，发挥您的${elementAnalysis.strength}优势。计算机科学领域特别适合您的发展。`
+基于您的命理特质，${majorAnalysis.recommendation}，发挥您的${elementAnalysis.strength}优势。${majorAnalysis.advice}`
     };
   }
 }
@@ -283,6 +287,61 @@ function getElementByYear(year: number) {
       return { element: "土", analysis: "土命人穩重可靠", balance: "基礎紮實", major: "建築或管理", strength: "組織協調" };
     default:
       return { element: "平衡", analysis: "五行調和", balance: "全面發展", major: "綜合性", strength: "均衡能力" };
+  }
+}
+
+// 根據專業和五行元素分析專業適配性
+function getMajorAnalysis(major: string, elementAnalysis: any) {
+  const majorLower = major.toLowerCase();
+  
+  if (majorLower.includes('计算机') || majorLower.includes('computer')) {
+    return {
+      compatibility: "特别适合在计算机科学和技术创新领域发展",
+      careerPath: "适合在科技行业和软件开发领域发展",
+      suitability: "计算机科学领域特别适合您的发展",
+      recommendation: "强烈建议选择计算机科学相关专业",
+      advice: "您在编程逻辑和算法思维方面具有天赋"
+    };
+  } else if (majorLower.includes('环境') || majorLower.includes('environmental')) {
+    return {
+      compatibility: "特别适合在环境科学和生态保护领域发展",
+      careerPath: "适合在环保机构、研究院所或可持续发展领域工作",
+      suitability: "环境科学领域与您的命理特质高度契合",
+      recommendation: "环境科学专业非常适合您的发展方向",
+      advice: "您在环境保护和可持续发展方面有独特的见解和使命感"
+    };
+  } else if (majorLower.includes('商') || majorLower.includes('business') || majorLower.includes('经济') || majorLower.includes('finance')) {
+    return {
+      compatibility: "特别适合在商科和金融领域发展",
+      careerPath: "适合在金融机构、咨询公司或创业领域发展",
+      suitability: "商科领域能够充分发挥您的才能",
+      recommendation: "商科专业能够发挥您的领导才能",
+      advice: "您在商业分析和财务规划方面具有敏锐的洞察力"
+    };
+  } else if (majorLower.includes('工程') || majorLower.includes('engineering')) {
+    return {
+      compatibility: "特别适合在工程技术和创新设计领域发展",
+      careerPath: "适合在工程技术、产品设计或技术研发领域工作",
+      suitability: "工程领域能够发挥您的技术创新能力",
+      recommendation: "工程专业与您的理性思维高度匹配",
+      advice: "您在技术创新和工程设计方面具有出色的天赋"
+    };
+  } else if (majorLower.includes('医') || majorLower.includes('medical') || majorLower.includes('生物') || majorLower.includes('biology')) {
+    return {
+      compatibility: "特别适合在医学和生物科学领域发展",
+      careerPath: "适合在医疗机构、生物技术公司或医学研究领域工作",
+      suitability: "医学生物领域与您的细致认真特质相符",
+      recommendation: "医学或生物科学专业适合您的发展",
+      advice: "您在医疗服务和生命科学研究方面有特殊的使命感"
+    };
+  } else {
+    return {
+      compatibility: `特别适合在${major}领域发展`,
+      careerPath: `适合在${major}相关的专业领域工作`,
+      suitability: `${major}领域能够发挥您的专业天赋`,
+      recommendation: `${major}专业与您的特质相匹配`,
+      advice: `您在${major}领域具有发展潜力和专业优势`
+    };
   }
 }
 

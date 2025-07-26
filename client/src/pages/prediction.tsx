@@ -466,17 +466,23 @@ export default function PredictionPage() {
                 
                 {/* OFFERSTUDIO推广信息 */}
                 <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-xl p-4 border-l-4 border-orange-400">
-                  <p className="text-gray-700 text-sm mb-2">
+                  <p className="text-gray-700 text-sm mb-3">
                     <span className="font-semibold text-orange-600">OFFERSTUDIO</span>专注于帮助申请美本的同学们制作个人网站 & 活动类网站
                   </p>
-                  <a 
-                    href="https://offerstudiowebsite.wixstudio.com/official" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-orange-600 hover:text-orange-700 underline font-medium"
-                  >
-                    了解更多点这里 →
-                  </a>
+                  <div className="flex flex-col gap-2">
+                    <a 
+                      href="https://offerstudiowebsite.wixstudio.com/official" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-orange-600 hover:text-orange-700 underline font-medium"
+                    >
+                      🌐 访问官网了解更多 →
+                    </a>
+                    <div className="flex items-center gap-2 text-gray-600 text-sm">
+                      <span>💬 微信联系创始人：</span>
+                      <span className="font-mono bg-orange-100 px-2 py-1 rounded text-orange-800 font-semibold">TauPsc-0317</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
