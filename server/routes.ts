@@ -220,11 +220,16 @@ ${data.综合评价 || ''}`,
           
           fiveElements: `八字：${data.八字 || ''}
 五行：${typeof data.五行 === 'object' ? 
-  `金${data.五行.金 || 0} 木${data.五行.木 || 0} 水${data.五行.水 || 0} 火${data.五行.火 || 0} 土${data.五行.土 || 0}，${data.五行.强弱 || ''}` : 
+  `金${data.五行.金 || 0} 木${data.五行.木 || 0} 水${data.五行.水 || 0} 火${data.五行.火 || 0} 土${data.五行.土 || 0}，${data.五行.强弱 || ''}，${data.五行.喜忌 || ''}` : 
   data.五行 || ''}
+命宫：${data.命宫 || ''}
+身宫：${data.身宫 || ''}
 十神配置：年柱${data.十神?.年柱 || ''}，月柱${data.十神?.月柱 || ''}，日柱${data.十神?.日柱 || ''}，时柱${data.十神?.时柱 || ''}`,
           
-          academicFortune: fortuneAnalysis.学业?.关键转折 || fortuneAnalysis.学业?.潜力领域 || '学业运势分析中',
+          academicFortune: `${fortuneAnalysis.学业?.关键阶段 || ''}
+${fortuneAnalysis.学业?.优势 || ''}
+${fortuneAnalysis.学业?.短板 || ''}
+${fortuneAnalysis.学业?.转折点 || ''}`.trim() || '学业运势分析中',
           
           recommendations: `【大运分析】
 ${data.大运 && Array.isArray(data.大运) ? 
@@ -235,6 +240,18 @@ ${data.大运 && Array.isArray(data.大运) ?
 【重要转折点】
 ${fortuneAnalysis.关键事件 && Array.isArray(fortuneAnalysis.关键事件) ?
   fortuneAnalysis.关键事件.map((event: any) => `${event.年份}年：${event.事件}`).join('\n') : ''}
+
+【学业建议】
+优势：${fortuneAnalysis.学业?.优势 || ''}
+短板：${fortuneAnalysis.学业?.短板 || ''}
+
+【婚姻建议】
+最佳婚期：${fortuneAnalysis.婚姻?.婚期 || ''}
+配偶特征：${fortuneAnalysis.婚姻?.配偶特征 || ''}
+
+【财运建议】
+财富等级：${fortuneAnalysis.财运?.财富等级 || ''}
+适合行业：${fortuneAnalysis.财运?.行业建议 || ''}
 
 【综合建议】
 ${data.综合评价 || ''}`
