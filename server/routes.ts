@@ -181,60 +181,50 @@ async function callGuguDataAPI(
         data = apiResult.Data;
         console.log("提取的完整数据:", JSON.stringify(data, null, 2));
         
-        // 根据实际API返回的数据结构解析
+        // 直接使用完整的融合分析文字作为主要内容，避免字段匹配问题
+        const mainAnalysis = data.融合分析文字 || '';
         const fortuneAnalysis = data.运势分析 || {};
         const bodyFeatures = fortuneAnalysis.体貌特征 || {};
-        
-        // 构建完整的命理分析
-        const fullAnalysis = `【体貌特征】
+
+        // 口语化处理
+        const casualAnalysis = mainAnalysis
+          .replace(/您的/g, '你的')
+          .replace(/您/g, '你')
+          .replace(/建议/g, '我建议')
+          .replace(/需注意/g, '要注意')
+          .replace(/需要/g, '要')
+          .replace(/应当/g, '应该')
+          .replace(/宜/g, '最好')
+          .replace(/忌/g, '避免');
+
+        return {
+          analysis: casualAnalysis || `【体貌特征】
 面貌：${bodyFeatures.面貌 || ''}
 身材：${bodyFeatures.身材 || ''}
 特别标记：${bodyFeatures.特别标记 || ''}
 
 【学业运势】
 ${fortuneAnalysis.学业?.关键转折 || ''}
-${fortuneAnalysis.学业?.潜力领域 || ''}
-${fortuneAnalysis.学业?.短板 || ''}
 
 【婚姻感情】
 ${fortuneAnalysis.婚姻?.婚期 || ''}
-${fortuneAnalysis.婚姻?.配偶特征 || ''}
-${fortuneAnalysis.婚姻?.感情波折 || ''}
 
 【财运状况】
 ${fortuneAnalysis.财运?.赚钱能力 || ''}
-${fortuneAnalysis.财运?.收入峰值 || ''}
-${fortuneAnalysis.财运?.赚钱方式 || ''}
-
-【事业发展】
-根据你的八字特点分析事业发展轨迹
 
 【健康状况】
-${fortuneAnalysis.健康?.主要风险 || ''}
-${fortuneAnalysis.健康?.养生重点 || ''}
+${fortuneAnalysis.健康?.薄弱部位 || ''}
 
 【综合评价】
-${data.综合评价?.人生总势 || data.综合评价 || ''}`;
-
-        // 让分析更口语化
-        const casualAnalysis = fullAnalysis
-          .replace(/您的/g, '你的')
-          .replace(/您/g, '你')
-          .replace(/需要/g, '要')
-          .replace(/建议/g, '我建议')
-          .replace(/注意/g, '要注意')
-          .replace(/可能/g, '比较可能');
-
-        return {
-          analysis: casualAnalysis,
+${data.综合评价 || ''}`,
           
           fiveElements: `八字：${data.八字 || ''}
 五行：${typeof data.五行 === 'object' ? 
-  `金${data.五行.金 || 0} 木${data.五行.木 || 0} 水${data.五行.水 || 0} 火${data.五行.火 || 0} 土${data.五行.土 || 0}` : 
+  `金${data.五行.金 || 0} 木${data.五行.木 || 0} 水${data.五行.水 || 0} 火${data.五行.火 || 0} 土${data.五行.土 || 0}，${data.五行.强弱 || ''}` : 
   data.五行 || ''}
 十神配置：年柱${data.十神?.年柱 || ''}，月柱${data.十神?.月柱 || ''}，日柱${data.十神?.日柱 || ''}，时柱${data.十神?.时柱 || ''}`,
           
-          academicFortune: `${fortuneAnalysis.学业?.关键转折 || ''} ${fortuneAnalysis.学业?.潜力领域 || ''} ${fortuneAnalysis.学业?.短板 || ''}`.trim() || '学业运势分析中',
+          academicFortune: fortuneAnalysis.学业?.关键转折 || fortuneAnalysis.学业?.潜力领域 || '学业运势分析中',
           
           recommendations: `【大运分析】
 ${data.大运 && Array.isArray(data.大运) ? 
@@ -242,8 +232,12 @@ ${data.大运 && Array.isArray(data.大运) ?
     `${stage.起始年份}-${stage.终止年份}年：${stage.运势名称}`
   ).join('\n') : ''}
 
+【重要转折点】
+${fortuneAnalysis.关键事件 && Array.isArray(fortuneAnalysis.关键事件) ?
+  fortuneAnalysis.关键事件.map((event: any) => `${event.年份}年：${event.事件}`).join('\n') : ''}
+
 【综合建议】
-${data.综合评价?.人生总势 || data.综合评价 || ''}`
+${data.综合评价 || ''}`
         };
       } else if (apiResult.code === 200 && apiResult.data) {
         // 备选格式1
