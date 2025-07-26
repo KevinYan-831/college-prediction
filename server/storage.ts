@@ -1,20 +1,38 @@
-import { PredictionResult } from "@shared/schema";
+import { PredictionResult, predictions, type InsertPrediction } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   savePrediction(sessionId: string, result: PredictionResult): Promise<void>;
   getPrediction(sessionId: string): Promise<PredictionResult | null>;
 }
 
-export class MemStorage implements IStorage {
-  private predictions: Map<string, PredictionResult> = new Map();
-
+export class DatabaseStorage implements IStorage {
   async savePrediction(sessionId: string, result: PredictionResult): Promise<void> {
-    this.predictions.set(sessionId, result);
+    const insertData: InsertPrediction = {
+      sessionId,
+      predictionData: result,
+    };
+
+    await db
+      .insert(predictions)
+      .values(insertData)
+      .onConflictDoUpdate({
+        target: predictions.sessionId,
+        set: {
+          predictionData: result,
+        },
+      });
   }
 
   async getPrediction(sessionId: string): Promise<PredictionResult | null> {
-    return this.predictions.get(sessionId) || null;
+    const [prediction] = await db
+      .select()
+      .from(predictions)
+      .where(eq(predictions.sessionId, sessionId));
+
+    return prediction ? (prediction.predictionData as PredictionResult) : null;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

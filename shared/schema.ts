@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { pgTable, serial, text, integer, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+import { relations } from "drizzle-orm";
 
 // 预测请求数据结构
 export const predictionRequestSchema = z.object({
@@ -52,3 +55,21 @@ export type PredictionRequest = z.infer<typeof predictionRequestSchema>;
 export type FortuneAnalysis = z.infer<typeof fortuneAnalysisSchema>;
 export type UniversityPrediction = z.infer<typeof universityPredictionSchema>;
 export type PredictionResult = z.infer<typeof predictionResultSchema>;
+
+// Database tables
+export const predictions = pgTable("predictions", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").notNull().unique(),
+  predictionData: jsonb("prediction_data").notNull(), // Stores the full PredictionResult
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Insert schemas
+export const insertPredictionSchema = createInsertSchema(predictions).omit({ 
+  id: true, 
+  createdAt: true 
+});
+
+// Types
+export type Prediction = typeof predictions.$inferSelect;
+export type InsertPrediction = z.infer<typeof insertPredictionSchema>;

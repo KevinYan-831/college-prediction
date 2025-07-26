@@ -16,7 +16,7 @@ The application follows a modern full-stack architecture with a clear separation
 
 - **Frontend**: React-based SPA using Vite as the build tool
 - **Backend**: Express.js REST API server
-- **Database**: PostgreSQL with Drizzle ORM (configured but not yet implemented)
+- **Database**: PostgreSQL with Drizzle ORM (fully implemented and active)
 - **Styling**: Tailwind CSS with shadcn/ui component library
 - **State Management**: TanStack Query for server state management
 - **Form Handling**: React Hook Form with Zod validation
@@ -35,7 +35,7 @@ The application follows a modern full-stack architecture with a clear separation
 ### Backend Architecture
 - **Framework**: Express.js with TypeScript
 - **Database ORM**: Drizzle with PostgreSQL dialect
-- **Storage**: In-memory storage with support for predictions and payment tracking
+- **Storage**: PostgreSQL database with Drizzle ORM for persistent prediction storage
 - **Validation**: Zod schemas shared between frontend and backend
 - **Development**: Hot reload with tsx and custom Vite integration
 - **Payment Processing**: WeChat payment simulation with order creation and callback handling
@@ -137,3 +137,4 @@ The application is designed for easy deployment on platforms like Replit, Vercel
 - ✓ Fixed input bugs (TOEFL score auto-decrease issue)
 - ✓ Optimized university recommendation algorithm for better results
 - ✓ Updated footer copyright to "© 2025 AI美本录取算命大师"
+- ✓ **Database Integration (2025-07-26)**: Migrated from in-memory storage to PostgreSQL with Drizzle ORM for persistent prediction storage
