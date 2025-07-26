@@ -84,13 +84,26 @@ async function callGuguDataAPI(
   try {
     const appKey = process.env.GUGUDATA_APPKEY || "6QLXPBKYH6Y9LRPVF73V34WQDF32ZL2S";
     
-    // 构建生辰八字字符串
-    const birthDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-    const birthTime = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+    // 构建生辰八字字符串 - 使用中文格式
+    const birthDate = `${year}年${month.toString().padStart(2, '0')}月${day.toString().padStart(2, '0')}日`;
     
-    const userinfo = `我是${gender === "male" ? "男性" : "女性"}，我的公历出生日期是${birthDate}，出生时间是${birthTime}。`;
+    // 将24小时制转换为中文时间表达
+    let timeDescription = "";
+    if (hour >= 0 && hour < 6) {
+      timeDescription = `凌晨${hour === 0 ? 12 : hour}点${minute > 0 ? minute + '分' : ''}`;
+    } else if (hour >= 6 && hour < 12) {
+      timeDescription = `上午${hour === 0 ? 12 : hour}点${minute > 0 ? minute + '分' : ''}`;
+    } else if (hour === 12) {
+      timeDescription = `中午12点${minute > 0 ? minute + '分' : ''}`;
+    } else if (hour > 12 && hour < 18) {
+      timeDescription = `下午${hour - 12}点${minute > 0 ? minute + '分' : ''}`;
+    } else if (hour >= 18 && hour < 24) {
+      timeDescription = `晚上${hour - 12}点${minute > 0 ? minute + '分' : ''}`;
+    }
     
-    console.log(`调用咕咕数据API: ${birthDate} ${birthTime} ${gender}`);
+    const userinfo = `我是${gender === "male" ? "男性" : "女性"}，我的公历出生日期是${birthDate}，出生时间是${timeDescription}。`;
+    
+    console.log(`调用咕咕数据API: ${birthDate} ${timeDescription} ${gender}`);
     console.log(`userinfo参数: ${userinfo}`);
     console.log(`API Key: ${appKey}`);
     
