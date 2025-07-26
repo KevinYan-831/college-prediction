@@ -263,8 +263,69 @@ function getMajorKey(major: string): string {
   return 'liberal arts'; // 默认归类为文科
 }
 
+// 基于命理因素的大学优先级排序
+function sortUniversitiesByMetaphysics(universities: string[], major: string, birthYear: number, birthMonth: number): string[] {
+  // 根据出生年份计算五行属性
+  const yearElement = getYearElement(birthYear);
+  const monthElement = getMonthElement(birthMonth);
+  
+  // 为每所大学计算命理匹配度分数
+  const scoredUniversities = universities.map(uni => {
+    let score = 0;
+    
+    // 地理位置五行匹配（东木、南火、中土、西金、北水）
+    if (uni.includes("California") || uni.includes("UCLA") || uni.includes("USC")) {
+      score += yearElement === "fire" ? 30 : yearElement === "earth" ? 20 : 10;
+    } else if (uni.includes("New York") || uni.includes("Boston") || uni.includes("Harvard")) {
+      score += yearElement === "water" ? 30 : yearElement === "wood" ? 20 : 10;
+    } else if (uni.includes("Texas") || uni.includes("Arizona") || uni.includes("Florida")) {
+      score += yearElement === "fire" ? 30 : yearElement === "earth" ? 20 : 10;
+    } else if (uni.includes("Michigan") || uni.includes("Ohio") || uni.includes("Illinois")) {
+      score += yearElement === "earth" ? 30 : yearElement === "metal" ? 20 : 10;
+    }
+    
+    // 专业与五行匹配
+    if (major.includes("商") || major.includes("business")) {
+      score += yearElement === "metal" ? 20 : yearElement === "earth" ? 15 : 10;
+    } else if (major.includes("工程") || major.includes("engineering")) {
+      score += yearElement === "metal" ? 20 : yearElement === "water" ? 15 : 10;
+    } else if (major.includes("计算机") || major.includes("computer")) {
+      score += yearElement === "water" ? 20 : yearElement === "metal" ? 15 : 10;
+    }
+    
+    // 月份季节匹配
+    if (birthMonth >= 3 && birthMonth <= 5) { // 春季
+      score += uni.includes("Forest") || uni.includes("Green") ? 15 : 5;
+    } else if (birthMonth >= 6 && birthMonth <= 8) { // 夏季
+      score += uni.includes("California") || uni.includes("Arizona") ? 15 : 5;
+    }
+    
+    return { university: uni, score };
+  });
+  
+  // 按分数排序，分数高的在前
+  return scoredUniversities
+    .sort((a, b) => b.score - a.score)
+    .map(item => item.university);
+}
+
+// 根据出生年份获取五行属性
+function getYearElement(year: number): string {
+  const elements = ["metal", "water", "wood", "fire", "earth"];
+  return elements[(year - 1984) % 5]; // 简化的五行计算
+}
+
+// 根据出生月份获取五行属性
+function getMonthElement(month: number): string {
+  if (month >= 2 && month <= 4) return "wood";
+  if (month >= 5 && month <= 7) return "fire";
+  if (month >= 8 && month <= 10) return "metal";
+  if (month >= 11 || month <= 1) return "water";
+  return "earth";
+}
+
 // 根据申请材料水平和成绩推荐合适排名的大学
-export function getUniversitiesByLevel(materialLevel: string, score: number, testType: string, major: string) {
+export function getUniversitiesByLevel(materialLevel: string, score: number, testType: string, major: string, birthYear?: number, birthMonth?: number) {
   // 首先根据专业筛选合适的大学
   const suitableUniversities = getUniversitiesForMajor(major);
   console.log(`为专业"${major}"筛选到${suitableUniversities.length}所合适的大学`);
@@ -375,6 +436,12 @@ export function getUniversitiesByLevel(materialLevel: string, score: number, tes
     recommendedUniversities = [...recommendedUniversities, ...fallbackOptions].slice(0, 15);
   }
   
-  console.log(`最终推荐${recommendedUniversities.length}所大学:`, recommendedUniversities.slice(0, 5));
-  return recommendedUniversities;
+  // 应用命理因素排序
+  if (birthYear && birthMonth && recommendedUniversities.length > 0) {
+    recommendedUniversities = sortUniversitiesByMetaphysics(recommendedUniversities, major, birthYear, birthMonth);
+    console.log(`应用命理排序后的推荐: ${JSON.stringify(recommendedUniversities.slice(0, 15))}`);
+  }
+  
+  console.log(`最终推荐15所大学: ${JSON.stringify(recommendedUniversities.slice(0, 15))}`);
+  return recommendedUniversities.slice(0, 15);
 }

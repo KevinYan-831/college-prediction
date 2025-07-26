@@ -422,7 +422,7 @@ async function callDeepSeekAPI(data: PredictionRequest) {
     "chineseName": "中文校名",
     "major": "確實存在的本科專業名稱",
     "location": "城市，州名",
-    "reasons": "详细说明为什么这所大学会录取该学生。每所大学的理由必须完全不同，严格避免重复内容。必须包含：1）基于出生年份${data.year}的独特五行属性分析 2）该校特定地理位置与学生命理的独特匹配度 3）学校独特氛围如何适合学生的特定性格特质 4）结合托福${data.score}分和申请材料水平的录取分析。确保每所大学用不同的命理角度分析，如五行相生相克、地理风水、季节特征、时辰特点等，至少150字且内容差异明显"
+    "reasons": "详细说明为什么这所大学会录取该学生，结合命理分析排出优先级。每所大学必须使用完全不同的命理角度，严禁重复。必须包含：1）基于出生年份${data.year}、月份${data.month}、日期${data.day}、时辰${data.hour}的具体五行命盘分析 2）该校地理位置的独特风水格局与学生八字的深度匹配分析 3）学校的学术氛围、校园布局如何与学生的命理特质形成最佳互补 4）结合托福${data.score}分说明录取可能性。每所大学必须用不同维度：如纳音五行、十二生肖、八卦方位、二十四节气、天干地支组合等，确保每个推荐理由在命理分析角度上完全独特，至少180字"
   }
 ]
 
@@ -527,7 +527,9 @@ function getDefaultUniversityPredictions(data: PredictionRequest) {
     data.materialLevel, 
     data.score, 
     data.testType, 
-    data.major
+    data.major,
+    data.year,
+    data.month
   );
   
   // 转换为所需格式
