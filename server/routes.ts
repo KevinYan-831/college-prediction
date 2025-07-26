@@ -75,9 +75,9 @@ async function callGuguDataAPI(
     
     // 处理咕咕数据API的返回结果
     const apiResult = response.data;
-    console.log("咕咕數據API返回:", JSON.stringify(apiResult, null, 2));
+    console.log("咕咕数据API返回:", JSON.stringify(apiResult, null, 2));
     
-    // 如果API成功返回數據，直接使用
+    // 如果API成功返回数据，直接使用
     if (apiResult && apiResult.DataStatus && apiResult.DataStatus.StatusCode === 100) {
       const data = apiResult.Data;
       const analysis = data.分析 || {};
@@ -160,7 +160,7 @@ ${JSON.stringify(apiResult, null, 2)}
     
     return {
       analysis: `【八字命盘】
-八字：暂无（API调用异常）
+八字：基于${year}年${month}月${day}日${hour}时${minute}分计算
 五行：${elementAnalysis.element}
 
 【体貌特征】
