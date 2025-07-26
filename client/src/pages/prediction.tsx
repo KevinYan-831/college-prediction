@@ -177,39 +177,39 @@ export default function PredictionPage() {
       <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-gradient-to-r from-orange-200/40 to-yellow-200/40 rounded-full blur-3xl"></div>
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-yellow-200/40 to-amber-200/40 rounded-full blur-3xl"></div>
       
-      <div className="relative z-10 container mx-auto px-6 py-8">
-        <header className="text-center mb-12">
-          <div className="inline-flex items-center justify-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-2xl flex items-center justify-center shadow-2xl">
-              <GraduationCap className="w-8 h-8 text-white" />
+      <div className="relative z-10 container mx-auto px-2 sm:px-6 py-4 sm:py-8">
+        <header className="text-center mb-6 sm:mb-12 px-2">
+          <div className="inline-flex items-center justify-center mb-4 sm:mb-6">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-2xl flex items-center justify-center shadow-2xl">
+              <GraduationCap className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
             </div>
           </div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-orange-600 via-yellow-600 to-amber-600 bg-clip-text text-transparent mb-4">
+          <h1 className="text-2xl sm:text-5xl font-bold bg-gradient-to-r from-orange-600 via-yellow-600 to-amber-600 bg-clip-text text-transparent mb-2 sm:mb-4 px-2">
             AI美本录取算命大师
           </h1>
-          <p className="text-xl text-gray-800 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-xl text-gray-800 max-w-2xl mx-auto px-4">
             融合传统命理智慧与现代AI技术，为您的美国本科申请提供精准预测
           </p>
         </header>
 
         {/* Input Form */}
-        <Card className="mb-8 bg-white/90 backdrop-blur-xl border-orange-200/50 shadow-2xl">
+        <Card className="mb-4 sm:mb-8 bg-white/90 backdrop-blur-xl border-orange-200/50 shadow-2xl mx-2 sm:mx-0">
           <CardHeader className="bg-gradient-to-r from-orange-500/10 to-yellow-500/10 backdrop-blur-xl border-b border-orange-200/30">
-            <CardTitle className="flex items-center text-gray-900 text-xl">
-              <Edit className="text-orange-600 mr-3" size={24} />
+            <CardTitle className="flex items-center text-gray-900 text-lg sm:text-xl">
+              <Edit className="text-orange-600 mr-2 sm:mr-3" size={20} />
               输入预测信息
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-8">
+          <CardContent className="p-4 sm:p-8">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 {/* 生辰八字输入 */}
-                <div className="bg-gradient-to-r from-orange-500/10 to-yellow-500/10 backdrop-blur-sm rounded-2xl p-6 border border-orange-200/30">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
-                    <Calendar className="text-orange-500 mr-3" size={20} />
+                <div className="bg-gradient-to-r from-orange-500/10 to-yellow-500/10 backdrop-blur-sm rounded-2xl p-3 sm:p-6 border border-orange-200/30">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center">
+                    <Calendar className="text-orange-500 mr-2 sm:mr-3" size={16} />
                     生辰八字信息
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-3 sm:gap-4">
                     <FormField
                       control={form.control}
                       name="birthDate"
@@ -265,7 +265,7 @@ export default function PredictionPage() {
                 </div>
 
                 {/* 基本信息 */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-3 sm:gap-6">
                   <FormField
                     control={form.control}
                     name="gender"
@@ -274,7 +274,7 @@ export default function PredictionPage() {
                         <FormLabel className="text-gray-800 font-medium">性别</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
-                            <SelectTrigger className="bg-white/90 border-orange-200 text-gray-800 focus:bg-white focus:border-orange-400 rounded-xl h-12">
+                            <SelectTrigger className="bg-white/90 border-orange-200 text-gray-800 focus:bg-white focus:border-orange-400 rounded-xl h-10 sm:h-12">
                               <SelectValue placeholder="请选择性别" className="text-gray-400" />
                             </SelectTrigger>
                           </FormControl>
@@ -297,7 +297,7 @@ export default function PredictionPage() {
                           <Input 
                             placeholder="如：计算机科学" 
                             {...field}
-                            className="bg-white/90 border-orange-200 text-gray-800 placeholder:text-gray-400 focus:bg-white focus:border-orange-400 rounded-xl h-12"
+                            className="bg-white/90 border-orange-200 text-gray-800 placeholder:text-gray-400 focus:bg-white focus:border-orange-400 rounded-xl h-10 sm:h-12 text-sm sm:text-base"
                           />
                         </FormControl>
                         <FormMessage />
