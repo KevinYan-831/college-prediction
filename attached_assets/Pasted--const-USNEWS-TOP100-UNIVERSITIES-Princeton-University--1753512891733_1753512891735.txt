@@ -1,0 +1,47 @@
+// 硬编码的大学列表（这里已提供较完整示例，请根据需要核对和完善）
+const USNEWS_TOP100_UNIVERSITIES = [
+    "Princeton University", "Massachusetts Institute of Technology", "Harvard University", "Stanford University",
+    "Yale University", "California Institute of Technology", "University of Pennsylvania", "Columbia University",
+    "University of Chicago", "Duke University", "Johns Hopkins University", "Carnegie Mellon University",
+    "University of California--Berkeley", "University of California--Los Angeles", "University of Michigan--Ann Arbor",
+    "New York University", "University of Southern California", "University of Florida", "University of Texas at Austin",
+    "Georgia Institute of Technology", "University of Illinois Urbana-Champaign", "Boston University",
+    "University of Washington", "Purdue University", "Ohio State University", "Rutgers University", "University of North Carolina--Chapel Hill",
+    "University of Wisconsin--Madison", "University of Virginia", "University of California--San Diego", "University of California--Davis",
+    "University of California--Irvine", "Pennsylvania State University--University Park", "University of Maryland--College Park",
+    "Ohio State University--Columbus", "University of Georgia", "Texas A&M University--College Station",
+    "University of Minnesota--Twin Cities", "University of Pittsburgh", "Michigan State University", "Indiana University--Bloomington",
+    "University of Colorado Boulder", "Arizona State University", "University of Arizona", "University of Central Florida",
+    "Florida State University", "University of Utah", "Virginia Tech", "North Carolina State University",
+    "University of Connecticut", "University of Iowa", "University of South Carolina", "Clemson University",
+    "Auburn University", "University of Alabama--Tuscaloosa", "Louisiana State University--Baton Rouge",
+    "University of Arkansas--Fayetteville", "University of Oklahoma", "University of Kansas", "University of Missouri",
+    "University of Nebraska--Lincoln", "Washington State University", "Oregon State University", "University of Kentucky",
+    "University of Tennessee--Knoxville", "Iowa State University", "University of New Hampshire", "University of Maine",
+    "University of Vermont", "University of Delaware", "University of Rhode Island", "University of Mississippi",
+    "University of Montana", "University of Wyoming", "University of Idaho", "University of North Dakota",
+    "University of South Dakota", "West Virginia University", "University of Hawaii at Manoa", "University of New Mexico",
+    "University of Nevada--Reno", "University of Alaska Fairbanks", "University of Texas at Dallas", "Northeastern University",
+    "Tulane University", "Villanova University", "Baylor University", "Southern Methodist University", "George Washington University",
+    "American University", "Syracuse University", "Fordham University", "Loyola Marymount University", "Gonzaga University",
+    "Santa Clara University", "Chapman University", "Elon University", "University of Richmond", "Wake Forest University",
+    "Brigham Young University--Provo", "Rensselaer Polytechnic Institute", "Worcester Polytechnic Institute", "Rochester Institute of Technology",
+    "Stevens Institute of Technology", "Illinois Institute of Technology", "Case Western Reserve University",
+    "Lehigh University", "Bucknell University", "Drexel University", "Marquette University", "University of Dayton"
+];
+
+const USNEWS_TOP50_LIBERAL_ARTS_COLLEGES = [
+    "Williams College", "Amherst College", "Swarthmore College", "Pomona College",
+    "Wellesley College", "Carleton College", "Claremont McKenna College", "Middlebury College",
+    "Bowdoin College", "Washington and Lee University", "Grinnell College", "Vassar College",
+    "Hamilton College", "Colby College", "Davidson College", "Haverford College",
+    "Kenyon College", "Oberlin College", "Richmond, University of", "Skidmore College",
+    "Union College", "Wake Forest University", "Wesleyan University", "Whitman College",
+    "College of the Holy Cross", "Connecticut College", "Denison University", "Dickinson College",
+    "Franklin and Marshall College", "Gettysburg College", "Hobart and William Smith Colleges",
+    "Lafayette College", "Macalester College", "Mount Holyoke College", "Reed College",
+    "Rhodes College", "Sarah Lawrence College", "Scripps College", "Sewanee--University of the South",
+    "St. Olaf College", "Trinity College", "University of Puget Sound", "Ursinus College",
+    "Villanova University", "Wheaton College (MA)", "Whitman College", "Willamette University",
+    "Wofford College", "Allegheny College", "Bard College"
+];

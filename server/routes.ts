@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { predictionRequestSchema } from "@shared/schema";
 import axios from "axios";
+import { getUniversitiesByLevel } from "./university-rankings.ts";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -85,23 +86,33 @@ async function callGuguDataAPI(
 八字：${data.八字 || ''}
 五行：${data.五行 || ''}
 
-【整体分析】
-${analysis.总体评价 || '命盘分析显示您具有良好的学术潜质'}
-
 【体貌特征】
-${analysis.体貌特征 || ''}`,
+${analysis.体貌特征 || '暂无体貌特征分析'}
+
+【学业运势】
+${analysis.学业 || '暂无学业分析'}
+
+【事业发展】
+${analysis.事业 || '暂无事业分析'}
+
+【财运状况】
+${analysis.财运 || '暂无财运分析'}
+
+【婚姻感情】
+${analysis.婚姻 || '暂无婚姻分析'}
+
+【健康状况】
+${analysis.健康 || '暂无健康分析'}
+
+【总体评价】
+${analysis.总体评价 || '命盘分析显示您具有良好的发展潜质'}`,
         
         fiveElements: `五行配置：${data.五行 || ''}
 ${data.十神 ? `十神配置：年柱${data.十神.年柱}，月柱${data.十神.月柱}，日柱${data.十神.日柱}，时柱${data.十神.时柱}` : ''}`,
         
         academicFortune: analysis.学业 || "学业运势分析中",
         
-        recommendations: `【专业建议】
-学业发展：${analysis.学业 || ''}
-
-事业规划：${analysis.事业 || analysis.career || ''}
-
-${data.大运 && data.大运.length > 0 ? 
+        recommendations: `${data.大运 && data.大运.length > 0 ? 
 `【大运分析】
 当前大运：${data.大运.find(d => {
   const [start, end] = d.年份.split('-').map(Number);
@@ -111,7 +122,10 @@ ${data.大运 && data.大运.length > 0 ?
   const [start, end] = d.年份.split('-').map(Number);
   const currentYear = new Date().getFullYear();
   return currentYear >= start && currentYear <= end;
-})?.十神 || ''})` : ''}`
+})?.十神 || ''})
+
+未来十年大运趋势：
+${data.大运.slice(0, 3).map(d => `${d.年份}: ${d.大运} (${d.十神})`).join('\n')}` : '暂无大运分析'}`
       };
     }
     
@@ -314,14 +328,91 @@ function getMaterialLevelText(level: string): string {
   return levelMap[level] || "一般";
 }
 
-// 默认大学预测结果 - 根據專業智能推薦
+// 默认大学预测结果 - 根据实际水平智能推荐
 function getDefaultUniversityPredictions(data: any) {
+  // 使用新的排名系统推荐合适的大学
+  const recommendedUniversities = getUniversitiesByLevel(
+    data.materialLevel, 
+    data.score, 
+    data.testType, 
+    data.major
+  );
+  
+  // 转换为所需格式
+  return recommendedUniversities.map((universityName, index) => ({
+    name: universityName,
+    chineseName: getChineseName(universityName),
+    major: data.major,
+    location: getUniversityLocation(universityName),
+    reasons: generateReasonBasedOnLevel(data.materialLevel, data.score, data.testType, universityName)
+  }));
+}
+
+// 获取大学中文名称
+function getChineseName(englishName: string): string {
+  const nameMap: Record<string, string> = {
+    "University of Central Florida": "中佛罗里达大学",
+    "Florida State University": "佛罗里达州立大学", 
+    "University of South Carolina": "南卡罗来纳大学",
+    "Auburn University": "奥本大学",
+    "University of Alabama--Tuscaloosa": "阿拉巴马大学",
+    "Louisiana State University--Baton Rouge": "路易斯安那州立大学",
+    "University of Arkansas--Fayetteville": "阿肯色大学",
+    "University of Oklahoma": "俄克拉荷马大学",
+    "University of Kansas": "堪萨斯大学",
+    "University of Missouri": "密苏里大学",
+    "University of Nebraska--Lincoln": "内布拉斯加大学林肯分校",
+    "Washington State University": "华盛顿州立大学",
+    "Oregon State University": "俄勒冈州立大学",
+    "University of Kentucky": "肯塔基大学",
+    "University of Tennessee--Knoxville": "田纳西大学",
+    "Iowa State University": "爱荷华州立大学"
+  };
+  return nameMap[englishName] || englishName;
+}
+
+// 获取大学位置
+function getUniversityLocation(universityName: string): string {
+  const locationMap: Record<string, string> = {
+    "University of Central Florida": "奥兰多，佛罗里达州",
+    "Florida State University": "塔拉哈西，佛罗里达州",
+    "University of South Carolina": "哥伦比亚，南卡罗来纳州",
+    "Auburn University": "奥本，阿拉巴马州",
+    "University of Alabama--Tuscaloosa": "塔斯卡卢萨，阿拉巴马州",
+    "Louisiana State University--Baton Rouge": "巴吞鲁日，路易斯安那州",
+    "University of Arkansas--Fayetteville": "费耶特维尔，阿肯色州",
+    "University of Oklahoma": "诺曼，俄克拉荷马州",
+    "University of Kansas": "劳伦斯，堪萨斯州",
+    "University of Missouri": "哥伦比亚，密苏里州"
+  };
+  return locationMap[universityName] || "美国";
+}
+
+// 根据水平生成推荐理由
+function generateReasonBasedOnLevel(materialLevel: string, score: number, testType: string, universityName: string): string {
+  const levelTexts = {
+    "very-poor": "虽然您的申请材料还需要提升，但这所大学对国际学生相对友好，是很好的起点选择。",
+    "poor": "根据您目前的申请条件，这所大学的录取要求与您的水平比较匹配。",
+    "average": "您的整体条件符合这所大学的录取标准，有较好的录取机会。",
+    "good": "您的申请材料和成绩都达到了这所大学的要求，录取前景良好。",
+    "excellent": "您的优秀条件完全符合这所顶尖大学的要求。"
+  };
+  
+  const scoreText = testType === "toefl" 
+    ? `托福${score}分的成绩${score >= 100 ? '优秀' : score >= 80 ? '合格' : '需要提升'}`
+    : `雅思${score}分的成绩${score >= 7.0 ? '优秀' : score >= 6.0 ? '合格' : '需要提升'}`;
+  
+  return `${levelTexts[materialLevel] || levelTexts.average} ${scoreText}，结合您的命理特质分析，这所大学的地理位置和学术氛围都很适合您的发展。`;
+}
+
+// 移除原来的商科特殊处理逻辑
+function getOldDefaultUniversityPredictions(data: any) {
   const baseScore = getBaseScore(data);
   const isBusiness = data.major.toLowerCase().includes('business') || 
                      data.major.toLowerCase().includes('商科') ||
                      data.major.toLowerCase().includes('商业');
   
-  // 如果是商科申請，推薦有商學院的大學
+  // 如果是商科申請，推薦有商學院的大學  
   if (isBusiness) {
     return [
       {
