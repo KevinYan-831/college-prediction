@@ -57,6 +57,8 @@ async function callGuguDataAPI(
     const birthDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
     const birthTime = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
     
+    console.log(`調用咕咕數據API: ${birthDate} ${birthTime} ${gender}`);
+    
     const response = await axios.post("https://api.gugudata.com/fortune/bazi", {
       appkey: appKey,
       birth_date: birthDate,
@@ -68,28 +70,108 @@ async function callGuguDataAPI(
         'Content-Type': 'application/json',
         'User-Agent': 'University-Prediction-App/1.0'
       },
-      timeout: 10000
+      timeout: 15000
     });
     
     // 处理咕咕数据API的返回结果
     const apiResult = response.data;
+    console.log("咕咕數據API返回:", JSON.stringify(apiResult, null, 2));
     
+    // 如果API成功返回數據，直接使用
+    if (apiResult && (apiResult.code === 0 || apiResult.success === true)) {
+      const data = apiResult.data || apiResult;
+      return {
+        analysis: data.comprehensive_analysis || data.analysis || data.fortune_analysis || "命盤分析顯示您具有良好的學術潛質",
+        fiveElements: data.five_elements || data.wuxing || data.elements_analysis || "五行平衡，利於學業發展",
+        academicFortune: data.academic_fortune || data.career_fortune || data.study_fortune || "學業運勢較好，適合出國深造", 
+        recommendations: data.recommendations || data.advice || data.suggestions || "建議選擇理工科專業，注重實踐能力培養"
+      };
+    }
+    
+    // 如果API返回格式不符預期，嘗試解析原始數據
     return {
-      analysis: apiResult.analysis || "命盘分析显示您具有良好的学术潜质，适合在学术领域深造发展。",
-      fiveElements: apiResult.five_elements || "五行平衡，利于学业发展",
-      academicFortune: apiResult.academic_fortune || "学业运势较好，适合出国深造",
-      recommendations: apiResult.recommendations || "建议选择理工科专业，注重实践能力培养"
+      analysis: JSON.stringify(apiResult, null, 2),
+      fiveElements: "API數據解析中",
+      academicFortune: "運勢分析中",
+      recommendations: "建議生成中"
     };
     
   } catch (error) {
     console.error("咕咕数据API调用失败:", error);
-    // 返回默认分析结果而不是抛出错误
+    
+    // 生成更智能的替代分析，基於生辰八字基本信息
+    const season = getSeason(month);
+    const timeAnalysis = getTimeAnalysis(hour);
+    const elementAnalysis = getElementByYear(year);
+    
     return {
-      analysis: "根据您的生辰八字分析，命盘显示您在学术方面具有较强的天赋和潜力。五行配置有利于逻辑思维和创新能力的发展，适合在技术和科学领域深造。",
-      fiveElements: "五行属性平衡，木火相生，利于智慧开发",
-      academicFortune: "学业运势上佳，求学路上多得贵人相助，适合远赴他乡求学",
-      recommendations: "建议选择STEM领域专业，发挥您的逻辑思维优势"
+      analysis: `根據您的出生信息（${year}年${month}月${day}日${hour}時${minute}分），${elementAnalysis.analysis}。${season.analysis}${timeAnalysis.analysis}這些因素結合顯示您在學術領域具有獨特優勢，適合深造發展。`,
+      fiveElements: `${elementAnalysis.element}，${season.element}，整體五行配置${elementAnalysis.balance}`,
+      academicFortune: `${timeAnalysis.fortune}，${season.fortune}，整體學業運勢向好，特別適合海外求學。`,
+      recommendations: `基於您的命理特質，建議選擇${elementAnalysis.major}相關專業，發揮您的${elementAnalysis.strength}優勢。`
     };
+  }
+}
+
+// 輔助函數：根據月份判斷季節特性
+function getSeason(month: number) {
+  if (month >= 3 && month <= 5) {
+    return { 
+      analysis: "春季出生，具有旺盛的生命力和創新精神。", 
+      element: "木氣旺盛",
+      fortune: "適合在充滿活力的環境中學習"
+    };
+  } else if (month >= 6 && month <= 8) {
+    return { 
+      analysis: "夏季出生，性格活潑開朗，善於交際。", 
+      element: "火氣充足",
+      fortune: "適合團隊合作和領導角色"
+    };
+  } else if (month >= 9 && month <= 11) {
+    return { 
+      analysis: "秋季出生，思維清晰，注重細節。", 
+      element: "金氣較重",
+      fortune: "適合理性分析和精確研究"
+    };
+  } else {
+    return { 
+      analysis: "冬季出生，內斂沉穩，深思熟慮。", 
+      element: "水氣充盈",
+      fortune: "適合深度研究和學術探索"
+    };
+  }
+}
+
+// 根據出生時辰分析性格特質
+function getTimeAnalysis(hour: number) {
+  if (hour >= 5 && hour <= 7) {
+    return { analysis: "卯時出生，思維敏捷，適合創新領域。", fortune: "早期運勢佳" };
+  } else if (hour >= 11 && hour <= 13) {
+    return { analysis: "午時出生，性格開朗，領導才能突出。", fortune: "中年運勢旺盛" };
+  } else if (hour >= 17 && hour <= 19) {
+    return { analysis: "酉時出生，細心謹慎，適合精密工作。", fortune: "晚運亨通" };
+  } else if (hour >= 23 || hour <= 1) {
+    return { analysis: "子時出生，智慧過人，直覺敏銳。", fortune: "一生貴人相助" };
+  }
+  return { analysis: "具有穩重的性格特質。", fortune: "運勢平穩上升" };
+}
+
+// 根據出生年份分析五行屬性
+function getElementByYear(year: number) {
+  const lastDigit = year % 10;
+  switch (lastDigit) {
+    case 0: case 1:
+      return { element: "金", analysis: "金命人理性務實", balance: "偏重理性思維", major: "工程或商科", strength: "邏輯分析" };
+    case 2: case 3:
+      return { element: "水", analysis: "水命人聰明靈活", balance: "適應能力強", major: "人文或藝術", strength: "創意思維" };
+    case 4: case 5:
+      return { element: "木", analysis: "木命人積極向上", balance: "成長動力充足", major: "生物或環境", strength: "創新發展" };
+    case 6: case 7:
+      return { element: "火", analysis: "火命人熱情主動", balance: "活力充沛", major: "傳媒或社科", strength: "溝通表達" };
+    case 8: case 9:
+      return { element: "土", analysis: "土命人穩重可靠", balance: "基礎紮實", major: "建築或管理", strength: "組織協調" };
+    default:
+      return { element: "平衡", analysis: "五行調和", balance: "全面發展", major: "綜合性", strength: "均衡能力" };
   }
 }
 
@@ -98,8 +180,8 @@ async function callDeepSeekAPI(data: any) {
   try {
     const apiKey = process.env.DEEPSEEK_API_KEY || "sk-fee27e4244b54277b1e1868002f843f3";
     
-    // 构建提示词
-    const prompt = `作为美国大学录取专家，请根据以下信息预测15所美国本科大学的录取可能性：
+    // 构建智能提示词
+    const prompt = `作为精通美国大学录取和传统命理学的专家，请根据以下信息预测15所美国本科大学的录取可能性：
 
 学生信息：
 - 出生时间：${data.year}年${data.month}月${data.day}日 ${data.hour}:${data.minute}
@@ -108,15 +190,21 @@ async function callDeepSeekAPI(data: any) {
 - 语言成绩：${data.testType === "toefl" ? "托福" : "雅思"} ${data.score}分
 - 申请材料水平：${getMaterialLevelText(data.materialLevel)}
 
-请返回JSON格式的15所大学预测结果，每所大学包含：
+重要注意事項：
+1. 請確認每所大學是否提供該專業的本科課程（如哈佛、斯坦福本科無商科）
+2. 根據生辰八字分析該學生的五行屬性和性格特質
+3. 結合命理因素分析學生與不同地區、學校氣場的匹配度
+4. 考慮學生的學術潛力、適合的學習環境和未來發展方向
+
+請返回JSON格式的15所大學預測結果，每所大學包含：
 - name: 英文校名
 - chineseName: 中文校名  
-- major: 专业名称
-- admissionProbability: 录取可能性百分比(0-100)
+- major: 確實存在的本科專業名稱
+- admissionProbability: 錄取可能性百分比(0-100)
 - location: 所在州/城市
-- reasons: 录取可能性分析原因
+- reasons: 結合命理分析和學術匹配度的詳細原因（至少50字）
 
-请确保包含不同层次的大学：顶尖大学(5所)、优秀大学(5所)、良好大学(5所)。`;
+請確保包含不同層次的大學：頂尖大學(5所)、優秀大學(5所)、良好大學(5所)。`;
 
     const response = await axios.post("https://api.deepseek.com/v1/chat/completions", {
       model: "deepseek-chat",

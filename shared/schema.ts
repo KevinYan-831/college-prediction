@@ -8,6 +8,8 @@ export const predictionRequestSchema = z.object({
   day: z.number().min(1).max(31),
   hour: z.number().min(0).max(23),
   minute: z.number().min(0).max(59),
+  birthDate: z.string().optional(),
+  birthTime: z.string().optional(),
   
   // 基本信息
   gender: z.enum(["male", "female"]),

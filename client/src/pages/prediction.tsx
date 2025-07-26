@@ -26,6 +26,8 @@ export default function PredictionPage() {
       day: 1,
       hour: 12,
       minute: 0,
+      birthDate: "",
+      birthTime: "",
       gender: "male",
       major: "",
       testType: "toefl",
@@ -110,61 +112,26 @@ export default function PredictionPage() {
                     <Calendar className="text-red-600 mr-2" size={20} />
                     生辰八字信息
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="year"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>出生年份</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="number" 
-                              placeholder="如：2000" 
-                              {...field}
-                              onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="month"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>出生月份</FormLabel>
-                          <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="选择月份" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {Array.from({ length: 12 }, (_, i) => (
-                                <SelectItem key={i + 1} value={(i + 1).toString()}>
-                                  {i + 1}月
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="day"
+                      name="birthDate"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>出生日期</FormLabel>
                           <FormControl>
                             <Input 
-                              type="number" 
-                              placeholder="如：15" 
+                              type="date" 
                               {...field}
-                              onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                              onChange={(e) => {
+                                const date = new Date(e.target.value);
+                                if (!isNaN(date.getTime())) {
+                                  form.setValue('year', date.getFullYear());
+                                  form.setValue('month', date.getMonth() + 1);
+                                  form.setValue('day', date.getDate());
+                                }
+                                field.onChange(e.target.value);
+                              }}
                             />
                           </FormControl>
                           <FormMessage />
@@ -173,34 +140,22 @@ export default function PredictionPage() {
                     />
                     <FormField
                       control={form.control}
-                      name="hour"
+                      name="birthTime"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>出生时辰</FormLabel>
+                          <FormLabel>出生時辰</FormLabel>
                           <FormControl>
                             <Input 
-                              type="number" 
-                              placeholder="如：14" 
+                              type="time" 
                               {...field}
-                              onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="minute"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>出生分钟</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="number" 
-                              placeholder="如：30" 
-                              {...field}
-                              onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                              onChange={(e) => {
+                                const [hour, minute] = e.target.value.split(':').map(Number);
+                                if (!isNaN(hour) && !isNaN(minute)) {
+                                  form.setValue('hour', hour);
+                                  form.setValue('minute', minute);
+                                }
+                                field.onChange(e.target.value);
+                              }}
                             />
                           </FormControl>
                           <FormMessage />
