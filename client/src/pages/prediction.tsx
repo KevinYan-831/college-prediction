@@ -197,7 +197,6 @@ export default function PredictionPage() {
                 </div>
                 {/* 小圆点 */}
                 <div className="absolute top-1/4 left-1/2 w-1/4 h-1/4 bg-black rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-                <div className="absolute bottom-1/4 left-1/2 w-1/4 h-1/4 bg-white rounded-full -translate-x-1/2 translate-y-1/2"></div>
               </div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-800 via-red-700 to-amber-900 bg-clip-text text-transparent">
                 AI美本录取算命大师
