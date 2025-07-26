@@ -18,8 +18,8 @@ export const predictionRequestSchema = z.object({
   gender: z.enum(["male", "female"]),
   major: z.string().min(1),
   
-  // 整体申请材料水平（包含语言成绩、GPA、活动等）
-  materialLevel: z.enum(["very-poor", "poor", "average", "good", "excellent"])
+  // 心仪院校列表
+  dreamUniversities: z.array(z.string().min(1)).min(1).max(20).default([])
 });
 
 // 命理分析结果

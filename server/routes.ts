@@ -15,7 +15,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = predictionRequestSchema.parse(req.body);
       
       // 准备API调用数据
-      const { year, month, day, hour, minute, gender, major, materialLevel } = validatedData;
+      const { year, month, day, hour, minute, gender, major, dreamUniversities } = validatedData;
       
       // 并行调用两个API
       const [fortuneResponse, universityResponse] = await Promise.all([
@@ -351,84 +351,70 @@ async function callDeepSeekAPI(data: PredictionRequest) {
   try {
     const apiKey = process.env.DEEPSEEK_API_KEY || "sk-fee27e4244b54277b1e1868002f843f3";
     
-    // 构建详细的命理分析提示词
+    // 构建基于心仪院校的命理录取分析提示词
+    const dreamUniversitiesList = data.dreamUniversities.filter(u => u.trim() !== "").join("、");
     const prompt = `作为精通美国大学本科录取和传统命理学的专家，请根据以下学生信息进行详细分析：
 
 【学生档案】
 - 出生时间：${data.year}年${data.month}月${data.day}日 ${data.hour}:${data.minute}
 - 性别：${data.gender === "male" ? "男" : "女"}
 - 申请专业：${data.major}
-- 语言成绩：已整合在申请材料水平评估中
-- 申请材料水平：${getMaterialLevelText(data.materialLevel)}
+- 心仪院校列表：${dreamUniversitiesList}
+
+【分析任务】
+请基于该学生的生辰八字和命理特征，分析其是否能够被心仪院校列表中的每所大学录取。
 
 【命理分析要求】
 1. 根据出生年份${data.year}分析五行属性（金木水火土）
-2. 根据出生月份${data.month}月分析季节特征对性格的影响
+2. 根据出生月份${data.month}月分析季节特征对性格的影响  
 3. 根据出生时辰${data.hour}:${data.minute}分析个人特质
 
-【大学推荐要求】
-基于上述命理分析，推荐15所真正适合且能够录取该学生的美国大学。每所推荐必须详细说明：
+【录取分析要求】
+针对学生提供的每所心仪院校，进行命理匹配度分析：
 - 该校地理位置的风水特征如何与学生五行相配
 - 学校的学术氛围如何适合学生的性格特质
-- 为什么这种命理特征的学生会在该校获得成功
-- 结合实际录取要求的分析
+- 基于命理因素预测录取可能性
+- 提供详细的命理学录取分析理由
 
 ⚠️ 关键要求（必须100%严格遵循）：
 
-1. 基于出生时间进行详细的五行命理分析，说明学生的性格特质、学术潜能等
-2. 根据申请材料水平${getMaterialLevelText(data.materialLevel)}，推荐15所实际能被录取的大学，不要推荐过于顶尖的学校
-3. 每所大学的推荐理由必须结合命理分析，说明该大学与学生八字五行的匹配程度
-4. 特别说明这所大学的地理位置、学术氛围如何与学生的命理特质相配
+1. 只分析学生提供的心仪院校列表，不要推荐其他大学
+2. 每所大学的分析必须结合具体的命理因素
+3. 必须确认每所大学确实提供该学生申请的本科专业
+4. 如果某所大学不提供该专业，请明确说明并建议相近专业
 
 请严格按照以下JSON格式返回：
 [
   {
-    "name": "University of Central Florida",
-    "chineseName": "中佛罗里达大学", 
+    "name": "具体大学英文名称",
+    "chineseName": "对应中文名称", 
     "major": "${data.major}",
-    "location": "奥兰多，佛罗里达州",
-    "reasons": "根据您${data.year}年出生的命理特质，五行属X，性格特点Y。佛罗里达州的阳光充沛环境与您的命格相合，该校的Z专业能够发挥您的天赋优势..."
+    "location": "城市，州名",
+    "reasons": "详细的命理录取分析：根据您${data.year}年${data.month}月${data.day}日${data.hour}:${data.minute}出生的八字，五行属性为X，性格特质Y。该校位于Z地区，地理风水与您的命格如何匹配，学术氛围如何适合您的性格，预测录取可能性及具体理由。至少200字详细分析。"
   }
 ]
 
-务必确保：
-- 每个推荐理由都结合具体的命理分析
-- 不要推荐哈佛、斯坦福、麻省理工等顶尖大学（因为申请材料水平为${getMaterialLevelText(data.materialLevel)}）
-- 推荐的学校排名应该在40-80之间，符合学生实际水平
-1. 這是針對美國本科申請的分析，學生是高中生
-2. 必須確認每所大學確實提供該專業的本科學位
-3. 以下大學本科沒有商科（Business Administration/Business）專業，絕對不能推薦給商科申請者：
-   - 哈佛大學（只有Economics）
-   - 斯坦福大學（只有Economics, Management Science & Engineering）
-   - 普林斯頓大學（只有Economics）
-   - 耶魯大學（只有Economics）
-   - 麻省理工學院（只有Management）
-4. 如果學生申請商科，只推薦確實有本科Business程序的大學
-5. 如果是其他專業，確保推薦的學校有該本科專業
-6. 根據申請材料水平嚴格評估錄取可能性：
-   - 極差材料：不可能被頂尖大學錄取，只推薦社區大學或排名很低的大學
-   - 較差材料：只推薦排名較低的州立大學
-   - 一般材料：推薦中等排名的大學
-   - 較好材料：推薦較好排名的大學
-   - 極好材料：可推薦頂尖大學
-7. 根據語言成績評估：托福105+或雅思7.5+才可能被頂尖大學錄取
-8. 根據生辰八字的五行屬性分析學生的性格和學習特質
-9. 結合命理因素解釋為什麼某個地區或學校適合該學生
+重要提醒：
+1. 只返回学生心仪院校列表中的大学
+2. 如果某所大学不存在或名称错误，请在reasons中说明
+3. 专业名称必须准确，与该大学实际开设的本科专业一致
+4. 根據生辰八字的五行屬性分析學生的性格和學習特質
+5. 結合命理因素解釋為什麼某個地區或學校適合該學生
 
-請返回JSON格式數組，包含15所真正會錄取該學生的大學（不要顯示錄取概率百分比）：
+請返回JSON格式數組，只分析學生提供的心仪院校（不要顯示錄取概率百分比）：
 [
   {
     "name": "英文校名",
     "chineseName": "中文校名",
     "major": "確實存在的本科專業名稱",
     "location": "城市，州名",
-    "reasons": "详细说明为什么这所大学会录取该学生，结合命理分析排出优先级。每所大学必须使用完全不同的命理角度，严禁重复。必须包含：1）基于出生年份${data.year}、月份${data.month}、日期${data.day}、时辰${data.hour}的具体五行命盘分析 2）该校地理位置的独特风水格局与学生八字的深度匹配分析 3）学校的学术氛围、校园布局如何与学生的命理特质形成最佳互补 4）结合申请材料水平${getMaterialLevelText(data.materialLevel)}说明录取可能性。每所大学必须用不同维度：如纳音五行、十二生肖、八卦方位、二十四节气、天干地支组合等，确保每个推荐理由在命理分析角度上完全独特，至少180字"
+    "reasons": "详细说明基于命理分析的录取可能性。每所大学必须使用完全不同的命理角度，严禁重复。必须包含：1）基于出生年份${data.year}、月份${data.month}、日期${data.day}、时辰${data.hour}的具体五行命盘分析 2）该校地理位置的独特风水格局与学生八字的深度匹配分析 3）学校的学术氛围、校园布局如何与学生的命理特质形成最佳互补 4）基于命理因素预测录取可能性。每所大学必须用不同维度：如纳音五行、十二生肖、八卦方位、二十四节气、天干地支组合等，确保每个推荐理由在命理分析角度上完全独特，至少180字"
   }
 ]
 
 重要提醒：
-1. 如果申请专业是商科/金融/管理，只能推荐在商学院排名中的大学
-2. 绝对不要推荐没有相关本科专业的大学（如加州理工、芝加哥大学、杜克大学等对商科申请者）
+1. 只分析學生提供的心儀院校，不要推薦額外的大學  
+2. 如果某所心儀院校沒有學生申請的專業，請在分析中說明並建議相近專業
 3. 专业名称必须100%准确，与该大学实际开设的本科专业一致
 
 请返回准确的JSON格式数组。`;
@@ -508,35 +494,23 @@ async function callDeepSeekAPI(data: PredictionRequest) {
   }
 }
 
-// 获取申请材料水平文本
-function getMaterialLevelText(level: string): string {
-  const levelMap: Record<string, string> = {
-    "very-poor": "极差",
-    "poor": "较差", 
-    "average": "一般",
-    "good": "较好",
-    "excellent": "极好"
-  };
-  return levelMap[level] || "一般";
-}
-
-// 默认大学预测结果 - 根据实际水平智能推荐
+// 默认大学预测结果 - 基于心仪院校列表
 function getDefaultUniversityPredictions(data: PredictionRequest) {
-  // 使用新的排名系统推荐合适的大学
-  const recommendedUniversities = getUniversitiesByLevel(
-    data.materialLevel, 
-    data.major,
-    data.year,
-    data.month
-  );
+  // 过滤掉空的心仪院校
+  const dreamUniversities = data.dreamUniversities.filter(u => u.trim() !== "");
+  
+  // 如果没有心仪院校，返回空数组
+  if (dreamUniversities.length === 0) {
+    return [];
+  }
   
   // 转换为所需格式
-  return recommendedUniversities.map((universityName, index) => ({
+  return dreamUniversities.map((universityName) => ({
     name: universityName,
     chineseName: getChineseName(universityName),
     major: data.major,
     location: getUniversityLocation(universityName),
-    reasons: generateReasonBasedOnLevel(data.materialLevel, universityName)
+    reasons: generateDefaultAdmissionAnalysis(data, universityName)
   }));
 }
 
@@ -558,7 +532,36 @@ function getChineseName(englishName: string): string {
     "Oregon State University": "俄勒冈州立大学",
     "University of Kentucky": "肯塔基大学",
     "University of Tennessee--Knoxville": "田纳西大学",
-    "Iowa State University": "爱荷华州立大学"
+    "Iowa State University": "爱荷华州立大学",
+    "Harvard University": "哈佛大学",
+    "Stanford University": "斯坦福大学",
+    "Massachusetts Institute of Technology": "麻省理工学院",
+    "Yale University": "耶鲁大学",
+    "Princeton University": "普林斯顿大学",
+    "Columbia University": "哥伦比亚大学",
+    "University of Pennsylvania": "宾夕法尼亚大学",
+    "University of Chicago": "芝加哥大学",
+    "Duke University": "杜克大学",
+    "Northwestern University": "西北大学",
+    "Cornell University": "康奈尔大学",
+    "Brown University": "布朗大学",
+    "University of California--Berkeley": "加州大学伯克利分校",
+    "University of California--Los Angeles": "加州大学洛杉矶分校",
+    "University of Michigan--Ann Arbor": "密歇根大学安娜堡分校",
+    "New York University": "纽约大学",
+    "Carnegie Mellon University": "卡内基梅隆大学",
+    "University of Southern California": "南加州大学",
+    "Georgetown University": "乔治城大学",
+    "Emory University": "埃默里大学",
+    "University of Virginia": "弗吉尼亚大学",
+    "University of North Carolina--Chapel Hill": "北卡罗来纳大学教堂山分校",
+    "Boston University": "波士顿大学",
+    "Northeastern University": "东北大学",
+    "University of Florida": "佛罗里达大学",
+    "University of Texas at Austin": "德克萨斯大学奥斯汀分校",
+    "Georgia Institute of Technology": "佐治亚理工学院",
+    "University of Washington": "华盛顿大学",
+    "University of Illinois Urbana-Champaign": "伊利诺伊大学厄巴纳-香槟分校"
   };
   return nameMap[englishName] || englishName;
 }
@@ -575,23 +578,63 @@ function getUniversityLocation(universityName: string): string {
     "University of Arkansas--Fayetteville": "费耶特维尔，阿肯色州",
     "University of Oklahoma": "诺曼，俄克拉荷马州",
     "University of Kansas": "劳伦斯，堪萨斯州",
-    "University of Missouri": "哥伦比亚，密苏里州"
+    "University of Missouri": "哥伦比亚，密苏里州",
+    "Harvard University": "剑桥，马萨诸塞州",
+    "Stanford University": "斯坦福，加利福尼亚州",
+    "Massachusetts Institute of Technology": "剑桥，马萨诸塞州",
+    "Yale University": "纽黑文，康涅狄格州",
+    "Princeton University": "普林斯顿，新泽西州",
+    "Columbia University": "纽约，纽约州",
+    "University of Pennsylvania": "费城，宾夕法尼亚州",
+    "University of Chicago": "芝加哥，伊利诺伊州",
+    "Duke University": "达勒姆，北卡罗来纳州",
+    "Northwestern University": "埃文斯顿，伊利诺伊州",
+    "Cornell University": "伊萨卡，纽约州",
+    "Brown University": "普罗维登斯，罗德岛州",
+    "University of California--Berkeley": "伯克利，加利福尼亚州",
+    "University of California--Los Angeles": "洛杉矶，加利福尼亚州",
+    "University of Michigan--Ann Arbor": "安娜堡，密歇根州",
+    "New York University": "纽约，纽约州",
+    "Carnegie Mellon University": "匹兹堡，宾夕法尼亚州",
+    "University of Southern California": "洛杉矶，加利福尼亚州",
+    "Georgetown University": "华盛顿，华盛顿特区",
+    "Emory University": "亚特兰大，佐治亚州",
+    "University of Virginia": "夏洛茨维尔，弗吉尼亚州",
+    "University of North Carolina--Chapel Hill": "教堂山，北卡罗来纳州",
+    "Boston University": "波士顿，马萨诸塞州",
+    "Northeastern University": "波士顿，马萨诸塞州",
+    "University of Florida": "盖恩斯维尔，佛罗里达州",
+    "University of Texas at Austin": "奥斯汀，德克萨斯州",
+    "Georgia Institute of Technology": "亚特兰大，佐治亚州",
+    "University of Washington": "西雅图，华盛顿州",
+    "University of Illinois Urbana-Champaign": "厄巴纳-香槟，伊利诺伊州"
   };
   return locationMap[universityName] || "美国";
 }
 
-// 根据水平和命理特质生成推荐理由 - 提供更详细的分析
-function generateReasonBasedOnLevel(materialLevel: string, universityName: string): string {
+// 生成默认的录取分析
+function generateDefaultAdmissionAnalysis(data: PredictionRequest, universityName: string): string {
   const universityAnalysis = getUniversityFortuneAnalysis(universityName);
-  const levelText = {
-    "very-poor": "虽然申请材料还需提升，但",
-    "poor": "以目前的申请条件，",
-    "average": "以您的整体条件，",
-    "good": "以您良好的申请材料，",
-    "excellent": "以您优秀的条件，"
-  }[materialLevel] || "以您的条件，";
+  const birthYear = data.year;
+  const birthMonth = data.month;
   
-  return `${levelText}结合命理分析显示您${universityAnalysis.element}，${universityAnalysis.location}的地理环境${universityAnalysis.locationMatch}。该校的${universityAnalysis.academicMatch}，特别适合您的${universityAnalysis.personalityMatch}。您的申请材料水平符合该校的录取要求。`;
+  // 基于出生年份的五行分析
+  const elements = ["金", "木", "水", "火", "土"];
+  const yearElement = elements[(birthYear - 1984) % 5];
+  
+  // 基于月份的季节分析
+  let seasonAnalysis = "";
+  if (birthMonth >= 3 && birthMonth <= 5) {
+    seasonAnalysis = "春季出生，生机勃勃，学习能力强";
+  } else if (birthMonth >= 6 && birthMonth <= 8) {
+    seasonAnalysis = "夏季出生，性格开朗，善于表达";
+  } else if (birthMonth >= 9 && birthMonth <= 11) {
+    seasonAnalysis = "秋季出生，思维缜密，做事有条理";
+  } else {
+    seasonAnalysis = "冬季出生，意志坚定，专注力强";
+  }
+  
+  return `根据您${birthYear}年${birthMonth}月的出生时间分析，您的五行属${yearElement}，${seasonAnalysis}。${universityAnalysis.location}的地理环境${universityAnalysis.locationMatch}，该校的${universityAnalysis.academicMatch}特别适合您的${universityAnalysis.personalityMatch}。基于命理分析，您与该校具有良好的匹配度，建议积极申请。`;
 }
 
 // 根据大学名称提供命理匹配分析
@@ -637,239 +680,5 @@ function getUniversityFortuneAnalysis(universityName: string): any {
   return locationAnalysis[universityName] || locationAnalysis["default"];
 }
 
-// 移除原来的商科特殊处理逻辑
-function getOldDefaultUniversityPredictions(data: PredictionRequest) {
-  const baseScore = getBaseScore(data);
-  const isBusiness = data.major.toLowerCase().includes('business') || 
-                     data.major.toLowerCase().includes('商科') ||
-                     data.major.toLowerCase().includes('商业');
-  
-  // 如果是商科申請，推薦有商學院的大學  
-  if (isBusiness) {
-    return [
-      {
-        name: "University of Pennsylvania (Wharton)",
-        chineseName: "宾夕法尼亚大学沃顿商学院",
-        major: "Business Administration", 
-        location: "費城,賓夕法尼亞州",
-        reasons: "沃頓商學院是全美頂尖商學院，您的命理特質適合商業發展"
-      },
-      {
-        name: "University of Michigan - Ann Arbor (Ross)",
-        chineseName: "密歇根大學安娜堡分校羅斯商學院",
-        major: "Business Administration",
-        location: "安娜堡，密歇根州",
-        reasons: "羅斯商學院聲譽卓著，中西部地區適合您的五行特質"
-      },
-      {
-        name: "New York University (Stern)",
-        chineseName: "紐約大學斯特恩商學院",
-        major: "Business Administration",
-        location: "紐約，紐約州",
-        reasons: "斯特恩商學院位於金融中心，有利於您的財運發展"
-      },
-      {
-        name: "UC Berkeley (Haas)",
-        chineseName: "加州大學伯克利分校哈斯商學院", 
-        major: "Business Administration",
-        location: "伯克利，加利福尼亞州",
-        reasons: "哈斯商學院創新氛圍濃厚，西海岸環境適合您的發展"
-      },
-      {
-        name: "University of Virginia (Darden)",
-        chineseName: "弗吉尼亞大學達頓商學院",
-        major: "Business Administration", 
-        location: "夏洛茨維爾，弗吉尼亞州",
-        reasons: "達頓商學院案例教學著名，東海岸環境有利於您的學業運"
-      },
-      {
-        name: "Carnegie Mellon University (Tepper)",
-        chineseName: "卡內基梅隆大學泰珀商學院",
-        major: "Business Administration",
-        location: "匹茲堡，賓夕法尼亞州",
-        reasons: "泰珀商學院技術導向，結合您的命理特質適合創新發展"
-      },
-      {
-        name: "Washington University in St. Louis (Olin)",
-        chineseName: "聖路易斯華盛頓大學奧林商學院",
-        major: "Business Administration",
-        location: "聖路易斯，密蘇里州",
-        reasons: "奧林商學院教學品質優秀，中部地區環境有利於您的發展"
-      },
-      {
-        name: "University of Notre Dame (Mendoza)",
-        chineseName: "聖母大學門多薩商學院", 
-        major: "Business Administration",
-        location: "南本德，印第安納州",
-        reasons: "門多薩商學院注重價值觀培養，適合您的品格發展"
-      },
-      {
-        name: "Georgetown University (McDonough)",
-        chineseName: "喬治城大學麥克多諾商學院",
-        major: "Business Administration", 
-        location: "華盛頓特區",
-        reasons: "麥克多諾商學院政商結合，首都地區有利於您的事業運"
-      },
-      {
-        name: "Boston College (Carroll)",
-        chineseName: "波士頓學院卡羅爾商學院",
-        major: "Business Administration",
-        location: "波士頓，麻薩諸塞州",
-        reasons: "卡羅爾商學院學術聲譽良好，新英格蘭地區適合您的學習"
-      },
-      {
-        name: "University of Southern California (Marshall)",
-        chineseName: "南加州大學馬歇爾商學院",
-        major: "Business Administration",
-        location: "洛杉磯，加利福尼亞州", 
-        reasons: "馬歇爾商學院國際化程度高，西海岸創業氛圍適合您"
-      },
-      {
-        name: "Indiana University (Kelley)",
-        chineseName: "印第安納大學凱利商學院",
-        major: "Business Administration",
-        location: "布盧明頓，印第安納州",
-        reasons: "凱利商學院性價比高，中西部環境穩定適合學業發展"
-      },
-      {
-        name: "University of Illinois Urbana-Champaign",
-        chineseName: "伊利諾伊大學厄巴納-香檳分校商學院",
-        major: "Business Administration",
-        location: "厄巴納-香檳，伊利諾伊州",
-        reasons: "商學院實力強勁，公立大學性價比高適合您的財運規劃"
-      },
-      {
-        name: "University of Texas at Austin (McCombs)",
-        chineseName: "德州大學奧斯汀分校麥庫姆斯商學院",
-        major: "Business Administration",
-        location: "奧斯汀，德克薩斯州",
-        reasons: "麥庫姆斯商學院創業精神濃厚，德州發展前景符合您的運勢"
-      }
-    ];
-  }
-  
-  // 非商科專業的默認推薦
-  return [
-    {
-      name: "MIT",
-      chineseName: "麻省理工学院",
-      major: data.major,
-      location: "剑桥，马萨诸塞州", 
-      reasons: "理工科专业优势明显"
-    },
-    {
-      name: "Princeton University",
-      chineseName: "普林斯顿大学",
-      major: data.major,
-      location: "普林斯顿，新泽西州",
-      reasons: "学术潜力符合要求"
-    },
-    {
-      name: "Yale University",
-      chineseName: "耶鲁大学", 
-      major: data.major,
-      location: "纽黑文，康涅狄格州",
-      reasons: "综合素质良好"
-    },
-    {
-      name: "University of Chicago",
-      chineseName: "芝加哥大学",
-      major: data.major,
-      location: "芝加哥，伊利诺伊州",
-      reasons: "学术氛围匹配"
-    },
-    {
-      name: "Columbia University",
-      chineseName: "哥伦比亚大学",
-      major: data.major,
-      location: "纽约，纽约州",
-      reasons: "地理位置优势"
-    },
-    {
-      name: "University of Pennsylvania",
-      chineseName: "宾夕法尼亚大学",
-      major: data.major,
-      location: "费城，宾夕法尼亚州",
-      reasons: "专业排名靠前"
-    },
-    {
-      name: "Duke University",
-      chineseName: "杜克大学",
-      major: data.major,
-      location: "达勒姆，北卡罗来纳州",
-      reasons: "综合实力强劲"
-    },
-    {
-      name: "Northwestern University",
-      chineseName: "西北大学",
-      major: data.major,
-      location: "埃文斯顿，伊利诺伊州",
-      reasons: "专业匹配度高"
-    },
-    {
-      name: "Brown University",
-      chineseName: "布朗大学",
-      major: data.major,
-      location: "普罗维登斯，罗德岛州",
-      reasons: "开放式课程适合发展"
-    },
-    {
-      name: "Vanderbilt University", 
-      chineseName: "范德堡大学",
-      major: data.major,
-      location: "纳什维尔，田纳西州",
-      reasons: "学术声誉良好"
-    },
-    {
-      name: "Rice University",
-      chineseName: "莱斯大学",
-      major: data.major,
-      location: "休斯顿，得克萨斯州",
-      reasons: "小班教学优势"
-    },
-    {
-      name: "Washington University in St. Louis",
-      chineseName: "圣路易斯华盛顿大学",
-      major: data.major,
-      location: "圣路易斯，密苏里州",
-      reasons: "学术水平匹配"
-    },
-    {
-      name: "Emory University",
-      chineseName: "埃默里大学",
-      major: data.major,
-      location: "亚特兰大，佐治亚州", 
-      reasons: "录取要求符合条件"
-    }
-  ];
-}
 
-// 根据学生信息计算基础分数
-function getBaseScore(data: any): number {
-  let score = 50; // 基础分数
-  
-  // 根据语言成绩调整
-  if (data.testType === "toefl") {
-    if (data.score >= 110) score += 20;
-    else if (data.score >= 100) score += 15;
-    else if (data.score >= 90) score += 10;
-    else if (data.score >= 80) score += 5;
-  } else if (data.testType === "ielts") {
-    if (data.score >= 8.0) score += 20;
-    else if (data.score >= 7.5) score += 15;
-    else if (data.score >= 7.0) score += 10;
-    else if (data.score >= 6.5) score += 5;
-  }
-  
-  // 根据申请材料水平调整
-  const materialAdjustment: Record<string, number> = {
-    "excellent": 15,
-    "good": 10,
-    "average": 0,
-    "poor": -10,
-    "very-poor": -20
-  };
-  score += materialAdjustment[data.materialLevel] || 0;
-  
-  return Math.max(10, Math.min(80, score));
-}
+

@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { predictionRequestSchema, type PredictionRequest, type PredictionResult } from "@shared/schema";
-import { GraduationCap, Calendar, Languages, Edit, Wind, University, Loader2, RotateCcw, MapPin, FileText, Download } from "lucide-react";
+import { GraduationCap, Calendar, Languages, Edit, Wind, University, Loader2, RotateCcw, MapPin, FileText, Download, Plus, X, Star } from "lucide-react";
 import * as htmlToImage from 'html-to-image';
 
 export default function PredictionPage() {
@@ -38,7 +38,7 @@ export default function PredictionPage() {
       birthTime: "",
       gender: "male",
       major: "",
-      materialLevel: "average"
+      dreamUniversities: ["", "", ""]
     }
   });
 
@@ -308,73 +308,8 @@ export default function PredictionPage() {
 
 
 
-                {/* 申请材料水平 */}
-                <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 backdrop-blur-sm rounded-2xl p-6 border border-orange-200/30">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
-                    <FileText className="text-amber-600 mr-3" size={20} />
-                    申请材料整体水平评估
-                  </h3>
-                  <FormField
-                    control={form.control}
-                    name="materialLevel"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-800 font-medium mb-3 block">
-                          请根据以下标准客观评估您的申请材料整体水平：
-                        </FormLabel>
-                        <div className="mb-4 p-4 bg-white/50 rounded-xl border border-orange-100">
-                          <div className="text-sm text-gray-700 space-y-2">
-                            <div><span className="font-semibold text-red-600">极差:</span> GPA &lt; 3.0，托福&lt;90/雅思&lt;6.5，无突出活动经历，无竞赛奖项</div>
-                            <div><span className="font-semibold text-orange-600">较差:</span> GPA 3.0-3.3，托福90-100/雅思6.5-7.0，有基础活动参与，少量校级奖项</div>
-                            <div><span className="font-semibold text-yellow-600">一般:</span> GPA 3.3-3.7，托福100-110/雅思7.0-7.5，有一定活动经历，有州级或地区性奖项</div>
-                            <div><span className="font-semibold text-green-600">较好:</span> GPA 3.7-3.9，托福110-115/雅思7.5-8.0，有显著活动领导经历，有国家级奖项或知名竞赛奖项</div>
-                            <div><span className="font-semibold text-emerald-600">极好:</span> GPA 3.9+，托福115+/雅思8.0+，有卓越活动成就和领导力，有顶级竞赛奖项(如USAMO、Intel ISEF等)</div>
-                          </div>
-                        </div>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="bg-white/90 border-orange-200 text-gray-800 focus:bg-white focus:border-orange-400 rounded-xl h-12">
-                              <SelectValue placeholder="请选择您的整体水平" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent className="bg-white border-orange-200">
-                            <SelectItem value="very-poor" className="text-gray-800 focus:bg-orange-50">
-                              <div className="flex flex-col">
-                                <span className="font-medium">极差</span>
-                                <span className="text-xs text-gray-500">GPA &lt; 3.0，托福&lt;90，无突出经历</span>
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="poor" className="text-gray-800 focus:bg-orange-50">
-                              <div className="flex flex-col">
-                                <span className="font-medium">较差</span>
-                                <span className="text-xs text-gray-500">GPA 3.0-3.3，托福90-100，基础活动</span>
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="average" className="text-gray-800 focus:bg-orange-50">
-                              <div className="flex flex-col">
-                                <span className="font-medium">一般</span>
-                                <span className="text-xs text-gray-500">GPA 3.3-3.7，托福100-110，有地区奖项</span>
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="good" className="text-gray-800 focus:bg-orange-50">
-                              <div className="flex flex-col">
-                                <span className="font-medium">较好</span>
-                                <span className="text-xs text-gray-500">GPA 3.7-3.9，托福110-115，有国家级奖项</span>
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="excellent" className="text-gray-800 focus:bg-orange-50">
-                              <div className="flex flex-col">
-                                <span className="font-medium">极好</span>
-                                <span className="text-xs text-gray-500">GPA 3.9+，托福115+，顶级竞赛奖项</span>
-                              </div>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                {/* 心仪院校列表 */}
+                <DreamUniversitiesField form={form} />
 
 
 
@@ -669,6 +604,114 @@ export default function PredictionPage() {
             <p className="text-gray-600">融合传统智慧与现代科技，为您的求学之路保驾护航</p>
           </div>
         </footer>
+      </div>
+    </div>
+  );
+}
+
+// 心仪院校列表组件
+function DreamUniversitiesField({ form }: { form: any }) {
+  const dreamUniversities = form.watch("dreamUniversities") || [];
+
+  const addUniversity = () => {
+    const current = form.getValues("dreamUniversities");
+    form.setValue("dreamUniversities", [...current, ""]);
+  };
+
+  const removeUniversity = (index: number) => {
+    const current = form.getValues("dreamUniversities");
+    if (current.length > 1) {
+      const updated = current.filter((_: string, i: number) => i !== index);
+      form.setValue("dreamUniversities", updated);
+    }
+  };
+
+  const updateUniversity = (index: number, value: string) => {
+    const current = form.getValues("dreamUniversities");
+    current[index] = value;
+    form.setValue("dreamUniversities", [...current]);
+  };
+
+  // 热门大学列表供快速选择
+  const popularUniversities = [
+    "Harvard University", "Stanford University", "Massachusetts Institute of Technology",
+    "Yale University", "Princeton University", "Columbia University",
+    "University of Pennsylvania", "University of Chicago", "Duke University",
+    "Northwestern University", "Cornell University", "Brown University",
+    "University of California--Berkeley", "University of California--Los Angeles",
+    "University of Michigan--Ann Arbor", "New York University", "Carnegie Mellon University",
+    "University of Southern California", "Georgetown University", "Emory University",
+    "University of Virginia", "University of North Carolina--Chapel Hill",
+    "Boston University", "Northeastern University", "University of Florida",
+    "University of Texas at Austin", "Georgia Institute of Technology",
+    "University of Washington", "University of Illinois Urbana-Champaign"
+  ];
+
+  return (
+    <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 backdrop-blur-sm rounded-2xl p-6 border border-orange-200/30">
+      <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+        <Star className="text-amber-600 mr-3" size={20} />
+        你的心仪院校列表
+      </h3>
+      
+      <div className="space-y-4">
+        {dreamUniversities.map((university: string, index: number) => (
+          <div key={index} className="flex items-center gap-3">
+            <div className="flex-1">
+              <Input
+                placeholder={`心仪院校 ${index + 1}`}
+                value={university}
+                onChange={(e) => updateUniversity(index, e.target.value)}
+                className="bg-white/90 border-orange-200 text-gray-800 placeholder:text-gray-400 focus:bg-white focus:border-orange-400 rounded-xl h-12"
+              />
+            </div>
+            {dreamUniversities.length > 1 && (
+              <Button
+                type="button"
+                onClick={() => removeUniversity(index)}
+                className="bg-red-100 hover:bg-red-200 text-red-600 border-red-200 rounded-xl h-12 px-3"
+              >
+                <X size={16} />
+              </Button>
+            )}
+          </div>
+        ))}
+        
+        {dreamUniversities.length < 20 && (
+          <Button
+            type="button"
+            onClick={addUniversity}
+            className="w-full bg-orange-100 hover:bg-orange-200 text-orange-700 border border-orange-200 rounded-xl h-12 font-medium"
+          >
+            <Plus className="mr-2" size={16} />
+            添加更多院校
+          </Button>
+        )}
+      </div>
+
+      {/* 热门大学快速选择 */}
+      <div className="mt-6">
+        <Label className="text-gray-700 font-medium mb-3 block">热门院校快速选择：</Label>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-40 overflow-y-auto">
+          {popularUniversities.map((uni) => (
+            <Button
+              key={uni}
+              type="button"
+              onClick={() => {
+                const emptyIndex = dreamUniversities.findIndex((u: string) => u === "");
+                if (emptyIndex !== -1) {
+                  updateUniversity(emptyIndex, uni);
+                } else if (dreamUniversities.length < 20) {
+                  addUniversity();
+                  setTimeout(() => updateUniversity(dreamUniversities.length, uni), 0);
+                }
+              }}
+              className="text-left justify-start bg-white/50 hover:bg-white text-gray-700 border border-orange-100 rounded-lg h-8 px-3 text-xs font-normal"
+            >
+              {uni.length > 25 ? uni.substring(0, 25) + "..." : uni}
+            </Button>
+          ))}
+        </div>
       </div>
     </div>
   );
