@@ -177,9 +177,62 @@ async function callGuguDataAPI(
       let data, analysis;
       
       if (apiResult.DataStatus && apiResult.DataStatus.StatusCode === 100) {
-        // 原始格式
+        // GuguData API标准格式 - 根据API文档解析
         data = apiResult.Data;
-        analysis = data?.分析 || {};
+        console.log("提取的完整数据:", JSON.stringify(data, null, 2));
+        
+        // 根据API文档，直接返回解析后的结果
+        const fortuneAnalysis = data.运势分析 || {};
+        const bodyFeatures = fortuneAnalysis.体貌特征 || {};
+        
+        return {
+          analysis: `【八字命盘】
+八字：${data.八字 || ''}
+五行：${data.五行 || ''}
+命宫：${data.命宫 || ''}
+身宫：${data.身宫 || ''}
+
+【体貌特征】
+面貌：${bodyFeatures.面貌 || ''}
+身材：${bodyFeatures.身材 || ''}
+特别标记：${bodyFeatures.特别标记 || ''}
+
+【学业运势】
+${fortuneAnalysis.学业 ? JSON.stringify(fortuneAnalysis.学业, null, 2).replace(/[{}",]/g, '').replace(/:/g, '：') : ''}
+
+【财运状况】
+${fortuneAnalysis.财运 ? JSON.stringify(fortuneAnalysis.财运, null, 2).replace(/[{}",]/g, '').replace(/:/g, '：') : ''}
+
+【婚姻感情】
+${fortuneAnalysis.婚姻 ? JSON.stringify(fortuneAnalysis.婚姻, null, 2).replace(/[{}",]/g, '').replace(/:/g, '：') : ''}
+
+【健康状况】
+${fortuneAnalysis.健康 ? JSON.stringify(fortuneAnalysis.健康, null, 2).replace(/[{}",]/g, '').replace(/:/g, '：') : ''}
+
+【综合评价】
+${data.综合评价 || ''}
+
+【融合分析】
+${data.融合分析文字 || ''}`,
+          
+          fiveElements: `五行配置：${data.五行 || ''}`,
+          
+          academicFortune: fortuneAnalysis.学业 ? 
+            `关键转折：${fortuneAnalysis.学业.关键转折 || ''}
+潜力：${fortuneAnalysis.学业.潜力 || ''}
+短板：${fortuneAnalysis.学业.短板 || ''}` : "学业运势分析中",
+          
+          recommendations: data.大运 && Array.isArray(data.大运) ? 
+            `【大运分析】
+${data.大运.map((stage: any) => 
+  `${stage.起始年份}-${stage.终止年份}年：${stage.运势名称}`
+).join('\n')}
+
+【重大转折点】
+${fortuneAnalysis.关键事件 ? fortuneAnalysis.关键事件.map((event: any) => 
+  `${event.年份}年：${event.事件}`
+).join('\n') : ''}` : '暂无大运分析'
+        };
       } else if (apiResult.code === 200 && apiResult.data) {
         // 备选格式1
         data = apiResult.data;
