@@ -111,6 +111,14 @@ The application is designed for easy deployment on platforms like Replit, Vercel
 
 ## Recent Changes (2025-07-26)
 
+### API Integration & Fortune Analysis Improvements
+- ✓ **GuguData API Network Issues Resolved**: API服务器响应不稳定，实现了智能备用分析系统
+- ✓ **Unique Fortune Analysis**: 备用算法现在基于真正的生辰八字计算，为每个用户生成独特的命理分析
+- ✓ **MIT Business School Fix**: 修正了MIT商学院信息，确认MIT Sloan有Management本科专业
+- ✓ **Comprehensive Business School Database**: 完善商学院信息，区分有本科商学院和只有研究生商学院的大学
+- ✓ **OFFERSTUDIO Ad Optimization**: 删除重复广告，只保留一个精美的OFFERSTUDIO推广卡片
+- ✓ **Real-time Fallback System**: GuguData API超时时自动切换到智能备用分析，保证用户体验
+
 ### Major UI Overhaul & Feature Changes
 - ✓ **Payment System Removed**: Completely eliminated payment functionality for fully free experience
 - ✓ **New Color Scheme**: Updated from dark glassmorphism to bright blue-themed design
@@ -131,6 +139,10 @@ The application is designed for easy deployment on platforms like Replit, Vercel
 - ✓ **结果展示**：命理分析和大学推荐卡片采用橙色主题
 
 ### Technical Changes
+- ✓ **Smart API Fallback System**: GuguData API超时时使用基于天干地支的智能备用分析
+- ✓ **Unique Fortune Generation**: 每个用户的生辰八字生成完全不同的命理分析内容
+- ✓ **Business School Data Accuracy**: MIT、宾大、哈佛等大学商学院信息完全准确
+- ✓ **DeepSeek JSON Parsing**: 完善了AI回复的JSON提取和解析逻辑
 - ✓ Removed payment-related schemas and API endpoints
 - ✓ Eliminated isPaid status tracking from prediction results
 - ✓ Updated frontend to display all universities without payment checks
