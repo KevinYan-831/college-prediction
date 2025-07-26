@@ -454,24 +454,6 @@ export default function PredictionPage() {
                     <h4 className="font-semibold text-orange-700 mb-3 text-lg">整体分析</h4>
                     <p className="text-gray-800 leading-relaxed">{results.fortuneAnalysis.analysis}</p>
                   </div>
-                  {results.fortuneAnalysis.fiveElements && (
-                    <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-400 p-6 rounded-2xl backdrop-blur-sm">
-                      <h4 className="font-semibold text-yellow-700 mb-3 text-lg">五行分析</h4>
-                      <p className="text-gray-700 leading-relaxed">{results.fortuneAnalysis.fiveElements}</p>
-                    </div>
-                  )}
-                  {results.fortuneAnalysis.academicFortune && (
-                    <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border-l-4 border-amber-400 p-6 rounded-2xl backdrop-blur-sm">
-                      <h4 className="font-semibold text-amber-700 mb-3 text-lg">学业运势</h4>
-                      <p className="text-gray-800 leading-relaxed">{results.fortuneAnalysis.academicFortune}</p>
-                    </div>
-                  )}
-                  {results.fortuneAnalysis.recommendations && (
-                    <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-400 p-6 rounded-2xl backdrop-blur-sm">
-                      <h4 className="font-semibold text-yellow-700 mb-3 text-lg">建议</h4>
-                      <p className="text-gray-800 leading-relaxed">{results.fortuneAnalysis.recommendations}</p>
-                    </div>
-                  )}
                 </div>
               </CardContent>
             </Card>
