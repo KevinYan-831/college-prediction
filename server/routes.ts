@@ -186,52 +186,51 @@ async function callGuguDataAPI(
         const bodyFeatures = fortuneAnalysis.体貌特征 || {};
         
         return {
-          analysis: `【八字命盘】
-八字：${data.八字 || ''}
-五行：${data.五行 || ''}
-命宫：${data.命宫 || ''}
-身宫：${data.身宫 || ''}
-
-【体貌特征】
+          analysis: `【体貌特征】
 面貌：${bodyFeatures.面貌 || ''}
 身材：${bodyFeatures.身材 || ''}
-特别标记：${bodyFeatures.特别标记 || ''}
-
-【学业运势】
-${fortuneAnalysis.学业 ? JSON.stringify(fortuneAnalysis.学业, null, 2).replace(/[{}",]/g, '').replace(/:/g, '：') : ''}
-
-【财运状况】
-${fortuneAnalysis.财运 ? JSON.stringify(fortuneAnalysis.财运, null, 2).replace(/[{}",]/g, '').replace(/:/g, '：') : ''}
+特别标记：${bodyFeatures.特别标记 || bodyFeatures.标志特征 || ''}
 
 【婚姻感情】
-${fortuneAnalysis.婚姻 ? JSON.stringify(fortuneAnalysis.婚姻, null, 2).replace(/[{}",]/g, '').replace(/:/g, '：') : ''}
+${fortuneAnalysis.婚姻?.婚期 ? `婚期：${fortuneAnalysis.婚姻.婚期}` : ''}
+${fortuneAnalysis.婚姻?.配偶特征 ? `配偶特征：${fortuneAnalysis.婚姻.配偶特征}` : ''}
+${fortuneAnalysis.婚姻?.危机 ? `注意事项：${fortuneAnalysis.婚姻.危机}` : ''}
 
-【健康状况】
-${fortuneAnalysis.健康 ? JSON.stringify(fortuneAnalysis.健康, null, 2).replace(/[{}",]/g, '').replace(/:/g, '：') : ''}
+【健康状况】  
+${fortuneAnalysis.健康?.重点部位 ? `重点部位：${fortuneAnalysis.健康.重点部位}` : ''}
+${fortuneAnalysis.健康?.危险年份 ? `危险年份：${fortuneAnalysis.健康.危险年份}` : ''}
 
 【综合评价】
-${data.综合评价 || ''}
+${data.综合评价 || ''}`,
+          
+          fiveElements: `八字：${data.八字 || ''}
+五行：${data.五行 || ''}
+命宫：${data.命宫 || ''}
+身宫：${data.身宫 || ''}`,
+          
+          academicFortune: `【学业运势详解】
+${fortuneAnalysis.学业?.关键阶段 ? `关键阶段：${fortuneAnalysis.学业.关键阶段}` : ''}
+${fortuneAnalysis.学业?.优势 ? `学业优势：${fortuneAnalysis.学业.优势}` : ''}
+${fortuneAnalysis.学业?.短板 ? `注意短板：${fortuneAnalysis.学业.短板}` : ''}
 
-【融合分析】
+【财运轨迹】
+${fortuneAnalysis.财运?.黄金期 ? `黄金期：${fortuneAnalysis.财运.黄金期}` : ''}
+${fortuneAnalysis.财运?.财富量级 ? `财富量级：${fortuneAnalysis.财运.财富量级}` : ''}
+${fortuneAnalysis.财运?.财路 ? `主要财路：${fortuneAnalysis.财运.财路}` : ''}
+
+【融合分析详解】
 ${data.融合分析文字 || ''}`,
           
-          fiveElements: `五行配置：${data.五行 || ''}`,
-          
-          academicFortune: fortuneAnalysis.学业 ? 
-            `关键转折：${fortuneAnalysis.学业.关键转折 || ''}
-潜力：${fortuneAnalysis.学业.潜力 || ''}
-短板：${fortuneAnalysis.学业.短板 || ''}` : "学业运势分析中",
-          
-          recommendations: data.大运 && Array.isArray(data.大运) ? 
-            `【大运分析】
-${data.大运.map((stage: any) => 
-  `${stage.起始年份}-${stage.终止年份}年：${stage.运势名称}`
-).join('\n')}
+          recommendations: `【大运分析】
+${data.大运 && Array.isArray(data.大运) ? 
+  data.大运.map((stage: any) => 
+    `${stage.起始}-${stage.终止}年：${stage.运势}`
+  ).join('\n') : ''}
 
 【重大转折点】
 ${fortuneAnalysis.关键事件 ? fortuneAnalysis.关键事件.map((event: any) => 
   `${event.年份}年：${event.事件}`
-).join('\n') : ''}` : '暂无大运分析'
+).join('\n') : ''}`
         };
       } else if (apiResult.code === 200 && apiResult.data) {
         // 备选格式1
