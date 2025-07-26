@@ -88,13 +88,13 @@ export default function PredictionPage() {
     const messageInterval = setInterval(() => {
       const messages = [
         "正在分析您的生辰八字...",
-        "調用命理分析API中...", 
-        "分析五行屬性和性格特質...",
-        "調用AI大學預測API...",
-        "結合命理因素分析適合的大學...",
-        "計算錄取可能性...",
-        "生成個性化推薦理由...",
-        "整理分析結果..."
+        "调用命理分析API中...", 
+        "分析五行属性和性格特质...",
+        "调用AI大学预测API...",
+        "结合命理因素分析适合的大学...",
+        "计算录取可能性...",
+        "生成个性化推荐理由...",
+        "整理分析结果..."
       ];
       setLoadingMessage(messages[Math.floor(Math.random() * messages.length)]);
     }, 2500);
@@ -369,9 +369,9 @@ export default function PredictionPage() {
                 </div>
                 
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-sm text-gray-600">完成進度：{loadingProgress}%</span>
+                  <span className="text-sm text-gray-600">完成进度：{loadingProgress}%</span>
                   <span className="text-sm text-gray-600">
-                    預計剩餘：{estimatedTime > 0 ? estimatedTime + ' 秒' : '即將完成'}
+                    预计剩余：{estimatedTime > 0 ? estimatedTime + ' 秒' : '即将完成'}
                   </span>
                 </div>
                 
@@ -382,11 +382,11 @@ export default function PredictionPage() {
                   </div>
                   <div className="flex items-center justify-center space-x-2">
                     <div className={`w-3 h-3 rounded-full ${loadingProgress > 60 ? 'bg-green-500' : 'bg-gray-300'} ${loadingProgress > 20 && loadingProgress <= 60 ? 'animate-pulse' : ''}`}></div>
-                    <span className="text-sm text-gray-600">大学預測API</span>
+                    <span className="text-sm text-gray-600">大学预测API</span>
                   </div>
                   <div className="flex items-center justify-center space-x-2">
                     <div className={`w-3 h-3 rounded-full ${loadingProgress > 90 ? 'bg-green-500' : 'bg-gray-300'} ${loadingProgress > 60 && loadingProgress <= 90 ? 'animate-pulse' : ''}`}></div>
-                    <span className="text-sm text-gray-600">結果整理</span>
+                    <span className="text-sm text-gray-600">结果整理</span>
                   </div>
                 </div>
               </div>

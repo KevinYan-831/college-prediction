@@ -59,10 +59,12 @@ async function callGuguDataAPI(
     
     console.log(`調用咕咕數據API: ${birthDate} ${birthTime} ${gender}`);
     
-    const userinfo = `性别：${gender === "male" ? "男" : "女"}，出生日期：${birthDate}，出生时间：${birthTime}`;
+    const userinfo = `我是${gender === "male" ? "男性" : "女性"}，我的公历出生日期是${birthDate}，出生时间是${birthTime}。`;
     
     const response = await axios.post(`https://api.gugudata.com/ai/bazi-fortune-teller?appkey=${appKey}`, 
-      `userinfo=${encodeURIComponent(userinfo)}`, {
+      new URLSearchParams({
+        userinfo: userinfo
+      }), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': 'University-Prediction-App/1.0'
@@ -80,29 +82,29 @@ async function callGuguDataAPI(
       const analysis = data.分析 || {};
       
       return {
-        analysis: `【八字命盤】
+        analysis: `【八字命盘】
 八字：${data.八字 || ''}
 五行：${data.五行 || ''}
 
-【整體分析】
-${analysis.总体评价 || '命盤分析顯示您具有良好的學術潛質'}
+【整体分析】
+${analysis.总体评价 || '命盘分析显示您具有良好的学术潜质'}
 
-【體貌特徵】
+【体貌特征】
 ${analysis.体貌特征 || ''}`,
         
         fiveElements: `五行配置：${data.五行 || ''}
-${data.十神 ? `十神配置：年柱${data.十神.年柱}，月柱${data.十神.月柱}，日柱${data.十神.日柱}，時柱${data.十神.时柱}` : ''}`,
+${data.十神 ? `十神配置：年柱${data.十神.年柱}，月柱${data.十神.月柱}，日柱${data.十神.日柱}，时柱${data.十神.时柱}` : ''}`,
         
-        academicFortune: analysis.学业 || "學業運勢分析中",
+        academicFortune: analysis.学业 || "学业运势分析中",
         
-        recommendations: `【專業建議】
-學業發展：${analysis.学业 || ''}
+        recommendations: `【专业建议】
+学业发展：${analysis.学业 || ''}
 
-事業規劃：${analysis.事业 || analysis.career || ''}
+事业规划：${analysis.事业 || analysis.career || ''}
 
 ${data.大运 && data.大运.length > 0 ? 
-`【大運分析】
-當前大運：${data.大运.find(d => {
+`【大运分析】
+当前大运：${data.大运.find(d => {
   const [start, end] = d.年份.split('-').map(Number);
   const currentYear = new Date().getFullYear();
   return currentYear >= start && currentYear <= end;
@@ -114,12 +116,13 @@ ${data.大运 && data.大运.length > 0 ?
       };
     }
     
-    // 如果API返回格式不符預期，顯示錯誤信息
+    // 如果API返回格式不符预期，显示错误信息
     return {
-      analysis: `API調用狀態：${apiResult?.DataStatus?.StatusDescription || '未知錯誤'}`,
-      fiveElements: `狀態碼：${apiResult?.DataStatus?.StatusCode || 'N/A'}`,
-      academicFortune: "請檢查API調用",
-      recommendations: JSON.stringify(apiResult, null, 2)
+      analysis: `API调用状态：${apiResult?.DataStatus?.StatusDescription || '未知错误'}
+完整返回数据：${JSON.stringify(apiResult, null, 2)}`,
+      fiveElements: `状态码：${apiResult?.DataStatus?.StatusCode || 'N/A'}`,
+      academicFortune: "请检查API调用",
+      recommendations: `请求参数：${apiResult?.DataStatus?.RequestParameter || ''}`
     };
     
   } catch (error) {
@@ -131,10 +134,10 @@ ${data.大运 && data.大运.length > 0 ?
     const elementAnalysis = getElementByYear(year);
     
     return {
-      analysis: `根據您的出生信息（${year}年${month}月${day}日${hour}時${minute}分），${elementAnalysis.analysis}。${season.analysis}${timeAnalysis.analysis}這些因素結合顯示您在學術領域具有獨特優勢，適合深造發展。`,
-      fiveElements: `${elementAnalysis.element}，${season.element}，整體五行配置${elementAnalysis.balance}`,
-      academicFortune: `${timeAnalysis.fortune}，${season.fortune}，整體學業運勢向好，特別適合海外求學。`,
-      recommendations: `基於您的命理特質，建議選擇${elementAnalysis.major}相關專業，發揮您的${elementAnalysis.strength}優勢。`
+      analysis: `根据您的出生信息（${year}年${month}月${day}日${hour}时${minute}分），${elementAnalysis.analysis}。${season.analysis}${timeAnalysis.analysis}这些因素结合显示您在学术领域具有独特优势，适合深造发展。`,
+      fiveElements: `${elementAnalysis.element}，${season.element}，整体五行配置${elementAnalysis.balance}`,
+      academicFortune: `${timeAnalysis.fortune}，${season.fortune}，整体学业运势向好，特别适合海外求学。`,
+      recommendations: `基于您的命理特质，建议选择${elementAnalysis.major}相关专业，发挥您的${elementAnalysis.strength}优势。`
     };
   }
 }
