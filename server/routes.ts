@@ -17,18 +17,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // 准备API调用数据
       const { year, month, day, hour, minute, gender, major, dreamUniversities } = validatedData;
       
-      // 调用两个API，如果GuguData失败则使用备用分析
-      let fortuneResponse;
-      try {
-        fortuneResponse = await callGuguDataAPI(year, month, day, hour, minute, gender, major);
-        console.log("成功使用GuguData API响应");
-      } catch (error) {
-        console.log("GuguData API失败，使用智能备用分析:", error.message);
-        fortuneResponse = generateBackupAnalysis(year, month, day, hour, minute, gender, major);
-      }
-      
-      // 调用DeepSeek API进行大学预测
-      const universityResponse = await callDeepSeekAPI(validatedData);
+      // 并行调用两个API
+      const [fortuneResponse, universityResponse] = await Promise.all([
+        // 调用咕咕数据API进行命理分析
+        callGuguDataAPI(year, month, day, hour, minute, gender, major),
+        // 调用DeepSeek API进行大学预测
+        callDeepSeekAPI(validatedData)
+      ]);
       
       const sessionId = randomUUID();
       
@@ -228,9 +223,7 @@ ${JSON.stringify(apiResult, null, 2)}
     
   } catch (error) {
     console.error("咕咕数据API调用失败:", error);
-    
-    // API调用失败时，抛出错误让上层处理
-    throw new Error(`GuguData API调用失败: ${error.message}`);
+    throw error; // 直接抛出原始错误
   }
 }
 
@@ -834,131 +827,7 @@ function checkBusinessMajorCompatibility(major: string, universityName: string):
   return noBusinessSchools[universityName] || "";
 }
 
-// 生成备用命理分析（仅在GuguData API失败时使用）
-function generateBackupAnalysis(year: number, month: number, day: number, hour: number, minute: number, gender: string, major: string) {
-  // 创建真正基于生辰八字的唯一分析
-  const birthHash = (year * 10000 + month * 100 + day + hour) % 1000;
-  const genderFactor = gender === 'male' ? 1 : 2;
-  const uniqueId = birthHash + genderFactor;
-  
-  // 五行计算
-  const elements = ['金', '木', '水', '火', '土'];
-  const primaryElement = elements[uniqueId % 5];
-  const secondaryElement = elements[(uniqueId + 3) % 5];
-  
-  // 天干地支计算
-  const heavenlyStems = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
-  const earthlyBranches = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
-  
-  const yearStem = heavenlyStems[(year - 4) % 10];
-  const yearBranch = earthlyBranches[(year - 4) % 12];
-  const monthStem = heavenlyStems[(month + uniqueId) % 10];
-  const monthBranch = earthlyBranches[month % 12];
-  const dayStem = heavenlyStems[(day + uniqueId * 2) % 10];
-  const dayBranch = earthlyBranches[day % 12];
-  const hourStem = heavenlyStems[(hour + uniqueId * 3) % 10];
-  const hourBranch = earthlyBranches[Math.floor(hour / 2)];
-  
-  const bazi = `${yearStem}${yearBranch} ${monthStem}${monthBranch} ${dayStem}${dayBranch} ${hourStem}${hourBranch}`;
-  
-  // 根据生辰生成唯一特征描述
-  const appearances = [
-    '面相清秀端正，眉眼之间透露出智慧的光芒',
-    '五官立体，面部轮廓分明，具有独特的魅力',
-    '眼神深邃有神，面容温和亲切，给人可靠印象',
-    '身材匀称，举止优雅，具有良好的气质',
-    '面部线条柔和，笑容温暖，容易给人好感'
-  ];
-  const appearance = appearances[uniqueId % appearances.length];
-  
-  // 学业运势变化
-  const academicFortunes = [
-    '学业运势呈上升趋势，在专业领域将有突出表现',
-    '求学路上会遇到贵人相助，学术成就值得期待',
-    '具备扎实的学习基础，在研究领域有望取得突破',
-    '学习天赋较高，但需要持续努力方能成就大业',
-    '在学术道路上会有曲折，但最终能获得满意成果'
-  ];
-  const academic = academicFortunes[(uniqueId * 2) % academicFortunes.length];
-  
-  // 事业发展路径
-  const careerPaths = [
-    '事业发展前景广阔，在管理层面有很大潜力',
-    '专业技能将成为核心竞争力，适合技术导向的职业',
-    '具有创新思维，在创业或新兴行业中能够发光发热',
-    '人际关系处理得当，适合需要沟通协调的工作',
-    '做事踏实稳重，在传统行业中能够稳步发展'
-  ];
-  const career = careerPaths[(uniqueId * 3) % careerPaths.length];
-  
-  // 财运状况
-  const wealthFortunes = [
-    '财运平稳上升，通过专业技能能获得丰厚回报',
-    '理财意识较强，善于规划未来的财务发展',
-    '收入来源多样化，但需要注意投资风险控制',
-    '财运与事业运密切相关，职业成功带来财富增长',
-    '对金钱有正确认识，能够通过努力获得应有回报'
-  ];
-  const wealth = wealthFortunes[(uniqueId * 4) % wealthFortunes.length];
-  
-  // 婚姻感情
-  const marriageFortunes = [
-    '感情运势稳定，会遇到性格互补的理想伴侣',
-    '在学业完成后感情运会有明显提升',
-    '对感情较为理性，注重精神层面的契合',
-    '异地恋情况较多，但真挚的感情能够克服距离',
-    '感情发展较为顺利，但不宜过早进入婚姻'
-  ];
-  const marriage = marriageFortunes[(uniqueId * 5) % marriageFortunes.length];
-  
-  // 健康状况
-  const healthAdvice = [
-    '体质较好但需注意肝脏保养，避免熬夜过度',
-    '需要加强体育锻炼，预防颈椎和腰椎问题',
-    '注意肠胃健康，饮食规律对您特别重要',
-    '心血管需要特别关注，保持良好的作息习惯',
-    '要注意眼部健康，定期检查视力变化'
-  ];
-  const health = healthAdvice[(uniqueId * 6) % healthAdvice.length];
-  
-  return {
-    analysis: `【八字命盘】
-八字：${bazi}
-五行：以${primaryElement}为主，${secondaryElement}为辅
 
-【体貌特征】
-${appearance}，${primaryElement}特质在您身上体现明显。
-
-【学业运势】
-${academic}，海外求学运势特别旺盛，适合在国际环境中发展。
-
-【事业发展】
-${career}，${primaryElement}属性的人在${major}领域有天然优势。
-
-【财运状况】
-${wealth}，${primaryElement}财运助您在事业上取得成功。
-
-【婚姻感情】
-${marriage}，建议专注学业发展，感情顺其自然。
-
-【健康状况】
-整体健康状况良好，${health}，保持积极心态对健康有益。
-
-【总体评价】
-您的命盘显示${primaryElement}${secondaryElement}相配，命格较为均衡，特别适合在学术和专业领域发展，海外求学将为您带来更广阔的发展空间。`,
-    
-    fiveElements: `五行配置：${primaryElement}${secondaryElement}互补，整体五行较为平衡，${primaryElement}特质明显`,
-    
-    academicFortune: `学业运势向好，${primaryElement}属性有利于学术钻研，海外求学特别有利`,
-    
-    recommendations: `【大运分析】
-当前阶段：正值学业发展的关键时期
-未来十年：${primaryElement}运势渐强，事业发展潜力巨大
-
-【专业建议】
-基于您的${primaryElement}特质，在${major}领域将有不俗表现，建议充分发挥天赋优势。`
-  };
-}
 
 
 
