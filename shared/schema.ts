@@ -36,7 +36,6 @@ export const universityPredictionSchema = z.object({
   name: z.string(),
   chineseName: z.string(),
   major: z.string(),
-  admissionProbability: z.number().min(0).max(100),
   location: z.string(),
   ranking: z.number().optional(),
   reasons: z.string().optional()

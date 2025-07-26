@@ -117,6 +117,7 @@ export default function PredictionPage() {
     setIsLoading(false);
   };
 
+  // 已移除概率颜色函数，不再显示录取概率百分比
   const getProbabilityColor = (probability: number) => {
     if (probability >= 80) return "bg-green-100 text-green-800";
     if (probability >= 60) return "bg-yellow-100 text-yellow-800";
@@ -450,8 +451,8 @@ export default function PredictionPage() {
                           <h4 className="font-semibold text-lg text-gray-900">{university.chineseName}</h4>
                           <p className="text-gray-600 text-sm">{university.name} - {university.major}</p>
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${getProbabilityColor(university.admissionProbability)}`}>
-                          录取可能性: {university.admissionProbability}%
+                        <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                          推荐录取
                         </span>
                       </div>
                       <div className="flex items-center text-sm text-gray-500 mb-2">

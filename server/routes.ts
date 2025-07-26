@@ -61,12 +61,11 @@ async function callGuguDataAPI(
     
     const userinfo = `我是${gender === "male" ? "男性" : "女性"}，我的公历出生日期是${birthDate}，出生时间是${birthTime}。`;
     
-    const response = await axios.post(`https://api.gugudata.com/ai/bazi-fortune-teller?appkey=${appKey}`, 
-      new URLSearchParams({
+    const response = await axios.post(`https://api.gugudata.com/ai/bazi-fortune-teller?appkey=${appKey}`, {
         userinfo: userinfo
-      }), {
+      }, {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json; charset=utf-8',
         'User-Agent': 'University-Prediction-App/1.0'
       },
       timeout: 15000
@@ -228,29 +227,30 @@ async function callDeepSeekAPI(data: any) {
    - 普林斯頓大學（只有Economics）
    - 耶魯大學（只有Economics）
    - 麻省理工學院（只有Management）
-4. 如果學生申請商科，只推薦確實有本科Business程序的大學，如：
-   - 賓夕法尼亞大學沃頓商學院
-   - 密歇根大學安娜堡分校商學院  
-   - 紐約大學斯特恩商學院
-   - 加州大學伯克利分校哈斯商學院
-   - 弗吉尼亞大學達頓商學院等
+4. 如果學生申請商科，只推薦確實有本科Business程序的大學
 5. 如果是其他專業，確保推薦的學校有該本科專業
-6. 根據生辰八字的五行屬性分析學生的性格和學習特質
-7. 結合命理因素解釋為什麼某個地區或學校適合該學生
+6. 根據申請材料水平嚴格評估錄取可能性：
+   - 極差材料：不可能被頂尖大學錄取，只推薦社區大學或排名很低的大學
+   - 較差材料：只推薦排名較低的州立大學
+   - 一般材料：推薦中等排名的大學
+   - 較好材料：推薦較好排名的大學
+   - 極好材料：可推薦頂尖大學
+7. 根據語言成績評估：托福105+或雅思7.5+才可能被頂尖大學錄取
+8. 根據生辰八字的五行屬性分析學生的性格和學習特質
+9. 結合命理因素解釋為什麼某個地區或學校適合該學生
 
-請返回JSON格式數組，包含15所大學：
+請返回JSON格式數組，包含15所真正會錄取該學生的大學（不要顯示錄取概率百分比）：
 [
   {
     "name": "英文校名",
     "chineseName": "中文校名",
     "major": "確實存在的本科專業名稱",
-    "admissionProbability": 數字(0-100),
     "location": "城市，州名",
-    "reasons": "結合命理分析的詳細錄取可能性分析，至少80字，包含五行特質分析"
+    "reasons": "詳細說明為什麼這所大學會錄取該學生，結合申請材料水平、語言成績、命理分析等因素，至少100字"
   }
 ]
 
-請確保：頂尖大學(5所)、優秀大學(5所)、良好大學(5所)的分佈，且專業名稱100%準確。`;
+請確保推薦的都是該學生條件下真正有可能被錄取的學校，專業名稱100%準確。`;
 
     const response = await axios.post("https://api.deepseek.com/v1/chat/completions", {
       model: "deepseek-chat",
@@ -280,7 +280,15 @@ async function callDeepSeekAPI(data: any) {
     try {
       // 尝试解析JSON
       const universities = JSON.parse(content);
-      return Array.isArray(universities) ? universities : universities.universities || [];
+      // 移除admissionProbability字段
+      const cleanedUniversities = (Array.isArray(universities) ? universities : universities.universities || []).map(uni => ({
+        name: uni.name,
+        chineseName: uni.chineseName,
+        major: uni.major,
+        location: uni.location,
+        reasons: uni.reasons
+      }));
+      return cleanedUniversities;
     } catch (parseError) {
       console.error("DeepSeek API返回格式解析失败:", parseError);
       // 返回默认大学列表
@@ -320,15 +328,13 @@ function getDefaultUniversityPredictions(data: any) {
         name: "University of Pennsylvania (Wharton)",
         chineseName: "宾夕法尼亚大学沃顿商学院",
         major: "Business Administration", 
-        admissionProbability: Math.min(85, baseScore + 10),
-        location: "費城，賓夕法尼亞州",
+        location: "費城,賓夕法尼亞州",
         reasons: "沃頓商學院是全美頂尖商學院，您的命理特質適合商業發展"
       },
       {
         name: "University of Michigan - Ann Arbor (Ross)",
         chineseName: "密歇根大學安娜堡分校羅斯商學院",
         major: "Business Administration",
-        admissionProbability: Math.min(88, baseScore + 13), 
         location: "安娜堡，密歇根州",
         reasons: "羅斯商學院聲譽卓著，中西部地區適合您的五行特質"
       },
@@ -336,7 +342,6 @@ function getDefaultUniversityPredictions(data: any) {
         name: "New York University (Stern)",
         chineseName: "紐約大學斯特恩商學院",
         major: "Business Administration",
-        admissionProbability: Math.min(82, baseScore + 7),
         location: "紐約，紐約州",
         reasons: "斯特恩商學院位於金融中心，有利於您的財運發展"
       },
@@ -344,7 +349,6 @@ function getDefaultUniversityPredictions(data: any) {
         name: "UC Berkeley (Haas)",
         chineseName: "加州大學伯克利分校哈斯商學院", 
         major: "Business Administration",
-        admissionProbability: Math.min(80, baseScore + 5),
         location: "伯克利，加利福尼亞州",
         reasons: "哈斯商學院創新氛圍濃厚，西海岸環境適合您的發展"
       },
@@ -352,7 +356,6 @@ function getDefaultUniversityPredictions(data: any) {
         name: "University of Virginia (Darden)",
         chineseName: "弗吉尼亞大學達頓商學院",
         major: "Business Administration", 
-        admissionProbability: Math.min(90, baseScore + 15),
         location: "夏洛茨維爾，弗吉尼亞州",
         reasons: "達頓商學院案例教學著名，東海岸環境有利於您的學業運"
       },
@@ -360,7 +363,6 @@ function getDefaultUniversityPredictions(data: any) {
         name: "Carnegie Mellon University (Tepper)",
         chineseName: "卡內基梅隆大學泰珀商學院",
         major: "Business Administration",
-        admissionProbability: Math.min(85, baseScore + 10),
         location: "匹茲堡，賓夕法尼亞州",
         reasons: "泰珀商學院技術導向，結合您的命理特質適合創新發展"
       },
@@ -368,7 +370,6 @@ function getDefaultUniversityPredictions(data: any) {
         name: "Washington University in St. Louis (Olin)",
         chineseName: "聖路易斯華盛頓大學奧林商學院",
         major: "Business Administration",
-        admissionProbability: Math.min(92, baseScore + 17),
         location: "聖路易斯，密蘇里州",
         reasons: "奧林商學院教學品質優秀，中部地區環境有利於您的發展"
       },
@@ -376,7 +377,6 @@ function getDefaultUniversityPredictions(data: any) {
         name: "University of Notre Dame (Mendoza)",
         chineseName: "聖母大學門多薩商學院", 
         major: "Business Administration",
-        admissionProbability: Math.min(88, baseScore + 13),
         location: "南本德，印第安納州",
         reasons: "門多薩商學院注重價值觀培養，適合您的品格發展"
       },
@@ -384,7 +384,6 @@ function getDefaultUniversityPredictions(data: any) {
         name: "Georgetown University (McDonough)",
         chineseName: "喬治城大學麥克多諾商學院",
         major: "Business Administration", 
-        admissionProbability: Math.min(86, baseScore + 11),
         location: "華盛頓特區",
         reasons: "麥克多諾商學院政商結合，首都地區有利於您的事業運"
       },
@@ -392,7 +391,6 @@ function getDefaultUniversityPredictions(data: any) {
         name: "Boston College (Carroll)",
         chineseName: "波士頓學院卡羅爾商學院",
         major: "Business Administration",
-        admissionProbability: Math.min(90, baseScore + 15),
         location: "波士頓，麻薩諸塞州",
         reasons: "卡羅爾商學院學術聲譽良好，新英格蘭地區適合您的學習"
       },
@@ -400,7 +398,6 @@ function getDefaultUniversityPredictions(data: any) {
         name: "University of Southern California (Marshall)",
         chineseName: "南加州大學馬歇爾商學院",
         major: "Business Administration",
-        admissionProbability: Math.min(87, baseScore + 12),
         location: "洛杉磯，加利福尼亞州", 
         reasons: "馬歇爾商學院國際化程度高，西海岸創業氛圍適合您"
       },
@@ -408,7 +405,6 @@ function getDefaultUniversityPredictions(data: any) {
         name: "Indiana University (Kelley)",
         chineseName: "印第安納大學凱利商學院",
         major: "Business Administration",
-        admissionProbability: Math.min(93, baseScore + 18),
         location: "布盧明頓，印第安納州",
         reasons: "凱利商學院性價比高，中西部環境穩定適合學業發展"
       },
@@ -416,7 +412,6 @@ function getDefaultUniversityPredictions(data: any) {
         name: "University of Illinois Urbana-Champaign",
         chineseName: "伊利諾伊大學厄巴納-香檳分校商學院",
         major: "Business Administration",
-        admissionProbability: Math.min(91, baseScore + 16),
         location: "厄巴納-香檳，伊利諾伊州",
         reasons: "商學院實力強勁，公立大學性價比高適合您的財運規劃"
       },
@@ -424,7 +419,6 @@ function getDefaultUniversityPredictions(data: any) {
         name: "University of Texas at Austin (McCombs)",
         chineseName: "德州大學奧斯汀分校麥庫姆斯商學院",
         major: "Business Administration",
-        admissionProbability: Math.min(89, baseScore + 14),
         location: "奧斯汀，德克薩斯州",
         reasons: "麥庫姆斯商學院創業精神濃厚，德州發展前景符合您的運勢"
       }
@@ -437,7 +431,6 @@ function getDefaultUniversityPredictions(data: any) {
       name: "MIT",
       chineseName: "麻省理工学院",
       major: data.major,
-      admissionProbability: Math.min(85, baseScore + 5),
       location: "剑桥，马萨诸塞州", 
       reasons: "理工科专业优势明显"
     },
@@ -445,7 +438,6 @@ function getDefaultUniversityPredictions(data: any) {
       name: "Princeton University",
       chineseName: "普林斯顿大学",
       major: data.major,
-      admissionProbability: Math.min(80, baseScore),
       location: "普林斯顿，新泽西州",
       reasons: "学术潜力符合要求"
     },
@@ -453,7 +445,6 @@ function getDefaultUniversityPredictions(data: any) {
       name: "Yale University",
       chineseName: "耶鲁大学", 
       major: data.major,
-      admissionProbability: Math.min(75, baseScore - 5),
       location: "纽黑文，康涅狄格州",
       reasons: "综合素质良好"
     },
@@ -461,7 +452,6 @@ function getDefaultUniversityPredictions(data: any) {
       name: "University of Chicago",
       chineseName: "芝加哥大学",
       major: data.major,
-      admissionProbability: Math.min(85, baseScore + 10),
       location: "芝加哥，伊利诺伊州",
       reasons: "学术氛围匹配"
     },
@@ -469,7 +459,6 @@ function getDefaultUniversityPredictions(data: any) {
       name: "Columbia University",
       chineseName: "哥伦比亚大学",
       major: data.major,
-      admissionProbability: Math.min(80, baseScore + 5),
       location: "纽约，纽约州",
       reasons: "地理位置优势"
     },
@@ -477,7 +466,6 @@ function getDefaultUniversityPredictions(data: any) {
       name: "University of Pennsylvania",
       chineseName: "宾夕法尼亚大学",
       major: data.major,
-      admissionProbability: Math.min(82, baseScore + 7),
       location: "费城，宾夕法尼亚州",
       reasons: "专业排名靠前"
     },
@@ -485,7 +473,6 @@ function getDefaultUniversityPredictions(data: any) {
       name: "Duke University",
       chineseName: "杜克大学",
       major: data.major,
-      admissionProbability: Math.min(78, baseScore + 3),
       location: "达勒姆，北卡罗来纳州",
       reasons: "综合实力强劲"
     },
@@ -493,7 +480,6 @@ function getDefaultUniversityPredictions(data: any) {
       name: "Northwestern University",
       chineseName: "西北大学",
       major: data.major,
-      admissionProbability: Math.min(85, baseScore + 10),
       location: "埃文斯顿，伊利诺伊州",
       reasons: "专业匹配度高"
     },
@@ -501,7 +487,6 @@ function getDefaultUniversityPredictions(data: any) {
       name: "Brown University",
       chineseName: "布朗大学",
       major: data.major,
-      admissionProbability: Math.min(80, baseScore + 5),
       location: "普罗维登斯，罗德岛州",
       reasons: "开放式课程适合发展"
     },
@@ -509,7 +494,6 @@ function getDefaultUniversityPredictions(data: any) {
       name: "Vanderbilt University", 
       chineseName: "范德堡大学",
       major: data.major,
-      admissionProbability: Math.min(88, baseScore + 13),
       location: "纳什维尔，田纳西州",
       reasons: "学术声誉良好"
     },
@@ -517,7 +501,6 @@ function getDefaultUniversityPredictions(data: any) {
       name: "Rice University",
       chineseName: "莱斯大学",
       major: data.major,
-      admissionProbability: Math.min(90, baseScore + 15),
       location: "休斯顿，得克萨斯州",
       reasons: "小班教学优势"
     },
@@ -525,7 +508,6 @@ function getDefaultUniversityPredictions(data: any) {
       name: "Washington University in St. Louis",
       chineseName: "圣路易斯华盛顿大学",
       major: data.major,
-      admissionProbability: Math.min(92, baseScore + 17),
       location: "圣路易斯，密苏里州",
       reasons: "学术水平匹配"
     },
@@ -533,7 +515,6 @@ function getDefaultUniversityPredictions(data: any) {
       name: "Emory University",
       chineseName: "埃默里大学",
       major: data.major,
-      admissionProbability: Math.min(95, baseScore + 20),
       location: "亚特兰大，佐治亚州", 
       reasons: "录取要求符合条件"
     }
