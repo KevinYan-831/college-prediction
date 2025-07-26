@@ -408,16 +408,16 @@ export default function PredictionPage() {
         {results && !isLoading && (
           <div className="space-y-6">
             {/* 保存图片按钮 */}
-            <div className="text-center">
+            <div className="text-center px-2">
               <Button 
                 onClick={handleSaveImage}
                 disabled={isSavingImage}
-                className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white border-0 backdrop-blur-sm rounded-2xl px-8 py-4 font-semibold text-lg transition-all duration-300 hover:scale-105 shadow-xl"
+                className="w-full sm:w-auto bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white border-0 backdrop-blur-sm rounded-2xl px-6 sm:px-8 py-3 sm:py-4 font-semibold text-base sm:text-lg transition-all duration-300 hover:scale-105 shadow-xl"
               >
                 {isSavingImage ? (
-                  <Loader2 className="mr-3 h-5 w-5 animate-spin" />
+                  <Loader2 className="mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
                 ) : (
-                  <Download className="mr-3 h-5 w-5" />
+                  <Download className="mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5" />
                 )}
                 {isSavingImage ? "生成图片中..." : "保存结果为图片"}
               </Button>
@@ -570,15 +570,34 @@ export default function PredictionPage() {
             
             </div>
 
-            {/* 重新预测按钮 */}
-            <div className="text-center">
-              <Button 
-                onClick={handleReset}
-                className="bg-orange-100/50 hover:bg-orange-200/50 text-gray-800 border border-orange-200/50 backdrop-blur-sm rounded-2xl px-8 py-4 font-semibold text-lg transition-all duration-300 hover:scale-105"
-              >
-                <RotateCcw className="mr-3 h-5 w-5" />
-                重新预测
-              </Button>
+            {/* 底部按钮组 */}
+            <div className="space-y-4 px-2">
+              {/* 底部保存图片按钮 */}
+              <div className="text-center">
+                <Button 
+                  onClick={handleSaveImage}
+                  disabled={isSavingImage}
+                  className="w-full sm:w-auto bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white border-0 backdrop-blur-sm rounded-2xl px-6 sm:px-8 py-3 sm:py-4 font-semibold text-base sm:text-lg transition-all duration-300 hover:scale-105 shadow-xl"
+                >
+                  {isSavingImage ? (
+                    <Loader2 className="mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+                  ) : (
+                    <Download className="mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5" />
+                  )}
+                  {isSavingImage ? "生成图片中..." : "保存结果为图片"}
+                </Button>
+              </div>
+
+              {/* 重新预测按钮 */}
+              <div className="text-center">
+                <Button 
+                  onClick={handleReset}
+                  className="w-full sm:w-auto bg-orange-100/50 hover:bg-orange-200/50 text-gray-800 border border-orange-200/50 backdrop-blur-sm rounded-2xl px-6 sm:px-8 py-3 sm:py-4 font-semibold text-base sm:text-lg transition-all duration-300 hover:scale-105"
+                >
+                  <RotateCcw className="mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5" />
+                  重新预测
+                </Button>
+              </div>
             </div>
           </div>
         )}
