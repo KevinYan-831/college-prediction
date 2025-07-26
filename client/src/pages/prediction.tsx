@@ -672,8 +672,8 @@ export default function PredictionPage() {
         
         {/* Footer */}
         <footer className="mt-16 text-center">
-          <div className="bg-blue-50/70 backdrop-blur-sm rounded-2xl p-8 border border-blue-200/30">
-            <p className="text-gray-700 mb-2 text-lg font-medium">© 2024 AI美国大学录取预测系统</p>
+          <div className="bg-orange-50/70 backdrop-blur-sm rounded-2xl p-8 border border-orange-200/30">
+            <p className="text-gray-700 mb-2 text-lg font-medium">© 2025 AI美本录取算命大师</p>
             <p className="text-gray-600">融合传统智慧与现代科技，为您的求学之路保驾护航</p>
           </div>
         </footer>

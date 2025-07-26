@@ -132,3 +132,8 @@ The application is designed for easy deployment on platforms like Replit, Vercel
 - ✓ Eliminated isPaid status tracking from prediction results
 - ✓ Updated frontend to display all universities without payment checks
 - ✓ Maintained real API integration with GuguData and DeepSeek
+- ✓ Added html-to-image library for saving results as pictures
+- ✓ Implemented image save functionality with OFFERSTUDIO advertising
+- ✓ Fixed input bugs (TOEFL score auto-decrease issue)
+- ✓ Optimized university recommendation algorithm for better results
+- ✓ Updated footer copyright to "© 2025 AI美本录取算命大师"
