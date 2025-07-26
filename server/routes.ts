@@ -1,8 +1,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { predictionRequestSchema } from "@shared/schema";
+import { predictionRequestSchema, paymentSchema } from "@shared/schema";
 import axios from "axios";
 import { getUniversitiesByLevel } from "./university-rankings.ts";
+import { storage } from "./storage.ts";
+import { randomUUID } from "crypto";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -23,11 +25,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         callDeepSeekAPI(validatedData)
       ]);
       
-      // 返回合并结果
-      res.json({
+      const sessionId = randomUUID();
+      
+      // 返回合并结果（添加付费状态）
+      const result = {
         fortuneAnalysis: fortuneResponse,
-        universityPredictions: universityResponse
-      });
+        universityPredictions: universityResponse,
+        isPaid: false,
+        sessionId
+      };
+      
+      // 保存结果到存储
+      await storage.savePrediction(sessionId, result);
+      
+      res.json(result);
       
     } catch (error) {
       console.error("预测分析错误:", error);
@@ -35,6 +46,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: "预测分析失败",
         error: error instanceof Error ? error.message : "未知错误"
       });
+    }
+  });
+
+  // 创建支付订单
+  app.post("/api/payment/create", async (req, res) => {
+    try {
+      const validatedData = paymentSchema.parse(req.body);
+      const orderId = randomUUID();
+      
+      // 模拟微信支付URL生成
+      const paymentResult = {
+        paymentUrl: `weixin://wxpay/bizpayurl?pr=${orderId}`,
+        orderId,
+        amount: validatedData.amount
+      };
+      
+      await storage.savePayment(validatedData.sessionId, paymentResult);
+      res.json(paymentResult);
+    } catch (error) {
+      console.error("创建支付订单失败:", error);
+      res.status(500).json({ error: "支付服务暂时不可用" });
+    }
+  });
+
+  // 支付成功回调（模拟）
+  app.post("/api/payment/callback", async (req, res) => {
+    try {
+      const { sessionId } = req.body;
+      await storage.markAsPaid(sessionId);
+      
+      const updatedResult = await storage.getPrediction(sessionId);
+      res.json(updatedResult);
+    } catch (error) {
+      console.error("支付回调处理失败:", error);
+      res.status(500).json({ error: "支付处理失败" });
+    }
+  });
+
+  // 获取预测结果
+  app.get("/api/prediction/:sessionId", async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      const result = await storage.getPrediction(sessionId);
+      
+      if (!result) {
+        return res.status(404).json({ error: "未找到预测结果" });
+      }
+      
+      res.json(result);
+    } catch (error) {
+      console.error("获取预测结果失败:", error);
+      res.status(500).json({ error: "获取结果失败" });
     }
   });
 

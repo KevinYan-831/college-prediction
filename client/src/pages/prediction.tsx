@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { predictionRequestSchema, type PredictionRequest, type PredictionResult } from "@shared/schema";
-import { GraduationCap, Calendar, Languages, Edit, Wind, University, Loader2, RotateCcw, MapPin } from "lucide-react";
+import { GraduationCap, Calendar, Languages, Edit, Wind, University, Loader2, RotateCcw, MapPin, Lock, Unlock, CreditCard, Smartphone } from "lucide-react";
 
 export default function PredictionPage() {
   const [results, setResults] = useState<PredictionResult | null>(null);
@@ -19,6 +19,8 @@ export default function PredictionPage() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingMessage, setLoadingMessage] = useState("");
   const [estimatedTime, setEstimatedTime] = useState(20);
+  const [showPayment, setShowPayment] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   const { toast } = useToast();
 
@@ -123,6 +125,58 @@ export default function PredictionPage() {
     form.reset();
     setResults(null);
     setIsLoading(false);
+    setShowPayment(false);
+  };
+
+  // 创建支付订单
+  const createPayment = async () => {
+    if (!results?.sessionId) return;
+    
+    setPaymentLoading(true);
+    try {
+      const response = await apiRequest("POST", "/api/payment/create", {
+        amount: 68.8,
+        currency: "CNY", 
+        description: "AI美本录取完整预测报告",
+        sessionId: results.sessionId
+      });
+      
+      const paymentData = await response.json();
+      
+      // 模拟支付成功（实际应该是微信支付流程）
+      setTimeout(async () => {
+        try {
+          const callbackResponse = await apiRequest("POST", "/api/payment/callback", {
+            sessionId: results.sessionId
+          });
+          
+          const updatedResults = await callbackResponse.json();
+          setResults(updatedResults);
+          setShowPayment(false);
+          setPaymentLoading(false);
+          
+          toast({
+            title: "支付成功！",
+            description: "完整预测报告已解锁",
+          });
+        } catch (error) {
+          setPaymentLoading(false);
+          toast({
+            title: "支付处理失败",
+            description: "请重试或联系客服",
+            variant: "destructive"
+          });
+        }
+      }, 3000);
+      
+    } catch (error) {
+      setPaymentLoading(false);
+      toast({
+        title: "支付失败",
+        description: "请检查网络后重试",
+        variant: "destructive"
+      });
+    }
   };
 
 
@@ -471,7 +525,8 @@ export default function PredictionPage() {
               </CardHeader>
               <CardContent className="p-8">
                 <div className="space-y-6">
-                  {results.universityPredictions.map((university, index) => (
+                  {/* 第一所大学 - 免费显示 */}
+                  {results.universityPredictions.slice(0, 1).map((university, index) => (
                     <div key={index} className="bg-gradient-to-r from-white/5 to-white/10 border border-white/20 rounded-2xl p-6 hover:shadow-2xl transition-all duration-300 backdrop-blur-sm hover:scale-[1.02]">
                       <div className="flex justify-between items-start mb-4">
                         <div>
@@ -491,6 +546,61 @@ export default function PredictionPage() {
                       )}
                     </div>
                   ))}
+
+                  {/* 付费解锁提示或剩余大学列表 */}
+                  {!results.isPaid ? (
+                    <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 rounded-2xl p-8 text-center backdrop-blur-sm">
+                      <div className="flex justify-center mb-4">
+                        <Lock className="w-12 h-12 text-yellow-400" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-4">解锁完整预测报告</h3>
+                      <p className="text-gray-300 mb-6 text-lg">
+                        查看剩余 {results.universityPredictions.length - 1} 所推荐大学详细分析
+                      </p>
+                      <div className="bg-white/10 rounded-xl p-6 mb-6">
+                        <h4 className="text-white font-semibold mb-3">完整报告包含：</h4>
+                        <ul className="text-gray-300 space-y-2 text-left">
+                          <li className="flex items-center"><Unlock className="w-4 h-4 mr-2 text-green-400" /> 详细命理五行分析</li>
+                          <li className="flex items-center"><Unlock className="w-4 h-4 mr-2 text-green-400" /> {results.universityPredictions.length} 所大学完整推荐</li>
+                          <li className="flex items-center"><Unlock className="w-4 h-4 mr-2 text-green-400" /> 个性化录取可能性分析</li>
+                          <li className="flex items-center"><Unlock className="w-4 h-4 mr-2 text-green-400" /> 专业匹配度深度解读</li>
+                        </ul>
+                      </div>
+                      <div className="flex items-center justify-center mb-6">
+                        <span className="text-3xl font-bold text-white mr-2">￥68.8</span>
+                        <span className="text-gray-400 line-through">原价 ￥128</span>
+                      </div>
+                      <Button
+                        onClick={() => setShowPayment(true)}
+                        className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold py-4 px-8 rounded-2xl text-lg shadow-2xl transition-all duration-300 transform hover:scale-105"
+                      >
+                        <CreditCard className="mr-3 h-5 w-5" />
+                        立即解锁完整报告
+                      </Button>
+                    </div>
+                  ) : (
+                    // 已付费，显示所有大学
+                    results.universityPredictions.slice(1).map((university, index) => (
+                      <div key={index + 1} className="bg-gradient-to-r from-white/5 to-white/10 border border-white/20 rounded-2xl p-6 hover:shadow-2xl transition-all duration-300 backdrop-blur-sm hover:scale-[1.02]">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h4 className="font-bold text-xl text-white mb-2">{university.chineseName}</h4>
+                            <p className="text-gray-300">{university.name} - {university.major}</p>
+                          </div>
+                          <span className="px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg">
+                            推荐录取
+                          </span>
+                        </div>
+                        <div className="flex items-center text-gray-400 mb-4">
+                          <MapPin className="mr-2" size={16} />
+                          <span className="font-medium">{university.location}</span>
+                        </div>
+                        {university.reasons && (
+                          <p className="text-gray-200 leading-relaxed bg-white/5 p-4 rounded-xl">{university.reasons}</p>
+                        )}
+                      </div>
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -504,6 +614,71 @@ export default function PredictionPage() {
                 <RotateCcw className="mr-3 h-5 w-5" />
                 重新预测
               </Button>
+            </div>
+          </div>
+        )}
+
+        {/* 支付弹窗 */}
+        {showPayment && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-8 max-w-md w-full border border-white/20 shadow-2xl">
+              <div className="text-center">
+                <div className="flex justify-center mb-4">
+                  <Smartphone className="w-16 h-16 text-green-400" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-4">微信支付</h3>
+                <p className="text-gray-300 mb-6">完整AI美本录取预测报告</p>
+                
+                <div className="bg-white/10 rounded-2xl p-6 mb-6">
+                  <div className="text-center mb-4">
+                    <div className="text-3xl font-bold text-white mb-2">￥68.8</div>
+                    <div className="text-gray-400 line-through">原价 ￥128</div>
+                  </div>
+                  
+                  <div className="space-y-3 text-left">
+                    <div className="flex items-center text-gray-300">
+                      <Unlock className="w-4 h-4 mr-2 text-green-400" />
+                      <span>详细命理五行分析</span>
+                    </div>
+                    <div className="flex items-center text-gray-300">
+                      <Unlock className="w-4 h-4 mr-2 text-green-400" />
+                      <span>15所大学完整推荐清单</span>
+                    </div>
+                    <div className="flex items-center text-gray-300">
+                      <Unlock className="w-4 h-4 mr-2 text-green-400" />
+                      <span>录取可能性深度分析</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <Button
+                    onClick={createPayment}
+                    disabled={paymentLoading}
+                    className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 rounded-2xl text-lg shadow-2xl transition-all duration-300"
+                  >
+                    {paymentLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        处理支付中...
+                      </>
+                    ) : (
+                      <>
+                        <Smartphone className="mr-2 h-5 w-5" />
+                        微信支付 ￥68.8
+                      </>
+                    )}
+                  </Button>
+
+                  <Button
+                    onClick={() => setShowPayment(false)}
+                    variant="outline"
+                    className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-2xl py-3"
+                  >
+                    取消
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         )}
