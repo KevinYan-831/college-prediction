@@ -158,8 +158,6 @@ export const UNIVERSITY_MAJORS: Record<string, string[]> = {
   "Washington University in St. Louis": ["business", "computer science", "engineering", "economics", "liberal arts"],
   "University of Notre Dame": ["business", "computer science", "economics", "liberal arts"],
   "University of Virginia": ["business", "computer science", "economics", "liberal arts"],
-  "Emory University": ["business", "computer science", "economics", "liberal arts"],
-  "Georgetown University": ["business", "computer science", "economics", "liberal arts"],
   "Ohio State University": ["business", "computer science", "engineering", "economics"],
   "University of Illinois Urbana-Champaign": ["business", "computer science", "engineering", "economics"],
   "Georgia Institute of Technology": ["business", "engineering", "computer science"],
@@ -280,73 +278,77 @@ export function getUniversitiesByLevel(materialLevel: string, score: number, tes
     candidates = suitableUniversities;
   }
   
-  // 根据学生水平更严格地筛选合适的大学
+  // 根据托福成绩和材料水平进行乐观预测，更多基于命理因素
   let recommendedUniversities: string[] = [];
   
-  if (materialLevel === "excellent" && testType === "toefl" && score >= 110) {
-    // 顶尖水平 - 推荐排名前30的优秀大学
-    const topTier = candidates.filter(uni => 
-      ["University of Pennsylvania", "Massachusetts Institute of Technology", 
-       "University of California--Berkeley", "University of Michigan--Ann Arbor",
-       "New York University", "Carnegie Mellon University", "Duke University",
-       "University of North Carolina--Chapel Hill", "Cornell University",
-       "University of Southern California", "Georgetown University", "Emory University",
-       "Washington University in St. Louis", "University of Virginia"].includes(uni)
+  // 前10大学池（通常需要托福110+，但极好材料可以突破）
+  const top10Schools = [
+    "Harvard University", "Stanford University", "Massachusetts Institute of Technology",
+    "University of Pennsylvania", "Princeton University", "Yale University",
+    "Columbia University", "University of Chicago", "Northwestern University",
+    "Duke University", "Cornell University", "Dartmouth College"
+  ];
+  
+  // 前30大学池（通常需要托福100+）
+  const top30Schools = [
+    "University of California--Berkeley", "University of California--Los Angeles", 
+    "University of Michigan--Ann Arbor", "New York University", "Carnegie Mellon University",
+    "University of North Carolina--Chapel Hill", "University of Southern California",
+    "Georgetown University", "Emory University", "University of Virginia",
+    "Washington University in St. Louis", "Vanderbilt University", "Rice University",
+    "University of Notre Dame", "Brown University"
+  ];
+  
+  if (testType === "toefl" && score >= 110) {
+    // 托福110+ - 重点推荐前10和前30大学
+    const availableTop10 = candidates.filter(uni => top10Schools.includes(uni));
+    const availableTop30 = candidates.filter(uni => top30Schools.includes(uni) && !top10Schools.includes(uni));
+    
+    if (materialLevel === "excellent") {
+      // 极好材料 - 大胆推荐前10大学
+      recommendedUniversities = [...availableTop10.slice(0, 6), ...availableTop30.slice(0, 9)];
+    } else {
+      // 一般/较好材料 - 重点推荐前30大学
+      recommendedUniversities = [...availableTop10.slice(0, 3), ...availableTop30.slice(0, 12)];
+    }
+    
+  } else if (testType === "toefl" && score >= 100) {
+    // 托福100-109 - 重点推荐前30大学
+    const availableTop30 = candidates.filter(uni => top30Schools.includes(uni));
+    const availableGood = candidates.filter(uni => 
+      !top30Schools.includes(uni) && !top10Schools.includes(uni) && 
+      BUSINESS_SCHOOL_RANKINGS.slice(0, 50).includes(uni)
     );
-    recommendedUniversities = topTier.slice(0, 10);
     
-    // 补充一些优秀的商学院
-    const businessTier = candidates.filter(uni => 
-      !topTier.includes(uni) && BUSINESS_SCHOOL_RANKINGS.slice(0, 25).includes(uni)
+    if (materialLevel === "excellent") {
+      // 极好材料可以冲击前10
+      const availableTop10 = candidates.filter(uni => top10Schools.includes(uni));
+      recommendedUniversities = [...availableTop10.slice(0, 4), ...availableTop30.slice(0, 11)];
+    } else {
+      // 一般/较好材料 - 前30为主
+      recommendedUniversities = [...availableTop30.slice(0, 12), ...availableGood.slice(0, 3)];
+    }
+    
+  } else if (testType === "toefl" && score >= 90) {
+    // 托福90-99 - 适中预期，但仍保持乐观
+    const availableGood = candidates.filter(uni => 
+      BUSINESS_SCHOOL_RANKINGS.slice(20, 60).includes(uni) ||
+      ["University of California--San Diego", "University of California--Santa Barbara",
+       "University of California--Davis", "University of California--Irvine"].includes(uni)
     );
-    recommendedUniversities = [...recommendedUniversities, ...businessTier.slice(0, 5)];
     
-  } else if ((materialLevel === "excellent" && testType === "toefl" && score >= 105) ||
-             (materialLevel === "good" && testType === "toefl" && score >= 110)) {
-    // 优秀水平 - 推荐排名15-40的顶尖大学
-    const excellentSchools = ["University of California--Berkeley", "University of California--Los Angeles", 
-                             "University of Michigan--Ann Arbor", "New York University", "Carnegie Mellon University",
-                             "University of North Carolina--Chapel Hill", "University of Southern California",
-                             "Georgetown University", "Emory University", "University of Virginia",
-                             "University of Illinois Urbana-Champaign", "Boston University", 
-                             "University of Washington", "University of Wisconsin--Madison"];
-    
-    const highTier = candidates.filter(uni => 
-      excellentSchools.includes(uni) || BUSINESS_SCHOOL_RANKINGS.slice(2, 30).includes(uni)
-    );
-    recommendedUniversities = highTier.slice(0, 15);
-    
-  } else if (materialLevel === "good" && testType === "toefl" && score >= 105) {
-    // 较好水平+105+ - 推荐排名20-50的优秀大学
-    const goodSchools = ["University of California--Berkeley", "University of California--Los Angeles", 
-                        "University of California--San Diego", "University of California--Santa Barbara",
-                        "University of California--Davis", "University of California--Irvine",
-                        "University of Michigan--Ann Arbor", "New York University", 
-                        "University of Illinois Urbana-Champaign", "Boston University", 
-                        "University of Washington", "Purdue University", "University of Wisconsin--Madison",
-                        "Georgia Institute of Technology", "University of Southern California"];
-    
-    const midHighTier = candidates.filter(uni => 
-      goodSchools.includes(uni) || BUSINESS_SCHOOL_RANKINGS.slice(5, 40).includes(uni)
-    );
-    recommendedUniversities = midHighTier.slice(0, 15);
-    
-  } else if (materialLevel === "average" && testType === "toefl" && score >= 95) {
-    // 中等水平 - 推荐排名40-80的大学
-    const midTier = candidates.filter(uni => 
-      USNEWS_TOP100_UNIVERSITIES.slice(35, 75).includes(uni) ||
-      ["University of Central Florida", "Florida State University", "Auburn University",
-       "University of Alabama--Tuscaloosa", "University of South Carolina"].includes(uni)
-    );
-    recommendedUniversities = midTier.slice(0, 15);
+    if (materialLevel === "excellent") {
+      // 极好材料可以冲击前30
+      const availableTop30 = candidates.filter(uni => top30Schools.includes(uni));
+      recommendedUniversities = [...availableTop30.slice(0, 8), ...availableGood.slice(0, 7)];
+    } else {
+      recommendedUniversities = availableGood.slice(0, 15);
+    }
     
   } else {
-    // 基础水平 - 推荐排名较低的州立大学和地区性大学
+    // 托福90以下 - 推荐排名50+的大学，但仍保持希望
     const basicTier = candidates.filter(uni => 
-      USNEWS_TOP100_UNIVERSITIES.slice(50, 100).includes(uni) ||
-      ["University of Central Florida", "Florida State University", "Auburn University",
-       "University of Alabama--Tuscaloosa", "University of Vermont", "University of Maine",
-       "Oregon State University", "University of New Hampshire"].includes(uni)
+      BUSINESS_SCHOOL_RANKINGS.slice(30, 80).includes(uni)
     );
     recommendedUniversities = basicTier.slice(0, 15);
   }
