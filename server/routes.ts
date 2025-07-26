@@ -189,16 +189,18 @@ async function callGuguDataAPI(
           analysis: `【体貌特征】
 面貌：${bodyFeatures.面貌 || ''}
 身材：${bodyFeatures.身材 || ''}
-特别标记：${bodyFeatures.特别标记 || bodyFeatures.标志特征 || ''}
+气质：${bodyFeatures.气质 || ''}
+特别标记：${bodyFeatures.特别之处 || ''}
 
 【婚姻感情】
-${fortuneAnalysis.婚姻?.婚期 ? `婚期：${fortuneAnalysis.婚姻.婚期}` : ''}
-${fortuneAnalysis.婚姻?.配偶特征 ? `配偶特征：${fortuneAnalysis.婚姻.配偶特征}` : ''}
-${fortuneAnalysis.婚姻?.危机 ? `注意事项：${fortuneAnalysis.婚姻.危机}` : ''}
+婚期：${fortuneAnalysis.婚姻?.婚期 || ''}
+配偶特征：${fortuneAnalysis.婚姻?.配偶特征 || ''}
+感情波折：${fortuneAnalysis.婚姻?.感情波折 || ''}
+注意事项：${fortuneAnalysis.婚姻?.再婚可能 || ''}
 
 【健康状况】  
-${fortuneAnalysis.健康?.重点部位 ? `重点部位：${fortuneAnalysis.健康.重点部位}` : ''}
-${fortuneAnalysis.健康?.危险年份 ? `危险年份：${fortuneAnalysis.健康.危险年份}` : ''}
+主要问题：${fortuneAnalysis.健康?.主要问题 || ''}
+危险期：${fortuneAnalysis.健康?.危险期 || ''}
 
 【综合评价】
 ${data.综合评价 || ''}`,
@@ -209,14 +211,13 @@ ${data.综合评价 || ''}`,
 身宫：${data.身宫 || ''}`,
           
           academicFortune: `【学业运势详解】
-${fortuneAnalysis.学业?.关键阶段 ? `关键阶段：${fortuneAnalysis.学业.关键阶段}` : ''}
-${fortuneAnalysis.学业?.优势 ? `学业优势：${fortuneAnalysis.学业.优势}` : ''}
-${fortuneAnalysis.学业?.短板 ? `注意短板：${fortuneAnalysis.学业.短板}` : ''}
+能力特点：${fortuneAnalysis.学业?.能力 || ''}
+潜力与短板：${fortuneAnalysis.学业?.潜力与短板 || ''}
 
 【财运轨迹】
-${fortuneAnalysis.财运?.黄金期 ? `黄金期：${fortuneAnalysis.财运.黄金期}` : ''}
-${fortuneAnalysis.财运?.财富量级 ? `财富量级：${fortuneAnalysis.财运.财富量级}` : ''}
-${fortuneAnalysis.财运?.财路 ? `主要财路：${fortuneAnalysis.财运.财路}` : ''}
+财运能力：${fortuneAnalysis.财运?.能力 || ''}
+收入水平：${fortuneAnalysis.财运?.收入水平 || ''}
+赚钱方式：${fortuneAnalysis.财运?.赚钱方式 || ''}
 
 【融合分析详解】
 ${data.融合分析文字 || ''}`,
