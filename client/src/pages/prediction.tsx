@@ -126,23 +126,68 @@ export default function PredictionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-amber-50 to-red-50 relative overflow-hidden">
+      {/* 太极背景装饰 */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* 大太极图 - 右上角 */}
+        <div className="absolute -top-20 -right-20 w-80 h-80 opacity-5">
+          <div className="w-full h-full rounded-full bg-gradient-to-br from-gray-800 to-gray-600 relative">
+            <div className="absolute top-0 left-1/2 w-1/2 h-full bg-gradient-to-br from-amber-100 to-white rounded-r-full"></div>
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-1/4 h-1/4 bg-gray-800 rounded-full"></div>
+            <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 w-1/4 h-1/4 bg-white rounded-full"></div>
+          </div>
+        </div>
+        
+        {/* 小太极图 - 左下角 */}
+        <div className="absolute -bottom-10 -left-10 w-40 h-40 opacity-10">
+          <div className="w-full h-full rounded-full bg-gradient-to-br from-red-800 to-red-600 relative">
+            <div className="absolute top-0 left-1/2 w-1/2 h-full bg-gradient-to-br from-amber-200 to-yellow-100 rounded-r-full"></div>
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-1/4 h-1/4 bg-red-800 rounded-full"></div>
+            <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 w-1/4 h-1/4 bg-yellow-100 rounded-full"></div>
+          </div>
+        </div>
+        
+        {/* 五行元素装饰 - 右中 */}
+        <div className="absolute top-1/3 right-20 w-32 h-32 opacity-8">
+          <div className="text-amber-800/20 text-2xl font-bold space-y-1">
+            <div>金</div>
+            <div>木</div>
+            <div>水</div>
+            <div>火</div>
+            <div>土</div>
+          </div>
+        </div>
+        
+        {/* 八卦符号装饰 */}
+        <div className="absolute top-1/4 right-1/4 text-6xl text-amber-800/10 font-bold">☯</div>
+        <div className="absolute bottom-1/3 left-1/4 text-4xl text-red-800/10 font-bold">☯</div>
+      </div>
+      
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-gradient-to-r from-white/90 to-amber-50/90 backdrop-blur-sm shadow-lg border-b border-amber-200/50 relative z-10">
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center justify-center">
-              <GraduationCap className="text-primary mr-3" size={32} />
-              AI美国大学录取预测系统
-            </h1>
-            <p className="text-gray-600">结合传统命理与现代AI，为您提供精准的大学录取预测</p>
+            <div className="flex items-center justify-center mb-3">
+              <div className="w-12 h-12 mr-4 rounded-full bg-gradient-to-br from-amber-600 to-red-600 relative shadow-lg">
+                <div className="absolute top-0 left-1/2 w-1/2 h-full bg-gradient-to-br from-amber-100 to-white rounded-r-full"></div>
+                <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-1/4 h-1/4 bg-gradient-to-br from-amber-600 to-red-600 rounded-full"></div>
+                <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 w-1/4 h-1/4 bg-white rounded-full"></div>
+              </div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-800 via-red-700 to-amber-900 bg-clip-text text-transparent">
+                AI美本录取算命大师
+              </h1>
+            </div>
+            <p className="text-amber-800/80 font-medium">融合传统命理与现代AI技术 • 精准预测美国大学录取</p>
+            <div className="mt-1 text-sm text-amber-700/60">
+              基于生辰八字五行分析 • 智能匹配最适合的学府
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main className="max-w-4xl mx-auto px-4 py-8 relative z-10">
         {/* Input Form */}
-        <Card className="mb-8">
+        <Card className="mb-8 bg-white/90 backdrop-blur-sm border-amber-200/50 shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center">
               <Edit className="text-primary mr-3" size={24} />
@@ -362,19 +407,23 @@ export default function PredictionPage() {
 
         {/* Enhanced Loading State */}
         {isLoading && (
-          <Card className="mb-8">
+          <Card className="mb-8 bg-white/90 backdrop-blur-sm border-amber-200/50 shadow-lg">
             <CardContent className="p-8">
               <div className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-                  <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-amber-100 to-red-100 rounded-full mb-4 border-2 border-amber-200/50">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-600 to-red-600 relative animate-spin">
+                    <div className="absolute top-0 left-1/2 w-1/2 h-full bg-gradient-to-br from-amber-100 to-white rounded-r-full"></div>
+                    <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-1/4 h-1/4 bg-gradient-to-br from-amber-600 to-red-600 rounded-full"></div>
+                    <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 w-1/4 h-1/4 bg-white rounded-full"></div>
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">AI正在智能分析中...</h3>
+                <h3 className="text-lg font-semibold bg-gradient-to-r from-amber-800 to-red-700 bg-clip-text text-transparent mb-2">AI算命大师分析中...</h3>
                 <p className="text-gray-600 mb-4">{loadingMessage}</p>
                 
                 {/* Progress Bar */}
-                <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
+                <div className="w-full bg-amber-100/50 rounded-full h-3 mb-4 border border-amber-200/50">
                   <div 
-                    className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-1000 ease-in-out"
+                    className="bg-gradient-to-r from-amber-500 via-red-500 to-amber-600 h-3 rounded-full transition-all duration-1000 ease-in-out shadow-inner"
                     style={{ width: `${loadingProgress}%` }}
                   ></div>
                 </div>
