@@ -458,7 +458,34 @@ export default function PredictionPage() {
               </CardContent>
             </Card>
 
-
+            {/* OFFERSTUDIO 广告信息 - 中间位置 */}
+            <Card className="bg-gradient-to-r from-orange-50 to-yellow-50 backdrop-blur-xl border-orange-200/50 shadow-lg">
+              <CardContent className="p-6">
+                <div className="text-center space-y-4">
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl mb-4">
+                    <span className="text-white font-bold text-xl">O</span>
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900">OFFERSTUDIO</h3>
+                  <p className="text-gray-700 text-sm leading-relaxed">
+                    专业帮助申请美本的同学们制作个人网站和活动网站
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                    <a 
+                      href="https://offerstudiowebsite.wixstudio.com/official" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-lg hover:from-orange-600 hover:to-yellow-600 transition-all duration-300 text-sm font-medium"
+                    >
+                      🌐 访问官网
+                    </a>
+                    <div className="flex items-center gap-2 text-gray-600 text-sm">
+                      <span>💬 微信联系：</span>
+                      <span className="font-mono bg-orange-100 px-3 py-1 rounded-lg text-orange-800 font-semibold">TauPsc-0317</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* 大学录取预测结果 */}
             <Card className="bg-white/90 backdrop-blur-xl border-orange-200/50 shadow-2xl overflow-hidden">
