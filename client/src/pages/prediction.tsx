@@ -118,32 +118,42 @@ export default function PredictionPage() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8">
-        <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+      {/* Background blur effects */}
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10"></div>
+      <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-indigo-400/20 rounded-full blur-3xl"></div>
+      
+      <div className="relative z-10 container mx-auto px-6 py-8">
+        <header className="text-center mb-12">
+          <div className="inline-flex items-center justify-center mb-6">
+            <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-2xl">
+              <GraduationCap className="w-8 h-8 text-white" />
+            </div>
+          </div>
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent mb-4">
             AI美本录取算命大师
           </h1>
-          <p className="text-lg text-gray-600">
-            基于生辰八字与学术水平的智能分析
+          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            融合传统命理智慧与现代AI技术，为您的美国本科申请提供精准预测
           </p>
         </header>
 
         {/* Input Form */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Edit className="text-primary mr-3" size={24} />
-              输入信息
+        <Card className="mb-8 bg-white/10 backdrop-blur-xl border-white/20 shadow-2xl">
+          <CardHeader className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-xl border-b border-white/10">
+            <CardTitle className="flex items-center text-white text-xl">
+              <Edit className="text-purple-300 mr-3" size={24} />
+              输入预测信息
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-8">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 {/* 生辰八字输入 */}
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                    <Calendar className="text-red-600 mr-2" size={20} />
+                <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                  <h3 className="text-lg font-semibold text-white mb-6 flex items-center">
+                    <Calendar className="text-purple-300 mr-3" size={20} />
                     生辰八字信息
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -152,11 +162,12 @@ export default function PredictionPage() {
                       name="birthDate"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>出生日期</FormLabel>
+                          <FormLabel className="text-gray-200 font-medium">出生日期</FormLabel>
                           <FormControl>
                             <Input 
                               type="date" 
                               {...field}
+                              className="bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus:bg-white/20 focus:border-purple-400 rounded-xl h-12"
                               onChange={(e) => {
                                 const date = new Date(e.target.value);
                                 if (!isNaN(date.getTime())) {
@@ -177,11 +188,12 @@ export default function PredictionPage() {
                       name="birthTime"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>出生時辰</FormLabel>
+                          <FormLabel className="text-gray-200 font-medium">出生時辰</FormLabel>
                           <FormControl>
                             <Input 
                               type="time" 
                               {...field}
+                              className="bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus:bg-white/20 focus:border-purple-400 rounded-xl h-12"
                               onChange={(e) => {
                                 const [hour, minute] = e.target.value.split(':').map(Number);
                                 if (!isNaN(hour) && !isNaN(minute)) {
@@ -206,16 +218,16 @@ export default function PredictionPage() {
                     name="gender"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>性别</FormLabel>
+                        <FormLabel className="text-gray-200 font-medium">性别</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="请选择性别" />
+                            <SelectTrigger className="bg-white/10 border-white/20 text-white focus:bg-white/20 focus:border-purple-400 rounded-xl h-12">
+                              <SelectValue placeholder="请选择性别" className="text-gray-400" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
-                            <SelectItem value="male">男</SelectItem>
-                            <SelectItem value="female">女</SelectItem>
+                          <SelectContent className="bg-slate-800 border-slate-700">
+                            <SelectItem value="male" className="text-white focus:bg-slate-700">男</SelectItem>
+                            <SelectItem value="female" className="text-white focus:bg-slate-700">女</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -227,9 +239,13 @@ export default function PredictionPage() {
                     name="major"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>申请专业</FormLabel>
+                        <FormLabel className="text-gray-200 font-medium">申请专业</FormLabel>
                         <FormControl>
-                          <Input placeholder="如：计算机科学" {...field} />
+                          <Input 
+                            placeholder="如：计算机科学" 
+                            {...field}
+                            className="bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus:bg-white/20 focus:border-purple-400 rounded-xl h-12"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -238,9 +254,9 @@ export default function PredictionPage() {
                 </div>
 
                 {/* 语言成绩 */}
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                    <Languages className="text-yellow-600 mr-2" size={20} />
+                <div className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                  <h3 className="text-lg font-semibold text-white mb-6 flex items-center">
+                    <Languages className="text-blue-300 mr-3" size={20} />
                     语言成绩
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -249,16 +265,16 @@ export default function PredictionPage() {
                       name="testType"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>考试类型</FormLabel>
+                          <FormLabel className="text-gray-200 font-medium">考试类型</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger className="bg-white/10 border-white/20 text-white focus:bg-white/20 focus:border-blue-400 rounded-xl h-12">
                                 <SelectValue placeholder="选择考试类型" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent>
-                              <SelectItem value="toefl">托福 (TOEFL)</SelectItem>
-                              <SelectItem value="ielts">雅思 (IELTS)</SelectItem>
+                            <SelectContent className="bg-slate-800 border-slate-700">
+                              <SelectItem value="toefl" className="text-white focus:bg-slate-700">托福 (TOEFL)</SelectItem>
+                              <SelectItem value="ielts" className="text-white focus:bg-slate-700">雅思 (IELTS)</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -270,12 +286,13 @@ export default function PredictionPage() {
                       name="score"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>分数</FormLabel>
+                          <FormLabel className="text-gray-200 font-medium">分数</FormLabel>
                           <FormControl>
                             <Input 
                               type="number" 
                               placeholder="如：105" 
                               {...field}
+                              className="bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus:bg-white/20 focus:border-blue-400 rounded-xl h-12"
                               value={field.value === 0 ? "" : field.value || ""}
                               onChange={(e) => {
                                 const value = e.target.value;
@@ -303,19 +320,19 @@ export default function PredictionPage() {
                   name="materialLevel"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>申请材料整体水平</FormLabel>
+                      <FormLabel className="text-gray-200 font-medium">申请材料整体水平</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="bg-white/10 border-white/20 text-white focus:bg-white/20 focus:border-purple-400 rounded-xl h-12">
                             <SelectValue placeholder="请选择整体水平" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="very-poor">极差</SelectItem>
-                          <SelectItem value="poor">较差</SelectItem>
-                          <SelectItem value="average">一般</SelectItem>
-                          <SelectItem value="good">较好</SelectItem>
-                          <SelectItem value="excellent">极好</SelectItem>
+                        <SelectContent className="bg-slate-800 border-slate-700">
+                          <SelectItem value="very-poor" className="text-white focus:bg-slate-700">极差</SelectItem>
+                          <SelectItem value="poor" className="text-white focus:bg-slate-700">较差</SelectItem>
+                          <SelectItem value="average" className="text-white focus:bg-slate-700">一般</SelectItem>
+                          <SelectItem value="good" className="text-white focus:bg-slate-700">较好</SelectItem>
+                          <SelectItem value="excellent" className="text-white focus:bg-slate-700">极好</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -326,21 +343,21 @@ export default function PredictionPage() {
 
 
                 {/* 提交按钮 */}
-                <div className="pt-4">
+                <div className="pt-8">
                   <Button 
                     type="submit" 
-                    className="w-full bg-primary hover:bg-blue-700" 
+                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-4 rounded-2xl h-14 text-lg shadow-2xl transition-all duration-300 transform hover:scale-[1.02]" 
                     disabled={isLoading}
                   >
                     {isLoading ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="mr-3 h-5 w-5 animate-spin" />
                         AI正在分析中...
                       </>
                     ) : (
                       <>
-                        <GraduationCap className="mr-2 h-4 w-4" />
-                        开始AI预测分析
+                        <GraduationCap className="mr-3 h-5 w-5" />
+                        开始AI智能预测分析
                       </>
                     )}
                   </Button>
@@ -352,42 +369,42 @@ export default function PredictionPage() {
 
         {/* Loading State */}
         {isLoading && (
-          <Card className="mb-8">
-            <CardContent className="p-8">
+          <Card className="mb-8 bg-white/10 backdrop-blur-xl border-white/20 shadow-2xl">
+            <CardContent className="p-12">
               <div className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-                  <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-sm rounded-3xl mb-6 border border-white/20">
+                  <Loader2 className="h-10 w-10 text-purple-300 animate-spin" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">AI正在智能分析中...</h3>
-                <p className="text-gray-600 mb-4">{loadingMessage}</p>
+                <h3 className="text-2xl font-bold text-white mb-3">AI正在智能分析中...</h3>
+                <p className="text-gray-300 mb-8 text-lg">{loadingMessage}</p>
                 
                 {/* Progress Bar */}
-                <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
+                <div className="w-full bg-white/10 rounded-full h-4 mb-6 backdrop-blur-sm">
                   <div 
-                    className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-1000 ease-in-out"
+                    className="bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 h-4 rounded-full transition-all duration-1000 ease-in-out shadow-lg"
                     style={{ width: `${loadingProgress}%` }}
                   ></div>
                 </div>
                 
-                <div className="flex justify-between items-center mb-4">
-                  <span className="text-sm text-gray-600">完成进度：{loadingProgress}%</span>
-                  <span className="text-sm text-gray-600">
+                <div className="flex justify-between items-center mb-8">
+                  <span className="text-gray-300 font-medium">完成进度：{loadingProgress}%</span>
+                  <span className="text-gray-300 font-medium">
                     预计剩余：{estimatedTime > 0 ? estimatedTime + ' 秒' : '即将完成'}
                   </span>
                 </div>
                 
-                <div className="space-y-2">
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className={`w-3 h-3 rounded-full ${loadingProgress > 20 ? 'bg-green-500' : 'bg-gray-300'} ${loadingProgress <= 20 ? 'animate-pulse' : ''}`}></div>
-                    <span className="text-sm text-gray-600">命理分析API</span>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-center space-x-3 p-3 rounded-xl bg-white/5">
+                    <div className={`w-4 h-4 rounded-full ${loadingProgress > 20 ? 'bg-gradient-to-r from-green-400 to-green-500 shadow-lg' : 'bg-white/20'} ${loadingProgress <= 20 ? 'animate-pulse' : ''}`}></div>
+                    <span className="text-gray-200 font-medium">命理分析API</span>
                   </div>
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className={`w-3 h-3 rounded-full ${loadingProgress > 60 ? 'bg-green-500' : 'bg-gray-300'} ${loadingProgress > 20 && loadingProgress <= 60 ? 'animate-pulse' : ''}`}></div>
-                    <span className="text-sm text-gray-600">大学预测API</span>
+                  <div className="flex items-center justify-center space-x-3 p-3 rounded-xl bg-white/5">
+                    <div className={`w-4 h-4 rounded-full ${loadingProgress > 60 ? 'bg-gradient-to-r from-green-400 to-green-500 shadow-lg' : 'bg-white/20'} ${loadingProgress > 20 && loadingProgress <= 60 ? 'animate-pulse' : ''}`}></div>
+                    <span className="text-gray-200 font-medium">大学预测API</span>
                   </div>
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className={`w-3 h-3 rounded-full ${loadingProgress > 90 ? 'bg-green-500' : 'bg-gray-300'} ${loadingProgress > 60 && loadingProgress <= 90 ? 'animate-pulse' : ''}`}></div>
-                    <span className="text-sm text-gray-600">结果整理</span>
+                  <div className="flex items-center justify-center space-x-3 p-3 rounded-xl bg-white/5">
+                    <div className={`w-4 h-4 rounded-full ${loadingProgress > 90 ? 'bg-gradient-to-r from-green-400 to-green-500 shadow-lg' : 'bg-white/20'} ${loadingProgress > 60 && loadingProgress <= 90 ? 'animate-pulse' : ''}`}></div>
+                    <span className="text-gray-200 font-medium">结果整理</span>
                   </div>
                 </div>
               </div>
@@ -399,35 +416,35 @@ export default function PredictionPage() {
         {results && !isLoading && (
           <div className="space-y-6">
             {/* 命理分析结果 */}
-            <Card>
-              <CardHeader className="bg-gradient-to-r from-red-500 to-red-600 text-white">
-                <CardTitle className="flex items-center">
-                  <Wind className="mr-3" size={24} />
+            <Card className="bg-white/10 backdrop-blur-xl border-white/20 shadow-2xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-red-500/20 to-pink-500/20 backdrop-blur-xl border-b border-white/10">
+                <CardTitle className="flex items-center text-white text-xl">
+                  <Wind className="mr-3 text-red-300" size={24} />
                   命理分析结果
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded">
-                    <h4 className="font-semibold text-red-800 mb-2">整体分析</h4>
-                    <p className="text-red-700">{results.fortuneAnalysis.analysis}</p>
+              <CardContent className="p-8">
+                <div className="space-y-6">
+                  <div className="bg-gradient-to-r from-red-500/10 to-pink-500/10 border-l-4 border-red-400 p-6 rounded-2xl backdrop-blur-sm">
+                    <h4 className="font-semibold text-red-300 mb-3 text-lg">整体分析</h4>
+                    <p className="text-gray-200 leading-relaxed">{results.fortuneAnalysis.analysis}</p>
                   </div>
                   {results.fortuneAnalysis.fiveElements && (
-                    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
-                      <h4 className="font-semibold text-yellow-800 mb-2">五行分析</h4>
-                      <p className="text-yellow-700">{results.fortuneAnalysis.fiveElements}</p>
+                    <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-l-4 border-yellow-400 p-6 rounded-2xl backdrop-blur-sm">
+                      <h4 className="font-semibold text-yellow-300 mb-3 text-lg">五行分析</h4>
+                      <p className="text-gray-200 leading-relaxed">{results.fortuneAnalysis.fiveElements}</p>
                     </div>
                   )}
                   {results.fortuneAnalysis.academicFortune && (
-                    <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
-                      <h4 className="font-semibold text-blue-800 mb-2">学业运势</h4>
-                      <p className="text-blue-700">{results.fortuneAnalysis.academicFortune}</p>
+                    <div className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-l-4 border-blue-400 p-6 rounded-2xl backdrop-blur-sm">
+                      <h4 className="font-semibold text-blue-300 mb-3 text-lg">学业运势</h4>
+                      <p className="text-gray-200 leading-relaxed">{results.fortuneAnalysis.academicFortune}</p>
                     </div>
                   )}
                   {results.fortuneAnalysis.recommendations && (
-                    <div className="bg-green-50 border-l-4 border-green-400 p-4 rounded">
-                      <h4 className="font-semibold text-green-800 mb-2">建议</h4>
-                      <p className="text-green-700">{results.fortuneAnalysis.recommendations}</p>
+                    <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-l-4 border-green-400 p-6 rounded-2xl backdrop-blur-sm">
+                      <h4 className="font-semibold text-green-300 mb-3 text-lg">建议</h4>
+                      <p className="text-gray-200 leading-relaxed">{results.fortuneAnalysis.recommendations}</p>
                     </div>
                   )}
                 </div>
@@ -435,32 +452,32 @@ export default function PredictionPage() {
             </Card>
 
             {/* 大学录取预测结果 */}
-            <Card>
-              <CardHeader className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-                <CardTitle className="flex items-center">
-                  <University className="mr-3" size={24} />
+            <Card className="bg-white/10 backdrop-blur-xl border-white/20 shadow-2xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-blue-500/20 to-indigo-500/20 backdrop-blur-xl border-b border-white/10">
+                <CardTitle className="flex items-center text-white text-xl">
+                  <University className="mr-3 text-blue-300" size={24} />
                   美国大学录取预测
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
-                <div className="space-y-4">
+              <CardContent className="p-8">
+                <div className="space-y-6">
                   {results.universityPredictions.map((university, index) => (
-                    <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                      <div className="flex justify-between items-start mb-2">
+                    <div key={index} className="bg-gradient-to-r from-white/5 to-white/10 border border-white/20 rounded-2xl p-6 hover:shadow-2xl transition-all duration-300 backdrop-blur-sm hover:scale-[1.02]">
+                      <div className="flex justify-between items-start mb-4">
                         <div>
-                          <h4 className="font-semibold text-lg text-gray-900">{university.chineseName}</h4>
-                          <p className="text-gray-600 text-sm">{university.name} - {university.major}</p>
+                          <h4 className="font-bold text-xl text-white mb-2">{university.chineseName}</h4>
+                          <p className="text-gray-300">{university.name} - {university.major}</p>
                         </div>
-                        <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        <span className="px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg">
                           推荐录取
                         </span>
                       </div>
-                      <div className="flex items-center text-sm text-gray-500 mb-2">
-                        <MapPin className="mr-1" size={14} />
-                        <span>{university.location}</span>
+                      <div className="flex items-center text-gray-400 mb-4">
+                        <MapPin className="mr-2" size={16} />
+                        <span className="font-medium">{university.location}</span>
                       </div>
                       {university.reasons && (
-                        <p className="text-sm text-gray-600">{university.reasons}</p>
+                        <p className="text-gray-200 leading-relaxed bg-white/5 p-4 rounded-xl">{university.reasons}</p>
                       )}
                     </div>
                   ))}
@@ -472,15 +489,22 @@ export default function PredictionPage() {
             <div className="text-center">
               <Button 
                 onClick={handleReset}
-                variant="outline"
-                className="bg-gray-600 hover:bg-gray-700 text-white"
+                className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm rounded-2xl px-8 py-4 font-semibold text-lg transition-all duration-300 hover:scale-105"
               >
-                <RotateCcw className="mr-2 h-4 w-4" />
+                <RotateCcw className="mr-3 h-5 w-5" />
                 重新预测
               </Button>
             </div>
           </div>
         )}
+        
+        {/* Footer */}
+        <footer className="mt-16 text-center">
+          <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+            <p className="text-gray-300 mb-2 text-lg font-medium">© 2024 AI美国大学录取预测系统</p>
+            <p className="text-gray-400">融合传统智慧与现代科技，为您的求学之路保驾护航</p>
+          </div>
+        </footer>
       </div>
     </div>
   );
