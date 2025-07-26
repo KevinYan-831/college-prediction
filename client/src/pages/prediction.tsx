@@ -551,6 +551,21 @@ export default function PredictionPage() {
             
             {/* 结果内容区域，将被截图 */}
             <div ref={resultsRef} className="bg-white p-8 rounded-2xl space-y-8">
+              {/* 标题 */}
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-2xl flex items-center justify-center shadow-lg">
+                    <GraduationCap className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 via-yellow-600 to-amber-600 bg-clip-text text-transparent mb-2">
+                  AI美本录取算命大师
+                </h1>
+                <p className="text-gray-600 text-sm">
+                  融合传统命理智慧与现代AI技术的专业预测报告
+                </p>
+              </div>
+
               {/* 命理分析结果 */}
               <Card className="bg-white/90 backdrop-blur-xl border-orange-200/50 shadow-2xl overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-orange-500/10 to-red-500/10 backdrop-blur-xl border-b border-orange-200/30">
@@ -583,6 +598,25 @@ export default function PredictionPage() {
                       <p className="text-gray-800 leading-relaxed">{results.fortuneAnalysis.recommendations}</p>
                     </div>
                   )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* OFFERSTUDIO 广告插入 - 命理分析后 */}
+            <Card className="bg-gradient-to-r from-orange-50 to-yellow-50 backdrop-blur-xl border-orange-200/50 shadow-lg">
+              <CardContent className="p-4">
+                <div className="text-center space-y-3">
+                  <div className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-lg mb-2">
+                    <span className="text-white font-bold text-lg">O</span>
+                  </div>
+                  <h3 className="text-base font-bold text-gray-900">OFFERSTUDIO</h3>
+                  <p className="text-gray-700 text-xs leading-relaxed">
+                    专业帮助申请美本的同学们制作个人网站和活动网站
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-2 justify-center items-center text-xs">
+                    <span className="text-orange-600 font-medium">🌐 offerstudiowebsite.wixstudio.com</span>
+                    <span className="text-gray-600">💬 微信：TauPsc-0317</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -623,8 +657,27 @@ export default function PredictionPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* OFFERSTUDIO 广告插入 - 大学预测后 */}
+            <Card className="bg-gradient-to-r from-orange-50 to-yellow-50 backdrop-blur-xl border-orange-200/50 shadow-lg">
+              <CardContent className="p-4">
+                <div className="text-center space-y-3">
+                  <div className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-lg mb-2">
+                    <span className="text-white font-bold text-lg">O</span>
+                  </div>
+                  <h3 className="text-base font-bold text-gray-900">OFFERSTUDIO</h3>
+                  <p className="text-gray-700 text-xs leading-relaxed">
+                    专业帮助申请美本的同学们制作个人网站和活动网站
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-2 justify-center items-center text-xs">
+                    <span className="text-orange-600 font-medium">🌐 offerstudiowebsite.wixstudio.com</span>
+                    <span className="text-gray-600">💬 微信：TauPsc-0317</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
             
-            {/* OFFERSTUDIO 广告信息 */}
+            {/* OFFERSTUDIO 广告信息 - 底部完整版 */}
             <Card className="bg-gradient-to-r from-orange-50 to-yellow-50 backdrop-blur-xl border-orange-200/50 shadow-lg">
               <CardContent className="p-6">
                 <div className="text-center space-y-4">
