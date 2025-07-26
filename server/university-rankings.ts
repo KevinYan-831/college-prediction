@@ -301,24 +301,36 @@ export function getUniversitiesByLevel(materialLevel: string, score: number, tes
     "University of California--San Diego", "University of California--Davis"
   ];
   
-  if (testType === "toefl" && score >= 110) {
-    // 托福110+ - 直接推荐前20商学院
-    const top20BusinessSchools = candidates.filter(uni => 
-      BUSINESS_SCHOOL_RANKINGS.slice(0, 20).includes(uni)
+  if (testType === "toefl" && score >= 115) {
+    // 托福115+ - 可以推荐顶尖商学院包括宾大、MIT等
+    const top15BusinessSchools = candidates.filter(uni => 
+      BUSINESS_SCHOOL_RANKINGS.slice(0, 15).includes(uni)
     );
     
     if (materialLevel === "excellent") {
-      // 极好材料 - 前15商学院
-      recommendedUniversities = top20BusinessSchools.slice(0, 15);
-    } else if (materialLevel === "good") {
-      // 较好材料 - 前20商学院，重点前15
-      recommendedUniversities = top20BusinessSchools.slice(0, 15);
+      // 极好材料 - 前10商学院
+      recommendedUniversities = top15BusinessSchools.slice(0, 15);
     } else {
-      // 一般材料 - 前20商学院，包含部分前30
-      const top30BusinessSchools = candidates.filter(uni => 
-        BUSINESS_SCHOOL_RANKINGS.slice(20, 30).includes(uni)
+      // 其他材料 - 前15商学院
+      recommendedUniversities = top15BusinessSchools.slice(0, 15);
+    }
+    
+  } else if (testType === "toefl" && score >= 110) {
+    // 托福110-114 - 推荐前30商学院，避开最顶尖的宾大MIT等
+    const suitableBusinessSchools = candidates.filter(uni => 
+      BUSINESS_SCHOOL_RANKINGS.slice(3, 25).includes(uni) // 跳过前3（宾大、斯坦福、沃顿等）
+    );
+    
+    if (materialLevel === "excellent") {
+      // 极好材料 - 可以冲击部分顶尖商学院
+      const topTierSchools = candidates.filter(uni => 
+        ["University of Michigan--Ann Arbor", "New York University", "University of California--Berkeley",
+         "University of Southern California", "Carnegie Mellon University", "Georgetown University"].includes(uni)
       );
-      recommendedUniversities = [...top20BusinessSchools.slice(0, 12), ...top30BusinessSchools.slice(0, 3)];
+      recommendedUniversities = [...topTierSchools.slice(0, 10), ...suitableBusinessSchools.slice(10, 15)];
+    } else {
+      // 其他材料 - 主要推荐前25商学院
+      recommendedUniversities = suitableBusinessSchools.slice(0, 15);
     }
     
   } else if (testType === "toefl" && score >= 100) {
