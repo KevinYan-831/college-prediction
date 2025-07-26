@@ -2,8 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { predictionRequestSchema, paymentSchema } from "@shared/schema";
 import axios from "axios";
-import { getUniversitiesByLevel } from "./university-rankings.ts";
-import { storage } from "./storage.ts";
+import { getUniversitiesByLevel } from "./university-rankings";
+import { storage } from "./storage";
 import { randomUUID } from "crypto";
 
 export async function registerRoutes(app: Express): Promise<Server> {

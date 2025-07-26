@@ -4,6 +4,8 @@
 
 This is a full-stack web application that combines traditional Chinese fortune-telling (Ba Zi) with university admission predictions. The app analyzes users' birth information along with academic credentials to provide personalized fortune analysis and university admission probability predictions.
 
+**Latest Update (2025-07-26)**: Successfully integrated WeChat payment functionality with a freemium model - users get free fortune analysis and first university recommendation, with full 15-university report available for ¥68.8.
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
@@ -33,24 +35,30 @@ The application follows a modern full-stack architecture with a clear separation
 ### Backend Architecture
 - **Framework**: Express.js with TypeScript
 - **Database ORM**: Drizzle with PostgreSQL dialect
-- **Storage**: Currently using in-memory storage with interface for future database integration
+- **Storage**: In-memory storage with support for predictions and payment tracking
 - **Validation**: Zod schemas shared between frontend and backend
 - **Development**: Hot reload with tsx and custom Vite integration
+- **Payment Processing**: WeChat payment simulation with order creation and callback handling
+- **API Integration**: GuguData (fortune telling) + DeepSeek (university predictions)
 
 ### Data Models
 The application centers around fortune prediction with the following key schemas:
 - **PredictionRequest**: User input including birth details, gender, major, test scores, and material quality
 - **FortuneAnalysis**: AI-generated fortune analysis with five elements and academic recommendations
 - **UniversityPrediction**: University recommendations with admission probabilities and reasoning
+- **Payment/PaymentResult**: Payment processing schemas for WeChat payment integration
+- **PredictionResult**: Extended with `isPaid` status and `sessionId` for payment tracking
 
 ## Data Flow
 
 1. **User Input**: Forms collect birth information, academic background, and test scores
 2. **Validation**: Client-side validation using shared Zod schemas
 3. **API Request**: POST to `/api/predict` endpoint with validated data
-4. **Processing**: Backend processes fortune analysis and university predictions
-5. **Response**: Structured prediction results returned to frontend
-6. **Display**: Results presented in organized cards with detailed breakdowns
+4. **Processing**: Backend processes fortune analysis and university predictions via GuguData + DeepSeek APIs
+5. **Response**: Structured prediction results returned with payment status and session ID
+6. **Display**: Fortune analysis and first university shown for free
+7. **Payment Flow**: Users can unlock complete 15-university report via WeChat payment (¥68.8)
+8. **Unlock**: Payment success updates `isPaid` status and reveals full recommendations
 
 ## External Dependencies
 
@@ -97,3 +105,24 @@ The application centers around fortune prediction with the following key schemas
 - Environment variables required: `DATABASE_URL`, `NODE_ENV`
 
 The application is designed for easy deployment on platforms like Replit, Vercel, or traditional hosting with PostgreSQL database support.
+
+## Recent Changes (2025-07-26)
+
+### Payment Integration
+- ✓ Added WeChat payment functionality with ¥68.8 pricing
+- ✓ Implemented freemium model: free fortune analysis + 1st university, paid full report
+- ✓ Created modern payment modal with glassmorphism design
+- ✓ Added payment status tracking and session management
+- ✓ Integrated payment success callbacks and result unlocking
+
+### UI/UX Enhancements  
+- ✓ Redesigned with dark glassmorphism theme based on music app reference
+- ✓ Added payment unlock prompts with feature lists
+- ✓ Enhanced loading progress (1.5s intervals, stops at 80%, average 2.5% growth)
+- ✓ Created responsive payment modal with modern gradients
+
+### Architecture Updates
+- ✓ Extended storage interface for payment tracking
+- ✓ Added payment-related API endpoints (/api/payment/create, /api/payment/callback)
+- ✓ Updated schemas with payment and session tracking
+- ✓ Maintained real API integration with GuguData and DeepSeek
