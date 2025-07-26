@@ -17,17 +17,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // 准备API调用数据
       const { year, month, day, hour, minute, gender, major, dreamUniversities } = validatedData;
       
-      // 并行调用两个API
-      const [fortuneResponse, universityResponse] = await Promise.all([
-        // 调用咕咕数据API进行命理分析
+      // 独立调用两个API
+      let fortuneResponse;
+      let universityResponse;
+      let fortuneError = null;
+      
+      // 并行调用但独立处理错误
+      const [fortuneResult, universityResult] = await Promise.allSettled([
         callGuguDataAPI(year, month, day, hour, minute, gender, major),
-        // 调用DeepSeek API进行大学预测
         callDeepSeekAPI(validatedData)
       ]);
       
+      // 处理命理分析结果
+      if (fortuneResult.status === 'fulfilled') {
+        fortuneResponse = fortuneResult.value;
+        console.log("GuguData API调用成功");
+      } else {
+        fortuneError = fortuneResult.reason;
+        console.error("GuguData API失败:", fortuneError.message);
+      }
+      
+      // 处理大学预测结果
+      if (universityResult.status === 'fulfilled') {
+        universityResponse = universityResult.value;
+        console.log("DeepSeek API调用成功");
+      } else {
+        console.error("DeepSeek API失败:", universityResult.reason.message);
+        throw new Error("大学预测API调用失败");
+      }
+      
       const sessionId = randomUUID();
       
-      // 返回合并结果
+      // 如果命理分析失败，提供错误信息
+      if (fortuneError) {
+        const errorResult = {
+          fortuneAnalysis: {
+            analysis: "命理分析暂时无法获取，GuguData API调用超时。",
+            fiveElements: "API服务暂不可用",
+            academicFortune: "暂无法提供命理建议",
+            recommendations: "请稍后重试或联系客服"
+          },
+          universityPredictions: universityResponse,
+          sessionId,
+          error: "GuguData API调用失败：" + fortuneError.message
+        };
+        
+        // 保存结果到存储
+        await storage.savePrediction(sessionId, errorResult);
+        
+        return res.status(200).json(errorResult);
+      }
+      
+      // 正常返回合并结果
       const result = {
         fortuneAnalysis: fortuneResponse,
         universityPredictions: universityResponse,
