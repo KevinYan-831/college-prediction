@@ -152,7 +152,10 @@ export const UNIVERSITY_MAJORS: Record<string, string[]> = {
   "University of Texas at Austin": ["business", "computer science", "engineering", "economics"],
   "Cornell University": ["business", "computer science", "engineering", "economics", "liberal arts"],
   "Indiana University--Bloomington": ["business", "computer science", "economics"],
-  "University of Southern California": ["business", "computer science", "engineering", "economics"],
+  "University of Southern California": ["business", "computer science", "engineering", "economics", "liberal arts"],
+  "Georgetown University": ["business", "computer science", "economics", "liberal arts"],
+  "Emory University": ["business", "computer science", "economics", "liberal arts"],
+  "Washington University in St. Louis": ["business", "computer science", "engineering", "economics", "liberal arts"],
   "University of Notre Dame": ["business", "computer science", "economics", "liberal arts"],
   "University of Virginia": ["business", "computer science", "economics", "liberal arts"],
   "Emory University": ["business", "computer science", "economics", "liberal arts"],
@@ -281,35 +284,52 @@ export function getUniversitiesByLevel(materialLevel: string, score: number, tes
   let recommendedUniversities: string[] = [];
   
   if (materialLevel === "excellent" && testType === "toefl" && score >= 110) {
-    // 顶尖水平 - 推荐排名前20的大学（如果专业匹配）
+    // 顶尖水平 - 推荐排名前30的优秀大学
     const topTier = candidates.filter(uni => 
       ["University of Pennsylvania", "Massachusetts Institute of Technology", 
        "University of California--Berkeley", "University of Michigan--Ann Arbor",
        "New York University", "Carnegie Mellon University", "Duke University",
-       "University of North Carolina--Chapel Hill", "Cornell University"].includes(uni)
+       "University of North Carolina--Chapel Hill", "Cornell University",
+       "University of Southern California", "Georgetown University", "Emory University",
+       "Washington University in St. Louis", "University of Virginia"].includes(uni)
     );
-    recommendedUniversities = topTier.slice(0, 8);
+    recommendedUniversities = topTier.slice(0, 10);
     
-    // 补充一些稍次一级的优秀大学
-    const secondTier = candidates.filter(uni => 
-      !topTier.includes(uni) && BUSINESS_SCHOOL_RANKINGS.slice(0, 30).includes(uni)
+    // 补充一些优秀的商学院
+    const businessTier = candidates.filter(uni => 
+      !topTier.includes(uni) && BUSINESS_SCHOOL_RANKINGS.slice(0, 25).includes(uni)
     );
-    recommendedUniversities = [...recommendedUniversities, ...secondTier.slice(0, 7)];
+    recommendedUniversities = [...recommendedUniversities, ...businessTier.slice(0, 5)];
     
-  } else if (materialLevel === "good" && testType === "toefl" && score >= 105) {
-    // 较好水平+105+ - 推荐排名10-40的优秀大学，包括加州系统
+  } else if ((materialLevel === "excellent" && testType === "toefl" && score >= 105) ||
+             (materialLevel === "good" && testType === "toefl" && score >= 110)) {
+    // 优秀水平 - 推荐排名15-40的顶尖大学
     const excellentSchools = ["University of California--Berkeley", "University of California--Los Angeles", 
-                             "University of California--San Diego", "University of California--Santa Barbara",
-                             "University of California--Davis", "University of California--Irvine",
                              "University of Michigan--Ann Arbor", "New York University", "Carnegie Mellon University",
-                             "University of North Carolina--Chapel Hill", "University of Illinois Urbana-Champaign", 
-                             "Boston University", "University of Washington", "Purdue University", 
-                             "University of Wisconsin--Madison", "University of Virginia", "Georgia Institute of Technology"];
+                             "University of North Carolina--Chapel Hill", "University of Southern California",
+                             "Georgetown University", "Emory University", "University of Virginia",
+                             "University of Illinois Urbana-Champaign", "Boston University", 
+                             "University of Washington", "University of Wisconsin--Madison"];
     
     const highTier = candidates.filter(uni => 
-      excellentSchools.includes(uni) || BUSINESS_SCHOOL_RANKINGS.slice(3, 35).includes(uni)
+      excellentSchools.includes(uni) || BUSINESS_SCHOOL_RANKINGS.slice(2, 30).includes(uni)
     );
     recommendedUniversities = highTier.slice(0, 15);
+    
+  } else if (materialLevel === "good" && testType === "toefl" && score >= 105) {
+    // 较好水平+105+ - 推荐排名20-50的优秀大学
+    const goodSchools = ["University of California--Berkeley", "University of California--Los Angeles", 
+                        "University of California--San Diego", "University of California--Santa Barbara",
+                        "University of California--Davis", "University of California--Irvine",
+                        "University of Michigan--Ann Arbor", "New York University", 
+                        "University of Illinois Urbana-Champaign", "Boston University", 
+                        "University of Washington", "Purdue University", "University of Wisconsin--Madison",
+                        "Georgia Institute of Technology", "University of Southern California"];
+    
+    const midHighTier = candidates.filter(uni => 
+      goodSchools.includes(uni) || BUSINESS_SCHOOL_RANKINGS.slice(5, 40).includes(uni)
+    );
+    recommendedUniversities = midHighTier.slice(0, 15);
     
   } else if (materialLevel === "average" && testType === "toefl" && score >= 95) {
     // 中等水平 - 推荐排名40-80的大学
