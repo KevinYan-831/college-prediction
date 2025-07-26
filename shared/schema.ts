@@ -17,7 +17,7 @@ export const predictionRequestSchema = z.object({
   
   // 语言成绩
   testType: z.enum(["toefl", "ielts"]),
-  score: z.number().min(0).optional(),
+  score: z.number().min(0),
   
   // 申请材料水平
   materialLevel: z.enum(["very-poor", "poor", "average", "good", "excellent"])

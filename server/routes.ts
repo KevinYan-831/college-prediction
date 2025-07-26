@@ -77,21 +77,40 @@ async function callGuguDataAPI(
     // 如果API成功返回數據，直接使用
     if (apiResult && apiResult.DataStatus && apiResult.DataStatus.StatusCode === 100) {
       const data = apiResult.Data;
-      const fortuneAnalysis = data.运势分析 || {};
+      const analysis = data.分析 || {};
       
       return {
-        analysis: `八字：${data.八字 || ''}
+        analysis: `【八字命盤】
+八字：${data.八字 || ''}
 五行：${data.五行 || ''}
-命宫：${data.命宫 || ''}
-身宫：${data.身宫 || ''}
 
-${data.综合评价 || ''}`,
-        fiveElements: data.五行 || "五行分析中",
-        academicFortune: fortuneAnalysis.学业 || "學業運勢分析中",
-        recommendations: `根據您的八字分析：
-${fortuneAnalysis.学业 ? '學業方面：' + fortuneAnalysis.学业 : ''}
-${fortuneAnalysis.财运 ? '財運方面：' + fortuneAnalysis.财运 : ''}
-${fortuneAnalysis.健康 ? '健康方面：' + fortuneAnalysis.健康 : ''}`
+【整體分析】
+${analysis.总体评价 || '命盤分析顯示您具有良好的學術潛質'}
+
+【體貌特徵】
+${analysis.体貌特征 || ''}`,
+        
+        fiveElements: `五行配置：${data.五行 || ''}
+${data.十神 ? `十神配置：年柱${data.十神.年柱}，月柱${data.十神.月柱}，日柱${data.十神.日柱}，時柱${data.十神.时柱}` : ''}`,
+        
+        academicFortune: analysis.学业 || "學業運勢分析中",
+        
+        recommendations: `【專業建議】
+學業發展：${analysis.学业 || ''}
+
+事業規劃：${analysis.事业 || analysis.career || ''}
+
+${data.大运 && data.大运.length > 0 ? 
+`【大運分析】
+當前大運：${data.大运.find(d => {
+  const [start, end] = d.年份.split('-').map(Number);
+  const currentYear = new Date().getFullYear();
+  return currentYear >= start && currentYear <= end;
+})?.大运 || '分析中'} (${data.大运.find(d => {
+  const [start, end] = d.年份.split('-').map(Number);
+  const currentYear = new Date().getFullYear();
+  return currentYear >= start && currentYear <= end;
+})?.十神 || ''})` : ''}`
       };
     }
     
@@ -197,12 +216,22 @@ async function callDeepSeekAPI(data: any) {
 - 語言成績：${data.testType === "toefl" ? "托福" : "雅思"} ${data.score || '未提供'}分
 - 申請材料水平：${getMaterialLevelText(data.materialLevel)}
 
-⚠️ 關鍵要求（必須嚴格遵循）：
+⚠️ 關鍵要求（必須100%嚴格遵循）：
 1. 這是針對美國本科申請的分析，學生是高中生
 2. 必須確認每所大學確實提供該專業的本科學位
-3. 哈佛大學本科沒有商科（Business）專業，只有經濟學（Economics）
-4. 斯坦福大學本科沒有商科專業，只有經濟學和管理科學與工程
-5. 如果學生申請商科，推薦的學校必須確實有本科商科項目
+3. 以下大學本科沒有商科（Business Administration/Business）專業，絕對不能推薦給商科申請者：
+   - 哈佛大學（只有Economics）
+   - 斯坦福大學（只有Economics, Management Science & Engineering）
+   - 普林斯頓大學（只有Economics）
+   - 耶魯大學（只有Economics）
+   - 麻省理工學院（只有Management）
+4. 如果學生申請商科，只推薦確實有本科Business程序的大學，如：
+   - 賓夕法尼亞大學沃頓商學院
+   - 密歇根大學安娜堡分校商學院  
+   - 紐約大學斯特恩商學院
+   - 加州大學伯克利分校哈斯商學院
+   - 弗吉尼亞大學達頓商學院等
+5. 如果是其他專業，確保推薦的學校有該本科專業
 6. 根據生辰八字的五行屬性分析學生的性格和學習特質
 7. 結合命理因素解釋為什麼某個地區或學校適合該學生
 
@@ -274,27 +303,133 @@ function getMaterialLevelText(level: string): string {
   return levelMap[level] || "一般";
 }
 
-// 默认大学预测结果
+// 默认大学预测结果 - 根據專業智能推薦
 function getDefaultUniversityPredictions(data: any) {
   const baseScore = getBaseScore(data);
+  const isBusiness = data.major.toLowerCase().includes('business') || 
+                     data.major.toLowerCase().includes('商科') ||
+                     data.major.toLowerCase().includes('商业');
   
+  // 如果是商科申請，推薦有商學院的大學
+  if (isBusiness) {
+    return [
+      {
+        name: "University of Pennsylvania (Wharton)",
+        chineseName: "宾夕法尼亚大学沃顿商学院",
+        major: "Business Administration", 
+        admissionProbability: Math.min(85, baseScore + 10),
+        location: "費城，賓夕法尼亞州",
+        reasons: "沃頓商學院是全美頂尖商學院，您的命理特質適合商業發展"
+      },
+      {
+        name: "University of Michigan - Ann Arbor (Ross)",
+        chineseName: "密歇根大學安娜堡分校羅斯商學院",
+        major: "Business Administration",
+        admissionProbability: Math.min(88, baseScore + 13), 
+        location: "安娜堡，密歇根州",
+        reasons: "羅斯商學院聲譽卓著，中西部地區適合您的五行特質"
+      },
+      {
+        name: "New York University (Stern)",
+        chineseName: "紐約大學斯特恩商學院",
+        major: "Business Administration",
+        admissionProbability: Math.min(82, baseScore + 7),
+        location: "紐約，紐約州",
+        reasons: "斯特恩商學院位於金融中心，有利於您的財運發展"
+      },
+      {
+        name: "UC Berkeley (Haas)",
+        chineseName: "加州大學伯克利分校哈斯商學院", 
+        major: "Business Administration",
+        admissionProbability: Math.min(80, baseScore + 5),
+        location: "伯克利，加利福尼亞州",
+        reasons: "哈斯商學院創新氛圍濃厚，西海岸環境適合您的發展"
+      },
+      {
+        name: "University of Virginia (Darden)",
+        chineseName: "弗吉尼亞大學達頓商學院",
+        major: "Business Administration", 
+        admissionProbability: Math.min(90, baseScore + 15),
+        location: "夏洛茨維爾，弗吉尼亞州",
+        reasons: "達頓商學院案例教學著名，東海岸環境有利於您的學業運"
+      },
+      {
+        name: "Carnegie Mellon University (Tepper)",
+        chineseName: "卡內基梅隆大學泰珀商學院",
+        major: "Business Administration",
+        admissionProbability: Math.min(85, baseScore + 10),
+        location: "匹茲堡，賓夕法尼亞州",
+        reasons: "泰珀商學院技術導向，結合您的命理特質適合創新發展"
+      },
+      {
+        name: "Washington University in St. Louis (Olin)",
+        chineseName: "聖路易斯華盛頓大學奧林商學院",
+        major: "Business Administration",
+        admissionProbability: Math.min(92, baseScore + 17),
+        location: "聖路易斯，密蘇里州",
+        reasons: "奧林商學院教學品質優秀，中部地區環境有利於您的發展"
+      },
+      {
+        name: "University of Notre Dame (Mendoza)",
+        chineseName: "聖母大學門多薩商學院", 
+        major: "Business Administration",
+        admissionProbability: Math.min(88, baseScore + 13),
+        location: "南本德，印第安納州",
+        reasons: "門多薩商學院注重價值觀培養，適合您的品格發展"
+      },
+      {
+        name: "Georgetown University (McDonough)",
+        chineseName: "喬治城大學麥克多諾商學院",
+        major: "Business Administration", 
+        admissionProbability: Math.min(86, baseScore + 11),
+        location: "華盛頓特區",
+        reasons: "麥克多諾商學院政商結合，首都地區有利於您的事業運"
+      },
+      {
+        name: "Boston College (Carroll)",
+        chineseName: "波士頓學院卡羅爾商學院",
+        major: "Business Administration",
+        admissionProbability: Math.min(90, baseScore + 15),
+        location: "波士頓，麻薩諸塞州",
+        reasons: "卡羅爾商學院學術聲譽良好，新英格蘭地區適合您的學習"
+      },
+      {
+        name: "University of Southern California (Marshall)",
+        chineseName: "南加州大學馬歇爾商學院",
+        major: "Business Administration",
+        admissionProbability: Math.min(87, baseScore + 12),
+        location: "洛杉磯，加利福尼亞州", 
+        reasons: "馬歇爾商學院國際化程度高，西海岸創業氛圍適合您"
+      },
+      {
+        name: "Indiana University (Kelley)",
+        chineseName: "印第安納大學凱利商學院",
+        major: "Business Administration",
+        admissionProbability: Math.min(93, baseScore + 18),
+        location: "布盧明頓，印第安納州",
+        reasons: "凱利商學院性價比高，中西部環境穩定適合學業發展"
+      },
+      {
+        name: "University of Illinois Urbana-Champaign",
+        chineseName: "伊利諾伊大學厄巴納-香檳分校商學院",
+        major: "Business Administration",
+        admissionProbability: Math.min(91, baseScore + 16),
+        location: "厄巴納-香檳，伊利諾伊州",
+        reasons: "商學院實力強勁，公立大學性價比高適合您的財運規劃"
+      },
+      {
+        name: "University of Texas at Austin (McCombs)",
+        chineseName: "德州大學奧斯汀分校麥庫姆斯商學院",
+        major: "Business Administration",
+        admissionProbability: Math.min(89, baseScore + 14),
+        location: "奧斯汀，德克薩斯州",
+        reasons: "麥庫姆斯商學院創業精神濃厚，德州發展前景符合您的運勢"
+      }
+    ];
+  }
+  
+  // 非商科專業的默認推薦
   return [
-    {
-      name: "Harvard University",
-      chineseName: "哈佛大学",
-      major: data.major,
-      admissionProbability: Math.min(95, baseScore + 15),
-      location: "剑桥，马萨诸塞州",
-      reasons: "综合实力突出，申请材料优秀"
-    },
-    {
-      name: "Stanford University", 
-      chineseName: "斯坦福大学",
-      major: data.major,
-      admissionProbability: Math.min(90, baseScore + 10),
-      location: "斯坦福，加利福尼亚州",
-      reasons: "学术背景匹配度高"
-    },
     {
       name: "MIT",
       chineseName: "麻省理工学院",

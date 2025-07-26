@@ -34,7 +34,7 @@ export default function PredictionPage() {
       gender: "male",
       major: "",
       testType: "toefl",
-      score: undefined,
+      score: 0,
       materialLevel: "average"
     }
   });
@@ -287,7 +287,8 @@ export default function PredictionPage() {
                               type="number" 
                               placeholder="如：105" 
                               {...field}
-                              onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                              value={field.value || ""}
+                              onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 0)}
                             />
                           </FormControl>
                           <FormMessage />
