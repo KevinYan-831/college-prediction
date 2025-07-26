@@ -288,8 +288,18 @@ export default function PredictionPage() {
                               type="number" 
                               placeholder="如：105" 
                               {...field}
-                              value={field.value || ""}
-                              onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 0)}
+                              value={field.value === 0 ? "" : field.value || ""}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (value === "") {
+                                  field.onChange(undefined);
+                                } else {
+                                  const numValue = parseInt(value);
+                                  if (!isNaN(numValue)) {
+                                    field.onChange(numValue);
+                                  }
+                                }
+                              }}
                             />
                           </FormControl>
                           <FormMessage />

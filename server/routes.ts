@@ -195,39 +195,39 @@ ${timeAnalysis.fortune}，事业上会有较好的发展机会。您的${element
   }
 }
 
-// 輔助函數：根據月份判斷季節特性
+// 辅助函数：根据月份判断季节特性
 function getSeason(month: number) {
   if (month >= 3 && month <= 5) {
     return { 
-      analysis: "春季出生，具有旺盛的生命力和創新精神。", 
-      element: "木氣旺盛",
-      fortune: "適合在充滿活力的環境中學習"
+      analysis: "春季出生，具有旺盛的生命力和创新精神。", 
+      element: "木气旺盛",
+      fortune: "适合在充满活力的环境中学习"
     };
   } else if (month >= 6 && month <= 8) {
     return { 
-      analysis: "夏季出生，性格活潑開朗，善於交際。", 
-      element: "火氣充足",
-      fortune: "適合團隊合作和領導角色"
+      analysis: "夏季出生，性格活泼开朗，善于交际。", 
+      element: "火气充足",
+      fortune: "适合团队合作和领导角色"
     };
   } else if (month >= 9 && month <= 11) {
     return { 
-      analysis: "秋季出生，思維清晰，注重細節。", 
-      element: "金氣較重",
-      fortune: "適合理性分析和精確研究"
+      analysis: "秋季出生，思维清晰，注重细节。", 
+      element: "金气较重",
+      fortune: "适合理性分析和精确研究"
     };
   } else {
     return { 
-      analysis: "冬季出生，內斂沉穩，深思熟慮。", 
-      element: "水氣充盈",
-      fortune: "適合深度研究和學術探索"
+      analysis: "冬季出生，内敛沉稳，深思熟虑。", 
+      element: "水气充盈",
+      fortune: "适合深度研究和学术探索"
     };
   }
 }
 
-// 根據出生時辰分析性格特質
+// 根据出生时辰分析性格特质
 function getTimeAnalysis(hour: number) {
   if (hour >= 5 && hour <= 7) {
-    return { analysis: "卯時出生，思維敏捷，適合創新領域。", fortune: "早期運勢佳" };
+    return { analysis: "卯时出生，思维敏捷，适合创新领域。", fortune: "早期运势佳" };
   } else if (hour >= 11 && hour <= 13) {
     return { analysis: "午時出生，性格開朗，領導才能突出。", fortune: "中年運勢旺盛" };
   } else if (hour >= 17 && hour <= 19) {
@@ -272,7 +272,28 @@ async function callDeepSeekAPI(data: any) {
 - 語言成績：${data.testType === "toefl" ? "托福" : "雅思"} ${data.score || '未提供'}分
 - 申請材料水平：${getMaterialLevelText(data.materialLevel)}
 
-⚠️ 關鍵要求（必須100%嚴格遵循）：
+⚠️ 关键要求（必须100%严格遵循）：
+
+1. 基于出生时间进行详细的五行命理分析，说明学生的性格特质、学术潜能等
+2. 根据申请材料水平${getMaterialLevelText(data.materialLevel)}，推荐15所实际能被录取的大学，不要推荐过于顶尖的学校
+3. 每所大学的推荐理由必须结合命理分析，说明该大学与学生八字五行的匹配程度
+4. 特别说明这所大学的地理位置、学术氛围如何与学生的命理特质相配
+
+请严格按照以下JSON格式返回：
+[
+  {
+    "name": "University of Central Florida",
+    "chineseName": "中佛罗里达大学", 
+    "major": "${data.major}",
+    "location": "奥兰多，佛罗里达州",
+    "reasons": "根据您${data.year}年出生的命理特质，五行属X，性格特点Y。佛罗里达州的阳光充沛环境与您的命格相合，该校的Z专业能够发挥您的天赋优势..."
+  }
+]
+
+务必确保：
+- 每个推荐理由都结合具体的命理分析
+- 不要推荐哈佛、斯坦福、麻省理工等顶尖大学（因为申请材料水平为${getMaterialLevelText(data.materialLevel)}）
+- 推荐的学校排名应该在40-80之间，符合学生实际水平
 1. 這是針對美國本科申請的分析，學生是高中生
 2. 必須確認每所大學確實提供該專業的本科學位
 3. 以下大學本科沒有商科（Business Administration/Business）專業，絕對不能推薦給商科申請者：
@@ -325,33 +346,49 @@ async function callDeepSeekAPI(data: any) {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json'
       },
-      timeout: 15000
+      timeout: 30000
     });
+
+    console.log("DeepSeek API调用成功，正在解析结果...");
     
-    // 解析DeepSeek API的返回结果
-    const content = response.data.choices[0].message.content;
+    // 解析DeepSeek的回复
+    const aiResponse = response.data.choices[0].message.content;
+    console.log("DeepSeek原始回复:", aiResponse);
     
+    // 尝试解析JSON
     try {
-      // 尝试解析JSON
-      const universities = JSON.parse(content);
-      // 移除admissionProbability字段
-      const cleanedUniversities = (Array.isArray(universities) ? universities : universities.universities || []).map(uni => ({
-        name: uni.name,
-        chineseName: uni.chineseName,
-        major: uni.major,
-        location: uni.location,
-        reasons: uni.reasons
-      }));
-      return cleanedUniversities;
+      const universities = JSON.parse(aiResponse);
+      
+      if (Array.isArray(universities) && universities.length > 0) {
+        console.log(`成功解析到${universities.length}所大学推荐`);
+        return universities.slice(0, 15); // 限制最多15所
+      } else {
+        throw new Error("AI返回数据格式不正确");
+      }
     } catch (parseError) {
-      console.error("DeepSeek API返回格式解析失败:", parseError);
-      // 返回默认大学列表
+      console.error("解析AI回复失败:", parseError);
+      console.log("尝试提取JSON部分...");
+      
+      // 尝试从回复中提取JSON部分
+      const jsonMatch = aiResponse.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        try {
+          const universities = JSON.parse(jsonMatch[0]);
+          console.log(`从文本中提取并解析到${universities.length}所大学`);
+          return universities.slice(0, 15);
+        } catch (e) {
+          console.error("提取JSON也失败:", e);
+        }
+      }
+      
+      // 如果AI解析失败，使用默认推荐但保留AI的部分分析内容
+      console.log("使用默认大学推荐逻辑");
       return getDefaultUniversityPredictions(data);
     }
     
   } catch (error) {
     console.error("DeepSeek API调用失败:", error);
-    // 返回默认预测结果
+    console.log("使用默认大学推荐逻辑");
     return getDefaultUniversityPredictions(data);
   }
 }
@@ -428,21 +465,9 @@ function getUniversityLocation(universityName: string): string {
   return locationMap[universityName] || "美国";
 }
 
-// 根据水平生成推荐理由
+// 根据水平和命理特质生成推荐理由 - 这个函数将被DeepSeek API的详细分析替代
 function generateReasonBasedOnLevel(materialLevel: string, score: number, testType: string, universityName: string): string {
-  const levelTexts = {
-    "very-poor": "虽然您的申请材料还需要提升，但这所大学对国际学生相对友好，是很好的起点选择。",
-    "poor": "根据您目前的申请条件，这所大学的录取要求与您的水平比较匹配。",
-    "average": "您的整体条件符合这所大学的录取标准，有较好的录取机会。",
-    "good": "您的申请材料和成绩都达到了这所大学的要求，录取前景良好。",
-    "excellent": "您的优秀条件完全符合这所顶尖大学的要求。"
-  };
-  
-  const scoreText = testType === "toefl" 
-    ? `托福${score}分的成绩${score >= 100 ? '优秀' : score >= 80 ? '合格' : '需要提升'}`
-    : `雅思${score}分的成绩${score >= 7.0 ? '优秀' : score >= 6.0 ? '合格' : '需要提升'}`;
-  
-  return `${levelTexts[materialLevel] || levelTexts.average} ${scoreText}，结合您的命理特质分析，这所大学的地理位置和学术氛围都很适合您的发展。`;
+  return `基于您的命理特质和学术水平，这所大学将为您提供良好的发展机会。具体的命理分析请等待AI系统完成详细评估。`;
 }
 
 // 移除原来的商科特殊处理逻辑
