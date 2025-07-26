@@ -302,31 +302,43 @@ export function getUniversitiesByLevel(materialLevel: string, score: number, tes
   ];
   
   if (testType === "toefl" && score >= 115) {
-    // 托福115+ - 推荐沃顿、MIT等顶尖商学院
-    const topBusinessSchools = candidates.filter(uni => 
-      BUSINESS_SCHOOL_RANKINGS.slice(0, 5).includes(uni) // 前5顶尖商学院
+    // 托福115+ - 推荐前5名商学院
+    const top5BusinessSchools = candidates.filter(uni => 
+      BUSINESS_SCHOOL_RANKINGS.slice(0, 5).includes(uni)
     );
-    recommendedUniversities = topBusinessSchools.concat(
-      candidates.filter(uni => BUSINESS_SCHOOL_RANKINGS.slice(5, 15).includes(uni))
-    ).slice(0, 15);
+    // 如果前5个不够15所，补充6-15名
+    const additional = candidates.filter(uni => 
+      BUSINESS_SCHOOL_RANKINGS.slice(5, 15).includes(uni)
+    );
+    recommendedUniversities = top5BusinessSchools.concat(additional).slice(0, 15);
     
   } else if (testType === "toefl" && score >= 110) {
-    // 托福110+ - 推荐前10商学院
-    const top10BusinessSchools = candidates.filter(uni => 
-      BUSINESS_SCHOOL_RANKINGS.slice(0, 10).includes(uni)
+    // 托福110+ - 推荐第6-10名 + 第11-15名商学院
+    const rank6to10 = candidates.filter(uni => 
+      BUSINESS_SCHOOL_RANKINGS.slice(5, 10).includes(uni)
     );
-    recommendedUniversities = top10BusinessSchools.concat(
-      candidates.filter(uni => BUSINESS_SCHOOL_RANKINGS.slice(10, 20).includes(uni))
-    ).slice(0, 15);
+    const rank11to15 = candidates.filter(uni => 
+      BUSINESS_SCHOOL_RANKINGS.slice(10, 15).includes(uni)
+    );
+    // 如果不够15所，补充16-25名
+    const additional = candidates.filter(uni => 
+      BUSINESS_SCHOOL_RANKINGS.slice(15, 25).includes(uni)
+    );
+    recommendedUniversities = rank6to10.concat(rank11to15).concat(additional).slice(0, 15);
     
   } else if (testType === "toefl" && score >= 100) {
-    // 托福100+ - 推荐前20商学院
-    const top20BusinessSchools = candidates.filter(uni => 
-      BUSINESS_SCHOOL_RANKINGS.slice(0, 20).includes(uni)
+    // 托福100+ - 推荐第11-20名 + 第21-30名商学院
+    const rank11to20 = candidates.filter(uni => 
+      BUSINESS_SCHOOL_RANKINGS.slice(10, 20).includes(uni)
     );
-    recommendedUniversities = top20BusinessSchools.concat(
-      candidates.filter(uni => BUSINESS_SCHOOL_RANKINGS.slice(20, 30).includes(uni))
-    ).slice(0, 15);
+    const rank21to30 = candidates.filter(uni => 
+      BUSINESS_SCHOOL_RANKINGS.slice(20, 30).includes(uni)
+    );
+    // 如果不够15所，补充31-40名
+    const additional = candidates.filter(uni => 
+      BUSINESS_SCHOOL_RANKINGS.slice(30, 40).includes(uni)
+    );
+    recommendedUniversities = rank11to20.concat(rank21to30).concat(additional).slice(0, 15);
     
   } else if (testType === "toefl" && score >= 90) {
     // 托福90-99 - 推荐前50商学院
