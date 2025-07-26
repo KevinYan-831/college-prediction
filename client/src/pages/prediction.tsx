@@ -19,7 +19,7 @@ export default function PredictionPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingMessage, setLoadingMessage] = useState("");
-  const [estimatedTime, setEstimatedTime] = useState(20);
+  const [estimatedTime, setEstimatedTime] = useState(100);
   const [isSavingImage, setIsSavingImage] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
 
@@ -72,7 +72,7 @@ export default function PredictionPage() {
     setIsLoading(true);
     setResults(null);
     setLoadingProgress(0);
-    setEstimatedTime(20);
+    setEstimatedTime(100);
     
     const progressInterval = setInterval(() => {
       setLoadingProgress(prev => {
