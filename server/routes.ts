@@ -337,7 +337,12 @@ async function callDeepSeekAPI(data: any) {
   }
 ]
 
-請確保推薦的都是該學生條件下真正有可能被錄取的學校，專業名稱100%準確。`;
+重要提醒：
+1. 如果申请专业是商科/金融/管理，只能推荐在商学院排名中的大学
+2. 绝对不要推荐没有相关本科专业的大学（如加州理工、芝加哥大学、杜克大学等对商科申请者）
+3. 专业名称必须100%准确，与该大学实际开设的本科专业一致
+
+请返回准确的JSON格式数组。`;
 
     const response = await axios.post("https://api.deepseek.com/v1/chat/completions", {
       model: "deepseek-chat",

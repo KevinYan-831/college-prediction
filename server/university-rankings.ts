@@ -69,49 +69,130 @@ export const USNEWS_TOP50_LIBERAL_ARTS_COLLEGES = [
   "Wofford College", "Allegheny College", "Bard College"
 ];
 
+// 本科商学院排名（基于用户提供的权威排名数据）
+export const BUSINESS_SCHOOL_RANKINGS = [
+  "University of Pennsylvania", // #1
+  "Massachusetts Institute of Technology", // #2 (Sloan有本科项目)
+  "University of California--Berkeley", // #2
+  "University of Michigan--Ann Arbor", // #4
+  "New York University", // #5
+  "Carnegie Mellon University", // #6
+  "University of North Carolina--Chapel Hill", // #6
+  "University of Texas at Austin", // #6
+  "Cornell University", // #9
+  "Indiana University--Bloomington", // #9
+  "University of Southern California", // #9
+  "University of Notre Dame", // #12
+  "University of Virginia", // #12
+  "Emory University", // #14
+  "Georgetown University", // #14
+  "Ohio State University", // #14
+  "University of Illinois Urbana-Champaign", // #14
+  "Georgia Institute of Technology", // #18
+  "University of Minnesota--Twin Cities", // #18
+  "University of Washington", // #18
+  "University of Wisconsin--Madison", // #18
+  "Washington University in St. Louis", // #18
+  "Pennsylvania State University", // #23
+  "University of Florida", // #23
+  "University of Georgia", // #23
+  "University of Maryland--College Park", // #23
+  "Arizona State University", // #27
+  "Boston College", // #27
+  "Michigan State University", // #27
+  "Purdue University", // #27
+  "Rice University", // #27
+  "Texas A&M University", // #27
+  "University of Arizona", // #27
+  "University of California--Irvine", // #27
+  "University of Iowa", // #27
+  "Babson College", // #36
+  "Boston University", // #36
+  "University of Colorado Boulder", // #36
+  "Wake Forest University", // #36
+  "Brigham Young University", // #40
+  "Case Western Reserve University", // #40
+  "George Washington University", // #40
+  "Southern Methodist University", // #40
+  "Syracuse University", // #40
+  "Tulane University", // #40
+  "University of Arkansas", // #40
+  "University of Pittsburgh", // #40
+  "University of Rochester", // #40
+  "University of South Carolina", // #40
+  "University of Tennessee", // #40
+];
+
 // 大学专业数据库 - 精确记录每所大学的本科专业
 export const UNIVERSITY_MAJORS: Record<string, string[]> = {
-  // 顶尖综合性大学（有商科）
-  "Harvard University": ["business", "economics", "computer science", "engineering", "liberal arts", "pre-med"],
-  "Stanford University": ["business", "computer science", "engineering", "economics", "liberal arts"],
+  // 顶尖综合性大学
+  "Harvard University": ["economics", "computer science", "engineering", "liberal arts", "pre-med"], // 哈佛本科无商学院
+  "Stanford University": ["economics", "computer science", "engineering", "liberal arts"], // 斯坦福本科无商学院
+  "Yale University": ["economics", "computer science", "engineering", "liberal arts"], // 耶鲁本科无商学院
+  "Princeton University": ["economics", "computer science", "engineering", "liberal arts"], // 普林斯顿本科无商学院
+  "Columbia University": ["economics", "engineering", "computer science", "liberal arts"], // 哥大本科无商学院
+  "University of Chicago": ["economics", "liberal arts", "computer science"], // 芝大本科无商学院
+  "Duke University": ["economics", "engineering", "computer science", "liberal arts"], // 杜克本科无商学院
+  "Johns Hopkins University": ["engineering", "computer science", "pre-med", "liberal arts"], // JHU本科无商学院
+  "California Institute of Technology": ["engineering", "computer science"], // 加州理工无商科
+  
+  // 有顶尖商学院的大学（从排名中确认）
   "University of Pennsylvania": ["business", "economics", "engineering", "computer science", "liberal arts"],
-  "Columbia University": ["business", "economics", "engineering", "computer science", "liberal arts"],
-  "New York University": ["business", "economics", "computer science", "liberal arts"],
-  "University of Southern California": ["business", "computer science", "engineering", "economics"],
-  "Boston University": ["business", "computer science", "engineering", "economics", "liberal arts"],
-  
-  // 顶尖理工科大学（无商科本科）
-  "Massachusetts Institute of Technology": ["computer science", "engineering", "economics"],
-  "California Institute of Technology": ["engineering", "computer science"],
-  "Georgia Institute of Technology": ["engineering", "computer science"],
-  "Carnegie Mellon University": ["computer science", "engineering", "economics"],
-  
-  // 顶尖文理学院（通常无商科本科）
-  "University of Chicago": ["economics", "liberal arts", "computer science"],
-  "Duke University": ["economics", "engineering", "computer science", "liberal arts"],
-  "Johns Hopkins University": ["engineering", "computer science", "pre-med", "liberal arts"],
-  
-  // 州立大学（通常有商科）
+  "Massachusetts Institute of Technology": ["business", "computer science", "engineering", "economics"], // MIT Sloan有本科
   "University of California--Berkeley": ["business", "computer science", "engineering", "economics"],
-  "University of California--Los Angeles": ["business", "computer science", "engineering", "economics"],
   "University of Michigan--Ann Arbor": ["business", "computer science", "engineering", "economics"],
-  "University of Texas at Austin": ["business", "computer science", "engineering", "economics"],
-  "University of Florida": ["business", "computer science", "engineering", "economics"],
-  "University of Illinois Urbana-Champaign": ["business", "computer science", "engineering", "economics"],
-  "University of Washington": ["business", "computer science", "engineering", "economics"],
-  "Ohio State University": ["business", "computer science", "engineering", "economics"],
-  "Purdue University": ["business", "computer science", "engineering", "economics"],
-  "University of Wisconsin--Madison": ["business", "computer science", "engineering", "economics"],
-  "University of Virginia": ["business", "computer science", "economics", "liberal arts"],
+  "New York University": ["business", "economics", "computer science", "liberal arts"],
+  "Carnegie Mellon University": ["business", "computer science", "engineering", "economics"],
   "University of North Carolina--Chapel Hill": ["business", "computer science", "economics", "liberal arts"],
+  "University of Texas at Austin": ["business", "computer science", "engineering", "economics"],
+  "Cornell University": ["business", "computer science", "engineering", "economics", "liberal arts"],
+  "Indiana University--Bloomington": ["business", "computer science", "economics"],
+  "University of Southern California": ["business", "computer science", "engineering", "economics"],
+  "University of Notre Dame": ["business", "computer science", "economics", "liberal arts"],
+  "University of Virginia": ["business", "computer science", "economics", "liberal arts"],
+  "Emory University": ["business", "computer science", "economics", "liberal arts"],
+  "Georgetown University": ["business", "computer science", "economics", "liberal arts"],
+  "Ohio State University": ["business", "computer science", "engineering", "economics"],
+  "University of Illinois Urbana-Champaign": ["business", "computer science", "engineering", "economics"],
+  "Georgia Institute of Technology": ["business", "engineering", "computer science"],
+  "University of Minnesota--Twin Cities": ["business", "computer science", "engineering", "economics"],
+  "University of Washington": ["business", "computer science", "engineering", "economics"],
+  "University of Wisconsin--Madison": ["business", "computer science", "engineering", "economics"],
+  "Washington University in St. Louis": ["business", "computer science", "engineering", "economics"],
+  "Pennsylvania State University": ["business", "computer science", "engineering", "economics"],
+  "University of Florida": ["business", "computer science", "engineering", "economics"],
   "University of Georgia": ["business", "computer science", "economics"],
+  "University of Maryland--College Park": ["business", "computer science", "engineering", "economics"],
+  "Arizona State University": ["business", "computer science", "engineering", "economics"],
+  "Boston College": ["business", "computer science", "economics", "liberal arts"],
+  "Michigan State University": ["business", "computer science", "engineering", "economics"],
+  "Purdue University": ["business", "computer science", "engineering", "economics"],
+  "Rice University": ["business", "computer science", "engineering", "economics"],
+  "Texas A&M University": ["business", "computer science", "engineering", "economics"],
+  "University of Arizona": ["business", "computer science", "engineering", "economics"],
+  "University of California--Irvine": ["business", "computer science", "engineering", "economics"],
+  "University of Iowa": ["business", "computer science", "economics"],
+  "Babson College": ["business", "economics"], // 商科专门学院
+  "Boston University": ["business", "computer science", "engineering", "economics", "liberal arts"],
+  "University of Colorado Boulder": ["business", "computer science", "engineering", "economics"],
+  "Wake Forest University": ["business", "computer science", "economics", "liberal arts"],
+  "Brigham Young University": ["business", "computer science", "engineering", "economics"],
+  "Case Western Reserve University": ["business", "computer science", "engineering", "economics"],
+  "George Washington University": ["business", "computer science", "economics", "liberal arts"],
+  "Southern Methodist University": ["business", "computer science", "engineering", "economics"],
+  "Syracuse University": ["business", "computer science", "economics", "liberal arts"],
+  "Tulane University": ["business", "computer science", "economics", "liberal arts"],
+  "University of Arkansas": ["business", "computer science", "engineering", "economics"],
+  "University of Pittsburgh": ["business", "computer science", "engineering", "economics"],
+  "University of Rochester": ["business", "computer science", "economics", "engineering"],
+  "University of South Carolina": ["business", "computer science", "economics"],
+  "University of Tennessee": ["business", "computer science", "engineering", "economics"],
+  
+  // 其他常见大学
   "University of Central Florida": ["business", "computer science", "engineering"],
   "Florida State University": ["business", "computer science", "economics"],
-  "University of South Carolina": ["business", "computer science", "economics"],
   "Auburn University": ["business", "computer science", "engineering"],
   "University of Alabama--Tuscaloosa": ["business", "computer science", "economics"],
-  "Arizona State University": ["business", "computer science", "engineering", "economics"],
-  "University of Arizona": ["business", "computer science", "engineering", "economics"],
 };
 
 // 根据专业筛选合适的大学
@@ -149,63 +230,52 @@ function getMajorKey(major: string): string {
 export function getUniversitiesByLevel(materialLevel: string, score: number, testType: string, major: string) {
   // 首先根据专业筛选合适的大学
   const suitableUniversities = getUniversitiesForMajor(major);
+  console.log(`为专业"${major}"筛选到${suitableUniversities.length}所合适的大学`);
   
-  const isBusiness = major.toLowerCase().includes('business') || 
-                     major.toLowerCase().includes('商科') ||
-                     major.toLowerCase().includes('商业');
-  
-  // 根据托福/雅思成绩和申请材料水平确定推荐排名范围
-  let rankingRange: [number, number] = [90, 100]; // 默认最低排名
-  
-  if (materialLevel === "very-poor") {
-    if (testType === "toefl" && score < 80) {
-      rankingRange = [80, 100]; // 社区大学或排名很低的大学
-    } else if (testType === "toefl" && score >= 80 && score < 100) {
-      rankingRange = [60, 80]; // 中低排名州立大学
-    } else {
-      rankingRange = [50, 70]; // 中等排名大学
-    }
-  } else if (materialLevel === "poor") {
-    if (testType === "toefl" && score >= 90) {
-      rankingRange = [40, 60];
-    } else {
-      rankingRange = [60, 80];
-    }
-  } else if (materialLevel === "average") {
-    if (testType === "toefl" && score >= 100) {
-      rankingRange = [30, 50];
-    } else {
-      rankingRange = [40, 60];
-    }
-  } else if (materialLevel === "good") {
-    if (testType === "toefl" && score >= 105) {
-      rankingRange = [15, 35];
-    } else {
-      rankingRange = [25, 45];
-    }
-  } else if (materialLevel === "excellent") {
-    if (testType === "toefl" && score >= 110) {
-      rankingRange = [1, 20];
-    } else {
-      rankingRange = [10, 30];
-    }
+  // 从专业筛选的大学中选择合适的推荐
+  let candidates: string[];
+  if (suitableUniversities.length === 0) {
+    console.log("警告：没有找到合适专业的大学，使用默认列表");
+    candidates = USNEWS_TOP100_UNIVERSITIES.slice(0, 50);
+  } else {
+    candidates = suitableUniversities;
   }
   
-  // 获取推荐的大学列表
-  const universities = USNEWS_TOP100_UNIVERSITIES.slice(rankingRange[0] - 1, rankingRange[1]);
-  const liberalArts = USNEWS_TOP50_LIBERAL_ARTS_COLLEGES.slice(
-    Math.floor(rankingRange[0] / 2) - 1, 
-    Math.floor(rankingRange[1] / 2)
-  );
+  // 根据学生水平筛选合适的大学（分为三个层次）
+  let recommendedUniversities: string[] = [];
   
-  // 如果是商科，过滤掉没有商科的大学
-  if (isBusiness) {
-    const businessFriendlyUniversities = universities.filter(uni => 
-      !["Harvard University", "Stanford University", "Princeton University", 
-        "Yale University", "Massachusetts Institute of Technology"].includes(uni)
+  if (materialLevel === "excellent" && testType === "toefl" && score >= 115) {
+    // 顶尖水平 - 推荐排名前15的大学（如果专业匹配）
+    const topTier = candidates.filter(uni => 
+      ["University of Pennsylvania", "Massachusetts Institute of Technology", 
+       "University of California--Berkeley", "University of Michigan--Ann Arbor",
+       "New York University", "Carnegie Mellon University"].includes(uni)
     );
-    return [...businessFriendlyUniversities.slice(0, 10), ...liberalArts.slice(0, 5)];
+    recommendedUniversities = topTier.slice(0, 15);
+  } else if ((materialLevel === "excellent" || materialLevel === "good") && 
+             testType === "toefl" && score >= 105) {
+    // 优秀水平 - 推荐排名前30的大学
+    const highTier = candidates.filter(uni => 
+      BUSINESS_SCHOOL_RANKINGS.slice(0, 25).includes(uni)
+    );
+    recommendedUniversities = highTier.slice(0, 15);
+  } else if (materialLevel === "good" || materialLevel === "average") {
+    // 中等水平 - 推荐排名前50的大学
+    const midTier = candidates.filter(uni => 
+      BUSINESS_SCHOOL_RANKINGS.slice(0, 45).includes(uni)
+    );
+    recommendedUniversities = midTier.slice(0, 15);
+  } else {
+    // 基础水平 - 推荐所有有该专业的大学
+    recommendedUniversities = candidates.slice(0, 15);
   }
   
-  return [...universities.slice(0, 10), ...liberalArts.slice(0, 5)];
+  // 如果推荐数量不足15所，从其他合适大学补充
+  if (recommendedUniversities.length < 15) {
+    const remaining = candidates.filter(uni => !recommendedUniversities.includes(uni));
+    recommendedUniversities = [...recommendedUniversities, ...remaining].slice(0, 15);
+  }
+  
+  console.log(`最终推荐${recommendedUniversities.length}所大学:`, recommendedUniversities.slice(0, 5));
+  return recommendedUniversities;
 }
