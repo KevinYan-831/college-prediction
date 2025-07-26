@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -11,7 +11,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { predictionRequestSchema, type PredictionRequest, type PredictionResult } from "@shared/schema";
-import { GraduationCap, Calendar, Languages, Edit, Wind, University, Loader2, RotateCcw, MapPin, FileText } from "lucide-react";
+import { GraduationCap, Calendar, Languages, Edit, Wind, University, Loader2, RotateCcw, MapPin, FileText, Download } from "lucide-react";
+import * as htmlToImage from 'html-to-image';
 
 export default function PredictionPage() {
   const [results, setResults] = useState<PredictionResult | null>(null);
@@ -19,6 +20,8 @@ export default function PredictionPage() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingMessage, setLoadingMessage] = useState("");
   const [estimatedTime, setEstimatedTime] = useState(20);
+  const [isSavingImage, setIsSavingImage] = useState(false);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
 
   const { toast } = useToast();
@@ -125,6 +128,44 @@ export default function PredictionPage() {
     form.reset();
     setResults(null);
     setIsLoading(false);
+  };
+
+  const handleSaveImage = async () => {
+    if (!resultsRef.current) return;
+    
+    setIsSavingImage(true);
+    try {
+      const dataUrl = await htmlToImage.toPng(resultsRef.current, {
+        quality: 1,
+        pixelRatio: 2,
+        backgroundColor: '#ffffff',
+        width: resultsRef.current.scrollWidth,
+        height: resultsRef.current.scrollHeight,
+        style: {
+          transform: 'scale(1)',
+          transformOrigin: 'top left'
+        }
+      });
+      
+      const link = document.createElement('a');
+      link.download = `AI美本录取预测-${new Date().toLocaleDateString()}.png`;
+      link.href = dataUrl;
+      link.click();
+      
+      toast({
+        title: "保存成功",
+        description: "预测结果已保存为图片",
+      });
+    } catch (error) {
+      console.error('保存图片失败:', error);
+      toast({
+        title: "保存失败",
+        description: "请重试或联系技术支持",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSavingImage(false);
+    }
   };
 
 
@@ -492,8 +533,26 @@ export default function PredictionPage() {
         {/* Results Section */}
         {results && !isLoading && (
           <div className="space-y-6">
-            {/* 命理分析结果 */}
-            <Card className="bg-white/90 backdrop-blur-xl border-orange-200/50 shadow-2xl overflow-hidden">
+            {/* 保存图片按钮 */}
+            <div className="text-center">
+              <Button 
+                onClick={handleSaveImage}
+                disabled={isSavingImage}
+                className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white border-0 backdrop-blur-sm rounded-2xl px-8 py-4 font-semibold text-lg transition-all duration-300 hover:scale-105 shadow-xl"
+              >
+                {isSavingImage ? (
+                  <Loader2 className="mr-3 h-5 w-5 animate-spin" />
+                ) : (
+                  <Download className="mr-3 h-5 w-5" />
+                )}
+                {isSavingImage ? "生成图片中..." : "保存结果为图片"}
+              </Button>
+            </div>
+            
+            {/* 结果内容区域，将被截图 */}
+            <div ref={resultsRef} className="bg-white p-8 rounded-2xl space-y-8">
+              {/* 命理分析结果 */}
+              <Card className="bg-white/90 backdrop-blur-xl border-orange-200/50 shadow-2xl overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-orange-500/10 to-red-500/10 backdrop-blur-xl border-b border-orange-200/30">
                 <CardTitle className="flex items-center text-gray-900 text-xl">
                   <Wind className="mr-3 text-orange-600" size={24} />
@@ -564,6 +623,37 @@ export default function PredictionPage() {
                 </div>
               </CardContent>
             </Card>
+            
+            {/* OFFERSTUDIO 广告信息 */}
+            <Card className="bg-gradient-to-r from-orange-50 to-yellow-50 backdrop-blur-xl border-orange-200/50 shadow-lg">
+              <CardContent className="p-6">
+                <div className="text-center space-y-4">
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl mb-4">
+                    <span className="text-white font-bold text-xl">O</span>
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900">OFFERSTUDIO</h3>
+                  <p className="text-gray-700 text-sm leading-relaxed">
+                    专业帮助申请美本的同学们制作个人网站和活动网站
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                    <a 
+                      href="https://offerstudiowebsite.wixstudio.com/official" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-lg hover:from-orange-600 hover:to-yellow-600 transition-all duration-300 text-sm font-medium"
+                    >
+                      🌐 访问官网
+                    </a>
+                    <div className="flex items-center gap-2 text-gray-600 text-sm">
+                      <span>💬 微信联系：</span>
+                      <span className="font-mono bg-orange-100 px-3 py-1 rounded-lg text-orange-800 font-semibold">TauPsc-0317</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            </div>
 
             {/* 重新预测按钮 */}
             <div className="text-center">
