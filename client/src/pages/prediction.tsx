@@ -192,7 +192,6 @@ export default function PredictionPage() {
                     <div className="absolute bottom-0 left-1/2 w-1/2 h-full bg-black rounded-full -translate-x-1/2 translate-y-1/2"></div>
                   </div>
                   <div className="w-full h-1/2 bg-black relative">
-                    <div className="absolute top-0 left-1/2 w-1/2 h-full bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
                   </div>
                 </div>
                 {/* 小圆点 */}
