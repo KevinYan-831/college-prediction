@@ -92,6 +92,7 @@ async function callGuguDataAPI(
     
     console.log(`调用咕咕数据API: ${birthDate} ${birthTime} ${gender}`);
     console.log(`userinfo参数: ${userinfo}`);
+    console.log(`API Key: ${appKey}`);
     
     const response = await axios.post(`https://api.gugudata.com/ai/bazi-fortune-teller?appkey=${appKey}`, {
         userinfo: userinfo
@@ -100,7 +101,7 @@ async function callGuguDataAPI(
         'Content-Type': 'application/json; charset=utf-8',
         'User-Agent': 'University-Prediction-App/1.0'
       },
-      timeout: 15000
+      timeout: 30000 // 增加超时时间到30秒
     });
     
     // 处理咕咕数据API的返回结果
@@ -186,7 +187,7 @@ ${JSON.stringify(apiResult, null, 2)}
     // 生成更智能的替代分析，基於生辰八字基本信息
     const season = getSeason(month);
     const timeAnalysis = getTimeAnalysis(hour);
-    const elementAnalysis = getElementByYear(year);
+    const elementAnalysis = getElementByDateTime(year, month, day, hour);
     
     // 构建专业信息字符串以替代validatedData
     const majorForAnalysis = `专业选择：${major || '未指定'}`; 
@@ -217,7 +218,7 @@ ${timeAnalysis.fortune}，事业上会有较好的发展机会。您的${element
 
 【总体评价】
 您的命盘显示具有良好的学术天赋和发展潜力，${elementAnalysis.balance}，适合深造发展。${majorAnalysis.suitability}`,
-      fiveElements: `五行配置：${elementAnalysis.element}，${season.element}，整体五行配置${elementAnalysis.balance}`,
+      fiveElements: `五行配置：${elementAnalysis.fiveElementsDetail}，${season.element}，整体五行配置${elementAnalysis.balance}`,
       academicFortune: `学业运势向好，${timeAnalysis.fortune}，${season.fortune}，特别适合海外求学。`,
       recommendations: `【大运分析】
 当前阶段：适合求学深造的黄金时期
@@ -273,22 +274,74 @@ function getTimeAnalysis(hour: number) {
 }
 
 // 根據出生年份分析五行屬性
-function getElementByYear(year: number) {
-  const lastDigit = year % 10;
-  switch (lastDigit) {
-    case 0: case 1:
-      return { element: "金", analysis: "金命人理性務實", balance: "偏重理性思維", major: "工程或商科", strength: "邏輯分析" };
-    case 2: case 3:
-      return { element: "水", analysis: "水命人聰明靈活", balance: "適應能力強", major: "人文或藝術", strength: "創意思維" };
-    case 4: case 5:
-      return { element: "木", analysis: "木命人積極向上", balance: "成長動力充足", major: "生物或環境", strength: "創新發展" };
-    case 6: case 7:
-      return { element: "火", analysis: "火命人熱情主動", balance: "活力充沛", major: "傳媒或社科", strength: "溝通表達" };
-    case 8: case 9:
-      return { element: "土", analysis: "土命人穩重可靠", balance: "基礎紮實", major: "建築或管理", strength: "組織協調" };
-    default:
-      return { element: "平衡", analysis: "五行調和", balance: "全面發展", major: "綜合性", strength: "均衡能力" };
-  }
+function getElementByDateTime(year: number, month: number, day: number, hour: number) {
+  // 更复杂的算法，基于年月日时的组合
+  const yearElement = year % 5;
+  const monthElement = month % 5;
+  const dayElement = day % 5;
+  const hourElement = hour % 5;
+  
+  // 组合计算得出主要五行
+  const totalScore = (yearElement * 1000 + monthElement * 100 + dayElement * 10 + hourElement) % 5;
+  
+  // 根据月份调整，加入季节因素
+  let seasonalAdjustment = 0;
+  if (month >= 3 && month <= 5) seasonalAdjustment = 1; // 春季，木旺
+  else if (month >= 6 && month <= 8) seasonalAdjustment = 2; // 夏季，火旺
+  else if (month >= 9 && month <= 11) seasonalAdjustment = 3; // 秋季，金旺
+  else seasonalAdjustment = 4; // 冬季，水旺
+  
+  const finalElement = (totalScore + seasonalAdjustment) % 5;
+  
+  const elements = [
+    { 
+      element: "金", 
+      analysis: "金命人理性務實，思維清晰，善於分析", 
+      balance: "偏重理性思維，邏輯性強", 
+      major: "工程、法律或商科", 
+      strength: "邏輯分析和精確判斷",
+      personality: "性格堅毅，做事有條理",
+      fiveElementsDetail: "金氣充足，具有領導才能和決策能力"
+    },
+    { 
+      element: "水", 
+      analysis: "水命人聰明靈活，適應力強，智慧過人", 
+      balance: "適應能力極強，思維活躍", 
+      major: "人文、藝術或心理學", 
+      strength: "創意思維和靈活變通",
+      personality: "性格溫和，善於溝通",
+      fiveElementsDetail: "水氣旺盛，具有包容性和洞察力"
+    },
+    { 
+      element: "木", 
+      analysis: "木命人積極向上，生命力旺盛，創新能力強", 
+      balance: "成長動力充足，發展潛力大", 
+      major: "生物、環境或教育", 
+      strength: "創新發展和持續成長",
+      personality: "性格開朗，富有朝氣",
+      fiveElementsDetail: "木氣勃發，具有強烈的進取心和創造力"
+    },
+    { 
+      element: "火", 
+      analysis: "火命人熱情主動，充滿活力，表達能力強", 
+      balance: "活力充沛，感染力強", 
+      major: "傳媒、表演或社會科學", 
+      strength: "溝通表達和團隊領導",
+      personality: "性格外向，善於激勵他人",
+      fiveElementsDetail: "火氣旺盛，具有熱情和創造性思維"
+    },
+    { 
+      element: "土", 
+      analysis: "土命人穩重可靠，基礎紮實，責任心強", 
+      balance: "基礎紮實，踏實穩健", 
+      major: "建築、管理或農業", 
+      strength: "組織協調和穩定發展",
+      personality: "性格務實，值得信賴",
+      fiveElementsDetail: "土氣厚重，具有很強的組織能力和責任感"
+    }
+  ];
+  
+  return elements[finalElement];
 }
 
 // 根據專業和五行元素分析專業適配性
@@ -626,26 +679,10 @@ function getUniversityLocation(universityName: string): string {
 // 生成默认的录取分析
 function generateDefaultAdmissionAnalysis(data: PredictionRequest, universityName: string): string {
   const universityAnalysis = getUniversityFortuneAnalysis(universityName);
-  const birthYear = data.year;
-  const birthMonth = data.month;
+  const elementAnalysis = getElementByDateTime(data.year, data.month, data.day, data.hour);
+  const seasonAnalysis = getSeason(data.month);
   
-  // 基于出生年份的五行分析
-  const elements = ["金", "木", "水", "火", "土"];
-  const yearElement = elements[(birthYear - 1984) % 5];
-  
-  // 基于月份的季节分析
-  let seasonAnalysis = "";
-  if (birthMonth >= 3 && birthMonth <= 5) {
-    seasonAnalysis = "春季出生，生机勃勃，学习能力强";
-  } else if (birthMonth >= 6 && birthMonth <= 8) {
-    seasonAnalysis = "夏季出生，性格开朗，善于表达";
-  } else if (birthMonth >= 9 && birthMonth <= 11) {
-    seasonAnalysis = "秋季出生，思维缜密，做事有条理";
-  } else {
-    seasonAnalysis = "冬季出生，意志坚定，专注力强";
-  }
-  
-  return `根据您${birthYear}年${birthMonth}月的出生时间分析，您的五行属${yearElement}，${seasonAnalysis}。${universityAnalysis.location}的地理环境${universityAnalysis.locationMatch}，该校的${universityAnalysis.academicMatch}特别适合您的${universityAnalysis.personalityMatch}。基于命理分析，您与该校具有良好的匹配度，建议积极申请。`;
+  return `根据您${data.year}年${data.month}月${data.day}日${data.hour}时的详细出生时间分析，您的五行属${elementAnalysis.element}，${elementAnalysis.personality}。${seasonAnalysis.analysis}${universityAnalysis.location}的地理环境${universityAnalysis.locationMatch}，该校的${universityAnalysis.academicMatch}特别适合您的${universityAnalysis.personalityMatch}。基于命理分析和五行匹配度，您与该校具有${elementAnalysis.balance}的契合度，建议积极申请。`;
 }
 
 // 根据大学名称提供命理匹配分析
