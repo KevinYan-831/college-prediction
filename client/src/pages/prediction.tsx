@@ -476,24 +476,7 @@ export default function PredictionPage() {
               </CardContent>
             </Card>
 
-            {/* OFFERSTUDIO 广告插入 - 命理分析后 */}
-            <Card className="bg-gradient-to-r from-orange-50 to-yellow-50 backdrop-blur-xl border-orange-200/50 shadow-lg">
-              <CardContent className="p-4">
-                <div className="text-center space-y-3">
-                  <div className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-lg mb-2">
-                    <span className="text-white font-bold text-lg">O</span>
-                  </div>
-                  <h3 className="text-base font-bold text-gray-900">OFFERSTUDIO</h3>
-                  <p className="text-gray-700 text-xs leading-relaxed">
-                    专业帮助申请美本的同学们制作个人网站和活动网站
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-2 justify-center items-center text-xs">
-                    <span className="text-orange-600 font-medium">🌐 offerstudiowebsite.wixstudio.com</span>
-                    <span className="text-gray-600">💬 微信：TauPsc-0317</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+
 
             {/* 大学录取预测结果 */}
             <Card className="bg-white/90 backdrop-blur-xl border-orange-200/50 shadow-2xl overflow-hidden">
@@ -547,26 +530,7 @@ export default function PredictionPage() {
               </CardContent>
             </Card>
 
-            {/* OFFERSTUDIO 广告插入 - 大学预测后 */}
-            <Card className="bg-gradient-to-r from-orange-50 to-yellow-50 backdrop-blur-xl border-orange-200/50 shadow-lg">
-              <CardContent className="p-4">
-                <div className="text-center space-y-3">
-                  <div className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-lg mb-2">
-                    <span className="text-white font-bold text-lg">O</span>
-                  </div>
-                  <h3 className="text-base font-bold text-gray-900">OFFERSTUDIO</h3>
-                  <p className="text-gray-700 text-xs leading-relaxed">
-                    专业帮助申请美本的同学们制作个人网站和活动网站
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-2 justify-center items-center text-xs">
-                    <span className="text-orange-600 font-medium">🌐 offerstudiowebsite.wixstudio.com</span>
-                    <span className="text-gray-600">💬 微信：TauPsc-0317</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            {/* OFFERSTUDIO 广告信息 - 底部完整版 */}
+            {/* OFFERSTUDIO 广告信息 */}
             <Card className="bg-gradient-to-r from-orange-50 to-yellow-50 backdrop-blur-xl border-orange-200/50 shadow-lg">
               <CardContent className="p-6">
                 <div className="text-center space-y-4">

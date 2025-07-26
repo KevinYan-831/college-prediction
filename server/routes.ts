@@ -458,16 +458,32 @@ async function callDeepSeekAPI(data: PredictionRequest) {
 
 ${isBusiness ? `
 【商科申请特别注意】
-以下大学本科没有商学院或Business Administration专业，如果学生申请商科需要特别说明：
-- Harvard University (只有Economics)
-- Stanford University (只有Economics, Management Science & Engineering)  
-- Princeton University (只有Economics)
-- Yale University (只有Economics)
-- MIT (只有Management)
-- Caltech (没有商科)
-- University of Chicago (只有Economics)
-- Northwestern University (Kellogg商学院只有研究生项目)
-- Johns Hopkins University (没有本科商学院)
+以下大学本科商学院情况特殊，需要特别说明：
+
+有本科商学院的大学：
+- University of Pennsylvania (Wharton School) ✓
+- MIT (Sloan School - 有Management专业) ✓  
+- University of California-Berkeley (Haas School) ✓
+- University of Michigan-Ann Arbor (Ross School) ✓
+- New York University (Stern School) ✓
+- Carnegie Mellon University (Tepper School) ✓
+- University of North Carolina at Chapel Hill (Kenan-Flagler) ✓
+- University of Texas at Austin (McCombs School) ✓
+- Cornell University (Dyson School) ✓
+- Indiana University-Bloomington (Kelley School) ✓
+- University of Southern California (Marshall School) ✓
+- University of Notre Dame (Mendoza School) ✓
+- University of Virginia (McIntire School) ✓
+- Emory University (Goizueta School) ✓
+- Georgetown University (McDonough School) ✓
+
+只有研究生商学院的大学：
+- Harvard University (哈佛商学院只招研究生，本科申请Economics)
+- Stanford University (斯坦福商学院只招研究生，本科申请Economics或MS&E)
+- University of Chicago (布斯商学院只招研究生，本科申请Economics)
+- Northwestern University (Kellogg只招研究生，本科申请Economics)
+- Yale University (管理学院只招研究生，本科申请Economics)
+- Dartmouth College (Tuck只招研究生，本科申请Economics)
 
 如果学生选择了这些大学但申请商科，请在分析中说明该校没有商科本科项目，但可以申请Economics等相关专业，并评估该替代专业的录取概率。
 ` : ''}
@@ -812,15 +828,16 @@ function checkBusinessMajorCompatibility(major: string, universityName: string):
   if (!isBusiness) return "";
   
   const noBusinessSchools: Record<string, string> = {
-    "Harvard University": "该校本科没有商学院，建议申请Economics专业",
-    "Stanford University": "该校本科没有Business专业，建议申请Economics或Management Science & Engineering",
+    "Harvard University": "哈佛商学院只招收研究生，本科建议申请Economics专业",
+    "Stanford University": "斯坦福商学院只招收研究生，本科建议申请Economics或Management Science & Engineering",
     "Princeton University": "该校本科没有商学院，建议申请Economics专业",
-    "Yale University": "该校本科没有商学院，建议申请Economics专业", 
-    "Massachusetts Institute of Technology": "该校本科只有Management专业，可考虑申请",
+    "Yale University": "耶鲁管理学院只招收研究生，本科建议申请Economics专业", 
     "California Institute of Technology": "该校没有商科专业，建议申请Economics专业",
-    "University of Chicago": "该校本科没有商学院，建议申请Economics专业",
+    "University of Chicago": "芝加哥布斯商学院只招收研究生，本科建议申请Economics专业",
     "Northwestern University": "Kellogg商学院只招收研究生，本科建议申请Economics",
-    "Johns Hopkins University": "该校没有本科商学院，建议申请Economics专业"
+    "Johns Hopkins University": "该校没有本科商学院，建议申请Economics专业",
+    "Dartmouth College": "Tuck商学院只招收研究生，本科建议申请Economics专业",
+    "Brown University": "该校没有独立商学院，建议申请Economics或Commerce, Organizations & Entrepreneurship专业"
   };
   
   return noBusinessSchools[universityName] || "";
