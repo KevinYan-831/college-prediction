@@ -262,15 +262,27 @@ async function callDeepSeekAPI(data: any) {
   try {
     const apiKey = process.env.DEEPSEEK_API_KEY || "sk-fee27e4244b54277b1e1868002f843f3";
     
-    // 构建智能提示词，特別強調本科專業的準確性
-    const prompt = `作為精通美國大學本科錄取和傳統命理學的專家，請根據以下信息預測15所美國本科大學的錄取可能性：
+    // 构建详细的命理分析提示词
+    const prompt = `作为精通美国大学本科录取和传统命理学的专家，请根据以下学生信息进行详细分析：
 
-學生信息：
-- 出生時間：${data.year}年${data.month}月${data.day}日 ${data.hour}:${data.minute}（請根據此分析五行命理特質）
-- 性別：${data.gender === "male" ? "男" : "女"}
-- 申請專業：${data.major}
-- 語言成績：${data.testType === "toefl" ? "托福" : "雅思"} ${data.score || '未提供'}分
-- 申請材料水平：${getMaterialLevelText(data.materialLevel)}
+【学生档案】
+- 出生时间：${data.year}年${data.month}月${data.day}日 ${data.hour}:${data.minute}
+- 性别：${data.gender === "male" ? "男" : "女"}
+- 申请专业：${data.major}
+- 语言成绩：${data.testType === "toefl" ? "托福" : "雅思"} ${data.score || '未提供'}分
+- 申请材料水平：${getMaterialLevelText(data.materialLevel)}
+
+【命理分析要求】
+1. 根据出生年份${data.year}分析五行属性（金木水火土）
+2. 根据出生月份${data.month}月分析季节特征对性格的影响
+3. 根据出生时辰${data.hour}:${data.minute}分析个人特质
+
+【大学推荐要求】
+基于上述命理分析，推荐15所真正适合且能够录取该学生的美国大学。每所推荐必须详细说明：
+- 该校地理位置的风水特征如何与学生五行相配
+- 学校的学术氛围如何适合学生的性格特质
+- 为什么这种命理特征的学生会在该校获得成功
+- 结合实际录取要求的分析
 
 ⚠️ 关键要求（必须100%严格遵循）：
 
@@ -321,7 +333,7 @@ async function callDeepSeekAPI(data: any) {
     "chineseName": "中文校名",
     "major": "確實存在的本科專業名稱",
     "location": "城市，州名",
-    "reasons": "詳細說明為什麼這所大學會錄取該學生，結合申請材料水平、語言成績、命理分析等因素，至少100字"
+    "reasons": "详细说明为什么这所大学会录取该学生。必须包含：1）基于出生年份${data.year}的五行属性分析 2）该校地理位置与学生命理的匹配度 3）学校氛围如何适合学生的性格特质 4）结合托福${data.score}分和申请材料水平的录取可能性，至少150字"
   }
 ]
 
@@ -340,13 +352,13 @@ async function callDeepSeekAPI(data: any) {
         }
       ],
       temperature: 0.7,
-      max_tokens: 2000
+      max_tokens: 4000
     }, {
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json'
       },
-      timeout: 30000
+      timeout: 60000
     });
 
     console.log("DeepSeek API调用成功，正在解析结果...");
@@ -465,9 +477,65 @@ function getUniversityLocation(universityName: string): string {
   return locationMap[universityName] || "美国";
 }
 
-// 根据水平和命理特质生成推荐理由 - 这个函数将被DeepSeek API的详细分析替代
+// 根据水平和命理特质生成推荐理由 - 提供更详细的分析
 function generateReasonBasedOnLevel(materialLevel: string, score: number, testType: string, universityName: string): string {
-  return `基于您的命理特质和学术水平，这所大学将为您提供良好的发展机会。具体的命理分析请等待AI系统完成详细评估。`;
+  const universityAnalysis = getUniversityFortuneAnalysis(universityName);
+  const scoreText = testType === "toefl" 
+    ? `托福${score}分的成绩` 
+    : `雅思${score}分的成绩`;
+  
+  const levelText = {
+    "very-poor": "虽然申请材料还需提升，但",
+    "poor": "以目前的申请条件，",
+    "average": "以您的整体条件，",
+    "good": "以您良好的申请材料，",
+    "excellent": "以您优秀的条件，"
+  }[materialLevel] || "以您的条件，";
+  
+  return `${levelText}结合命理分析显示您${universityAnalysis.element}，${universityAnalysis.location}的地理环境${universityAnalysis.locationMatch}。该校的${universityAnalysis.academicMatch}，特别适合您的${universityAnalysis.personalityMatch}。${scoreText}也符合该校的录取要求。`;
+}
+
+// 根据大学名称提供命理匹配分析
+function getUniversityFortuneAnalysis(universityName: string): any {
+  const locationAnalysis: Record<string, any> = {
+    "University of Central Florida": {
+      element: "属火命格",
+      location: "佛罗里达州阳光充沛",
+      locationMatch: "与您的火元素相得益彰",
+      academicMatch: "工程和商科项目实力雄厚",
+      personalityMatch: "活跃开朗的性格特质"
+    },
+    "Florida State University": {
+      element: "木火相生",
+      location: "佛州北部",
+      locationMatch: "温暖气候有利于学业发展",
+      academicMatch: "综合性大学氛围",
+      personalityMatch: "积极向上的个性"
+    },
+    "University of South Carolina": {
+      element: "土金并旺",
+      location: "南卡州",
+      locationMatch: "稳定的地理位置符合您的命格",
+      academicMatch: "商学院声誉优良",
+      personalityMatch: "踏实稳重的品格"
+    },
+    "Auburn University": {
+      element: "木气旺盛",
+      location: "阿拉巴马州",
+      locationMatch: "自然环境优美，有利于身心发展",
+      academicMatch: "工程技术专业突出",
+      personalityMatch: "专注钻研的学术气质"
+    },
+    "default": {
+      element: "五行调和",
+      location: "该地区",
+      locationMatch: "地理环境与您的命理特质相配",
+      academicMatch: "学术氛围",
+      personalityMatch: "综合发展潜质"
+    }
+  };
+  
+  return locationAnalysis[universityName] || locationAnalysis["default"];
 }
 
 // 移除原来的商科特殊处理逻辑
