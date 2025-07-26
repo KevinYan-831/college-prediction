@@ -452,7 +452,7 @@ async function callDeepSeekAPI(data: PredictionRequest) {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json'
       },
-      timeout: 60000
+      timeout: 100000 // 100秒超时
     });
 
     console.log("DeepSeek API调用成功，正在解析结果...");
