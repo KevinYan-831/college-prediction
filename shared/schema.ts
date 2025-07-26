@@ -45,27 +45,10 @@ export const universityPredictionSchema = z.object({
 export const predictionResultSchema = z.object({
   fortuneAnalysis: fortuneAnalysisSchema,
   universityPredictions: z.array(universityPredictionSchema),
-  isPaid: z.boolean().default(false),
   sessionId: z.string().optional(),
-});
-
-// 支付相关schema
-export const paymentSchema = z.object({
-  amount: z.number(),
-  currency: z.string().default('CNY'),
-  description: z.string(),
-  sessionId: z.string(),
-});
-
-export const paymentResultSchema = z.object({
-  paymentUrl: z.string(),
-  orderId: z.string(),
-  amount: z.number(),
 });
 
 export type PredictionRequest = z.infer<typeof predictionRequestSchema>;
 export type FortuneAnalysis = z.infer<typeof fortuneAnalysisSchema>;
 export type UniversityPrediction = z.infer<typeof universityPredictionSchema>;
 export type PredictionResult = z.infer<typeof predictionResultSchema>;
-export type Payment = z.infer<typeof paymentSchema>;
-export type PaymentResult = z.infer<typeof paymentResultSchema>;

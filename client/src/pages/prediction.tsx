@@ -19,8 +19,7 @@ export default function PredictionPage() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingMessage, setLoadingMessage] = useState("");
   const [estimatedTime, setEstimatedTime] = useState(20);
-  const [showPayment, setShowPayment] = useState(false);
-  const [paymentLoading, setPaymentLoading] = useState(false);
+
 
   const { toast } = useToast();
 
@@ -95,7 +94,8 @@ export default function PredictionPage() {
         "结合命理因素分析适合的大学...",
         "计算录取可能性...",
         "生成个性化推荐理由...",
-        "整理分析结果..."
+        "整理分析结果...",
+        "OFFERSTUDIO专注于帮助申请美本的同学们制作个人网站 & 活动类网站..."
       ];
       setLoadingMessage(messages[Math.floor(Math.random() * messages.length)]);
     }, 2500);
@@ -125,89 +125,39 @@ export default function PredictionPage() {
     form.reset();
     setResults(null);
     setIsLoading(false);
-    setShowPayment(false);
   };
 
-  // 创建支付订单
-  const createPayment = async () => {
-    if (!results?.sessionId) return;
-    
-    setPaymentLoading(true);
-    try {
-      const response = await apiRequest("POST", "/api/payment/create", {
-        amount: 68.8,
-        currency: "CNY", 
-        description: "AI美本录取完整预测报告",
-        sessionId: results.sessionId
-      });
-      
-      const paymentData = await response.json();
-      
-      // 模拟支付成功（实际应该是微信支付流程）
-      setTimeout(async () => {
-        try {
-          const callbackResponse = await apiRequest("POST", "/api/payment/callback", {
-            sessionId: results.sessionId
-          });
-          
-          const updatedResults = await callbackResponse.json();
-          setResults(updatedResults);
-          setShowPayment(false);
-          setPaymentLoading(false);
-          
-          toast({
-            title: "支付成功！",
-            description: "完整预测报告已解锁",
-          });
-        } catch (error) {
-          setPaymentLoading(false);
-          toast({
-            title: "支付处理失败",
-            description: "请重试或联系客服",
-            variant: "destructive"
-          });
-        }
-      }, 3000);
-      
-    } catch (error) {
-      setPaymentLoading(false);
-      toast({
-        title: "支付失败",
-        description: "请检查网络后重试",
-        variant: "destructive"
-      });
-    }
-  };
+
 
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 relative overflow-hidden">
       {/* Background blur effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10"></div>
-      <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-indigo-400/20 rounded-full blur-3xl"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-100/30 via-indigo-100/30 to-purple-100/30"></div>
+      <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-gradient-to-r from-blue-200/40 to-indigo-200/40 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-indigo-200/40 to-purple-200/40 rounded-full blur-3xl"></div>
       
       <div className="relative z-10 container mx-auto px-6 py-8">
         <header className="text-center mb-12">
           <div className="inline-flex items-center justify-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-2xl">
+            <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center shadow-2xl">
               <GraduationCap className="w-8 h-8 text-white" />
             </div>
           </div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent mb-4">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-800 via-indigo-700 to-purple-700 bg-clip-text text-transparent mb-4">
             AI美本录取算命大师
           </h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-700 max-w-2xl mx-auto">
             融合传统命理智慧与现代AI技术，为您的美国本科申请提供精准预测
           </p>
         </header>
 
         {/* Input Form */}
-        <Card className="mb-8 bg-white/10 backdrop-blur-xl border-white/20 shadow-2xl">
-          <CardHeader className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-xl border-b border-white/10">
-            <CardTitle className="flex items-center text-white text-xl">
-              <Edit className="text-purple-300 mr-3" size={24} />
+        <Card className="mb-8 bg-white/70 backdrop-blur-xl border-blue-200/50 shadow-2xl">
+          <CardHeader className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 backdrop-blur-xl border-b border-blue-200/30">
+            <CardTitle className="flex items-center text-gray-800 text-xl">
+              <Edit className="text-blue-600 mr-3" size={24} />
               输入预测信息
             </CardTitle>
           </CardHeader>
@@ -216,7 +166,7 @@ export default function PredictionPage() {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 {/* 生辰八字输入 */}
                 <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
-                  <h3 className="text-lg font-semibold text-white mb-6 flex items-center">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
                     <Calendar className="text-purple-300 mr-3" size={20} />
                     生辰八字信息
                   </h3>
@@ -226,12 +176,12 @@ export default function PredictionPage() {
                       name="birthDate"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-200 font-medium">出生日期</FormLabel>
+                          <FormLabel className="text-gray-700 font-medium">出生日期</FormLabel>
                           <FormControl>
                             <Input 
                               type="date" 
                               {...field}
-                              className="bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus:bg-white/20 focus:border-purple-400 rounded-xl h-12"
+                              className="bg-white/80 border-blue-200 text-gray-800 placeholder:text-gray-400 focus:bg-white focus:border-blue-400 rounded-xl h-12"
                               onChange={(e) => {
                                 const date = new Date(e.target.value);
                                 if (!isNaN(date.getTime())) {
@@ -252,12 +202,12 @@ export default function PredictionPage() {
                       name="birthTime"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-200 font-medium">出生時辰</FormLabel>
+                          <FormLabel className="text-gray-700 font-medium">出生時辰</FormLabel>
                           <FormControl>
                             <Input 
                               type="time" 
                               {...field}
-                              className="bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus:bg-white/20 focus:border-purple-400 rounded-xl h-12"
+                              className="bg-white/80 border-blue-200 text-gray-800 placeholder:text-gray-400 focus:bg-white focus:border-blue-400 rounded-xl h-12"
                               onChange={(e) => {
                                 const [hour, minute] = e.target.value.split(':').map(Number);
                                 if (!isNaN(hour) && !isNaN(minute)) {
@@ -282,16 +232,16 @@ export default function PredictionPage() {
                     name="gender"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-200 font-medium">性别</FormLabel>
+                        <FormLabel className="text-gray-700 font-medium">性别</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger className="bg-white/10 border-white/20 text-white focus:bg-white/20 focus:border-purple-400 rounded-xl h-12">
                               <SelectValue placeholder="请选择性别" className="text-gray-400" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent className="bg-slate-800 border-slate-700">
-                            <SelectItem value="male" className="text-white focus:bg-slate-700">男</SelectItem>
-                            <SelectItem value="female" className="text-white focus:bg-slate-700">女</SelectItem>
+                          <SelectContent className="bg-white border-blue-200">
+                            <SelectItem value="male" className="text-gray-800 focus:bg-blue-50">男</SelectItem>
+                            <SelectItem value="female" className="text-gray-800 focus:bg-blue-50">女</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -303,12 +253,12 @@ export default function PredictionPage() {
                     name="major"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-200 font-medium">申请专业</FormLabel>
+                        <FormLabel className="text-gray-700 font-medium">申请专业</FormLabel>
                         <FormControl>
                           <Input 
                             placeholder="如：计算机科学" 
                             {...field}
-                            className="bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus:bg-white/20 focus:border-purple-400 rounded-xl h-12"
+                            className="bg-white/80 border-blue-200 text-gray-800 placeholder:text-gray-400 focus:bg-white focus:border-blue-400 rounded-xl h-12"
                           />
                         </FormControl>
                         <FormMessage />
@@ -319,7 +269,7 @@ export default function PredictionPage() {
 
                 {/* 语言成绩 */}
                 <div className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
-                  <h3 className="text-lg font-semibold text-white mb-6 flex items-center">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
                     <Languages className="text-blue-300 mr-3" size={20} />
                     语言成绩
                   </h3>
@@ -329,16 +279,16 @@ export default function PredictionPage() {
                       name="testType"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-200 font-medium">考试类型</FormLabel>
+                          <FormLabel className="text-gray-700 font-medium">考试类型</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger className="bg-white/10 border-white/20 text-white focus:bg-white/20 focus:border-blue-400 rounded-xl h-12">
                                 <SelectValue placeholder="选择考试类型" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent className="bg-slate-800 border-slate-700">
-                              <SelectItem value="toefl" className="text-white focus:bg-slate-700">托福 (TOEFL)</SelectItem>
-                              <SelectItem value="ielts" className="text-white focus:bg-slate-700">雅思 (IELTS)</SelectItem>
+                            <SelectContent className="bg-white border-blue-200">
+                              <SelectItem value="toefl" className="text-gray-800 focus:bg-blue-50">托福 (TOEFL)</SelectItem>
+                              <SelectItem value="ielts" className="text-gray-800 focus:bg-blue-50">雅思 (IELTS)</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -350,7 +300,7 @@ export default function PredictionPage() {
                       name="score"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-200 font-medium">分数</FormLabel>
+                          <FormLabel className="text-gray-700 font-medium">分数</FormLabel>
                           <FormControl>
                             <Input 
                               type="number" 
@@ -384,19 +334,19 @@ export default function PredictionPage() {
                   name="materialLevel"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-200 font-medium">申请材料整体水平</FormLabel>
+                      <FormLabel className="text-gray-700 font-medium">申请材料整体水平</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="bg-white/10 border-white/20 text-white focus:bg-white/20 focus:border-purple-400 rounded-xl h-12">
                             <SelectValue placeholder="请选择整体水平" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent className="bg-slate-800 border-slate-700">
-                          <SelectItem value="very-poor" className="text-white focus:bg-slate-700">极差</SelectItem>
-                          <SelectItem value="poor" className="text-white focus:bg-slate-700">较差</SelectItem>
-                          <SelectItem value="average" className="text-white focus:bg-slate-700">一般</SelectItem>
-                          <SelectItem value="good" className="text-white focus:bg-slate-700">较好</SelectItem>
-                          <SelectItem value="excellent" className="text-white focus:bg-slate-700">极好</SelectItem>
+                        <SelectContent className="bg-white border-blue-200">
+                          <SelectItem value="very-poor" className="text-gray-800 focus:bg-blue-50">极差</SelectItem>
+                          <SelectItem value="poor" className="text-gray-800 focus:bg-blue-50">较差</SelectItem>
+                          <SelectItem value="average" className="text-gray-800 focus:bg-blue-50">一般</SelectItem>
+                          <SelectItem value="good" className="text-gray-800 focus:bg-blue-50">较好</SelectItem>
+                          <SelectItem value="excellent" className="text-gray-800 focus:bg-blue-50">极好</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -410,7 +360,7 @@ export default function PredictionPage() {
                 <div className="pt-8">
                   <Button 
                     type="submit" 
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-4 rounded-2xl h-14 text-lg shadow-2xl transition-all duration-300 transform hover:scale-[1.02]" 
+                    className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold py-4 rounded-2xl h-14 text-lg shadow-2xl transition-all duration-300 transform hover:scale-[1.02]" 
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -433,43 +383,58 @@ export default function PredictionPage() {
 
         {/* Loading State */}
         {isLoading && (
-          <Card className="mb-8 bg-white/10 backdrop-blur-xl border-white/20 shadow-2xl">
+          <Card className="mb-8 bg-white/70 backdrop-blur-xl border-blue-200/50 shadow-2xl">
             <CardContent className="p-12">
               <div className="text-center">
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-sm rounded-3xl mb-6 border border-white/20">
-                  <Loader2 className="h-10 w-10 text-purple-300 animate-spin" />
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 backdrop-blur-sm rounded-3xl mb-6 border border-blue-200/50">
+                  <Loader2 className="h-10 w-10 text-blue-600 animate-spin" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-3">AI正在智能分析中...</h3>
-                <p className="text-gray-300 mb-8 text-lg">{loadingMessage}</p>
+                <h3 className="text-2xl font-bold text-gray-800 mb-3">AI正在智能分析中...</h3>
+                <p className="text-gray-600 mb-8 text-lg">{loadingMessage}</p>
                 
                 {/* Progress Bar */}
-                <div className="w-full bg-white/10 rounded-full h-4 mb-6 backdrop-blur-sm">
+                <div className="w-full bg-blue-100 rounded-full h-4 mb-6 backdrop-blur-sm">
                   <div 
-                    className="bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 h-4 rounded-full transition-all duration-1000 ease-in-out shadow-lg"
+                    className="bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500 h-4 rounded-full transition-all duration-1000 ease-in-out shadow-lg"
                     style={{ width: `${loadingProgress}%` }}
                   ></div>
                 </div>
                 
                 <div className="flex justify-between items-center mb-8">
-                  <span className="text-gray-300 font-medium">完成进度：{loadingProgress}%</span>
-                  <span className="text-gray-300 font-medium">
+                  <span className="text-gray-600 font-medium">完成进度：{loadingProgress}%</span>
+                  <span className="text-gray-600 font-medium">
                     预计剩余：{estimatedTime > 0 ? estimatedTime + ' 秒' : '即将完成'}
                   </span>
                 </div>
                 
-                <div className="space-y-4">
-                  <div className="flex items-center justify-center space-x-3 p-3 rounded-xl bg-white/5">
-                    <div className={`w-4 h-4 rounded-full ${loadingProgress > 25 ? 'bg-gradient-to-r from-green-400 to-green-500 shadow-lg' : 'bg-white/20'} ${loadingProgress <= 25 ? 'animate-pulse' : ''}`}></div>
-                    <span className="text-gray-200 font-medium">命理分析API</span>
+                <div className="space-y-4 mb-6">
+                  <div className="flex items-center justify-center space-x-3 p-3 rounded-xl bg-blue-50/50">
+                    <div className={`w-4 h-4 rounded-full ${loadingProgress > 25 ? 'bg-gradient-to-r from-green-400 to-green-500 shadow-lg' : 'bg-blue-200'} ${loadingProgress <= 25 ? 'animate-pulse' : ''}`}></div>
+                    <span className="text-gray-700 font-medium">命理分析API</span>
                   </div>
-                  <div className="flex items-center justify-center space-x-3 p-3 rounded-xl bg-white/5">
-                    <div className={`w-4 h-4 rounded-full ${loadingProgress > 60 ? 'bg-gradient-to-r from-green-400 to-green-500 shadow-lg' : 'bg-white/20'} ${loadingProgress > 25 && loadingProgress <= 60 ? 'animate-pulse' : ''}`}></div>
-                    <span className="text-gray-200 font-medium">大学预测API</span>
+                  <div className="flex items-center justify-center space-x-3 p-3 rounded-xl bg-blue-50/50">
+                    <div className={`w-4 h-4 rounded-full ${loadingProgress > 60 ? 'bg-gradient-to-r from-green-400 to-green-500 shadow-lg' : 'bg-blue-200'} ${loadingProgress > 25 && loadingProgress <= 60 ? 'animate-pulse' : ''}`}></div>
+                    <span className="text-gray-700 font-medium">大学预测API</span>
                   </div>
-                  <div className="flex items-center justify-center space-x-3 p-3 rounded-xl bg-white/5">
-                    <div className={`w-4 h-4 rounded-full ${loadingProgress >= 95 ? 'bg-gradient-to-r from-green-400 to-green-500 shadow-lg' : 'bg-white/20'} ${loadingProgress > 60 && loadingProgress < 95 ? 'animate-pulse' : ''}`}></div>
-                    <span className="text-gray-200 font-medium">结果整理</span>
+                  <div className="flex items-center justify-center space-x-3 p-3 rounded-xl bg-blue-50/50">
+                    <div className={`w-4 h-4 rounded-full ${loadingProgress >= 95 ? 'bg-gradient-to-r from-green-400 to-green-500 shadow-lg' : 'bg-blue-200'} ${loadingProgress > 60 && loadingProgress < 95 ? 'animate-pulse' : ''}`}></div>
+                    <span className="text-gray-700 font-medium">结果整理</span>
                   </div>
+                </div>
+                
+                {/* OFFERSTUDIO推广信息 */}
+                <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-xl p-4 border-l-4 border-orange-400">
+                  <p className="text-gray-700 text-sm mb-2">
+                    <span className="font-semibold text-orange-600">OFFERSTUDIO</span>专注于帮助申请美本的同学们制作个人网站 & 活动类网站
+                  </p>
+                  <a 
+                    href="https://offerstudiowebsite.wixstudio.com/official" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-orange-600 hover:text-orange-700 underline font-medium"
+                  >
+                    了解更多点这里 →
+                  </a>
                 </div>
               </div>
             </CardContent>
@@ -480,35 +445,35 @@ export default function PredictionPage() {
         {results && !isLoading && (
           <div className="space-y-6">
             {/* 命理分析结果 */}
-            <Card className="bg-white/10 backdrop-blur-xl border-white/20 shadow-2xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-red-500/20 to-pink-500/20 backdrop-blur-xl border-b border-white/10">
-                <CardTitle className="flex items-center text-white text-xl">
-                  <Wind className="mr-3 text-red-300" size={24} />
+            <Card className="bg-white/70 backdrop-blur-xl border-blue-200/50 shadow-2xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-red-500/10 to-pink-500/10 backdrop-blur-xl border-b border-red-200/30">
+                <CardTitle className="flex items-center text-gray-800 text-xl">
+                  <Wind className="mr-3 text-red-600" size={24} />
                   命理分析结果
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-8">
                 <div className="space-y-6">
-                  <div className="bg-gradient-to-r from-red-500/10 to-pink-500/10 border-l-4 border-red-400 p-6 rounded-2xl backdrop-blur-sm">
-                    <h4 className="font-semibold text-red-300 mb-3 text-lg">整体分析</h4>
-                    <p className="text-gray-200 leading-relaxed">{results.fortuneAnalysis.analysis}</p>
+                  <div className="bg-gradient-to-r from-red-50 to-pink-50 border-l-4 border-red-400 p-6 rounded-2xl backdrop-blur-sm">
+                    <h4 className="font-semibold text-red-700 mb-3 text-lg">整体分析</h4>
+                    <p className="text-gray-700 leading-relaxed">{results.fortuneAnalysis.analysis}</p>
                   </div>
                   {results.fortuneAnalysis.fiveElements && (
-                    <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-l-4 border-yellow-400 p-6 rounded-2xl backdrop-blur-sm">
-                      <h4 className="font-semibold text-yellow-300 mb-3 text-lg">五行分析</h4>
-                      <p className="text-gray-200 leading-relaxed">{results.fortuneAnalysis.fiveElements}</p>
+                    <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-400 p-6 rounded-2xl backdrop-blur-sm">
+                      <h4 className="font-semibold text-yellow-700 mb-3 text-lg">五行分析</h4>
+                      <p className="text-gray-700 leading-relaxed">{results.fortuneAnalysis.fiveElements}</p>
                     </div>
                   )}
                   {results.fortuneAnalysis.academicFortune && (
-                    <div className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-l-4 border-blue-400 p-6 rounded-2xl backdrop-blur-sm">
-                      <h4 className="font-semibold text-blue-300 mb-3 text-lg">学业运势</h4>
-                      <p className="text-gray-200 leading-relaxed">{results.fortuneAnalysis.academicFortune}</p>
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-400 p-6 rounded-2xl backdrop-blur-sm">
+                      <h4 className="font-semibold text-blue-700 mb-3 text-lg">学业运势</h4>
+                      <p className="text-gray-700 leading-relaxed">{results.fortuneAnalysis.academicFortune}</p>
                     </div>
                   )}
                   {results.fortuneAnalysis.recommendations && (
-                    <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-l-4 border-green-400 p-6 rounded-2xl backdrop-blur-sm">
-                      <h4 className="font-semibold text-green-300 mb-3 text-lg">建议</h4>
-                      <p className="text-gray-200 leading-relaxed">{results.fortuneAnalysis.recommendations}</p>
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-400 p-6 rounded-2xl backdrop-blur-sm">
+                      <h4 className="font-semibold text-green-700 mb-3 text-lg">建议</h4>
+                      <p className="text-gray-700 leading-relaxed">{results.fortuneAnalysis.recommendations}</p>
                     </div>
                   )}
                 </div>
@@ -516,91 +481,38 @@ export default function PredictionPage() {
             </Card>
 
             {/* 大学录取预测结果 */}
-            <Card className="bg-white/10 backdrop-blur-xl border-white/20 shadow-2xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-blue-500/20 to-indigo-500/20 backdrop-blur-xl border-b border-white/10">
-                <CardTitle className="flex items-center text-white text-xl">
-                  <University className="mr-3 text-blue-300" size={24} />
+            <Card className="bg-white/70 backdrop-blur-xl border-blue-200/50 shadow-2xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 backdrop-blur-xl border-b border-blue-200/30">
+                <CardTitle className="flex items-center text-gray-800 text-xl">
+                  <University className="mr-3 text-blue-600" size={24} />
                   美国大学录取预测
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-8">
                 <div className="space-y-6">
-                  {/* 第一所大学 - 免费显示 */}
-                  {results.universityPredictions.slice(0, 1).map((university, index) => (
-                    <div key={index} className="bg-gradient-to-r from-white/5 to-white/10 border border-white/20 rounded-2xl p-6 hover:shadow-2xl transition-all duration-300 backdrop-blur-sm hover:scale-[1.02]">
+                  {/* 显示所有大学 */}
+                  {results.universityPredictions.map((university, index) => (
+                    <div key={index} className="bg-white/60 backdrop-blur-lg border border-blue-200/50 rounded-2xl p-6 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
                       <div className="flex justify-between items-start mb-4">
                         <div>
-                          <h4 className="font-bold text-xl text-white mb-2">{university.chineseName}</h4>
-                          <p className="text-gray-300">{university.name} - {university.major}</p>
+                          <h4 className="font-bold text-xl text-gray-800 mb-2">{university.chineseName}</h4>
+                          <p className="text-gray-600">{university.name} - {university.major}</p>
                         </div>
                         <span className="px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg">
                           推荐录取
                         </span>
                       </div>
-                      <div className="flex items-center text-gray-400 mb-4">
+                      <div className="flex items-center text-gray-500 mb-4">
                         <MapPin className="mr-2" size={16} />
                         <span className="font-medium">{university.location}</span>
                       </div>
                       {university.reasons && (
-                        <p className="text-gray-200 leading-relaxed bg-white/5 p-4 rounded-xl">{university.reasons}</p>
+                        <p className="text-gray-700 leading-relaxed bg-blue-50/50 p-4 rounded-xl">{university.reasons}</p>
                       )}
                     </div>
                   ))}
 
-                  {/* 付费解锁提示或剩余大学列表 */}
-                  {!results.isPaid ? (
-                    <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 rounded-2xl p-8 text-center backdrop-blur-sm">
-                      <div className="flex justify-center mb-4">
-                        <Lock className="w-12 h-12 text-yellow-400" />
-                      </div>
-                      <h3 className="text-2xl font-bold text-white mb-4">解锁完整预测报告</h3>
-                      <p className="text-gray-300 mb-6 text-lg">
-                        查看剩余 {results.universityPredictions.length - 1} 所推荐大学详细分析
-                      </p>
-                      <div className="bg-white/10 rounded-xl p-6 mb-6">
-                        <h4 className="text-white font-semibold mb-3">完整报告包含：</h4>
-                        <ul className="text-gray-300 space-y-2 text-left">
-                          <li className="flex items-center"><Unlock className="w-4 h-4 mr-2 text-green-400" /> 详细命理五行分析</li>
-                          <li className="flex items-center"><Unlock className="w-4 h-4 mr-2 text-green-400" /> {results.universityPredictions.length} 所大学完整推荐</li>
-                          <li className="flex items-center"><Unlock className="w-4 h-4 mr-2 text-green-400" /> 个性化录取可能性分析</li>
-                          <li className="flex items-center"><Unlock className="w-4 h-4 mr-2 text-green-400" /> 专业匹配度深度解读</li>
-                        </ul>
-                      </div>
-                      <div className="flex items-center justify-center mb-6">
-                        <span className="text-3xl font-bold text-white mr-2">￥68.8</span>
-                        <span className="text-gray-400 line-through">原价 ￥128</span>
-                      </div>
-                      <Button
-                        onClick={() => setShowPayment(true)}
-                        className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold py-4 px-8 rounded-2xl text-lg shadow-2xl transition-all duration-300 transform hover:scale-105"
-                      >
-                        <CreditCard className="mr-3 h-5 w-5" />
-                        立即解锁完整报告
-                      </Button>
-                    </div>
-                  ) : (
-                    // 已付费，显示所有大学
-                    results.universityPredictions.slice(1).map((university, index) => (
-                      <div key={index + 1} className="bg-gradient-to-r from-white/5 to-white/10 border border-white/20 rounded-2xl p-6 hover:shadow-2xl transition-all duration-300 backdrop-blur-sm hover:scale-[1.02]">
-                        <div className="flex justify-between items-start mb-4">
-                          <div>
-                            <h4 className="font-bold text-xl text-white mb-2">{university.chineseName}</h4>
-                            <p className="text-gray-300">{university.name} - {university.major}</p>
-                          </div>
-                          <span className="px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg">
-                            推荐录取
-                          </span>
-                        </div>
-                        <div className="flex items-center text-gray-400 mb-4">
-                          <MapPin className="mr-2" size={16} />
-                          <span className="font-medium">{university.location}</span>
-                        </div>
-                        {university.reasons && (
-                          <p className="text-gray-200 leading-relaxed bg-white/5 p-4 rounded-xl">{university.reasons}</p>
-                        )}
-                      </div>
-                    ))
-                  )}
+
                 </div>
               </CardContent>
             </Card>
@@ -609,7 +521,7 @@ export default function PredictionPage() {
             <div className="text-center">
               <Button 
                 onClick={handleReset}
-                className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm rounded-2xl px-8 py-4 font-semibold text-lg transition-all duration-300 hover:scale-105"
+                className="bg-blue-100/50 hover:bg-blue-200/50 text-gray-800 border border-blue-200/50 backdrop-blur-sm rounded-2xl px-8 py-4 font-semibold text-lg transition-all duration-300 hover:scale-105"
               >
                 <RotateCcw className="mr-3 h-5 w-5" />
                 重新预测
@@ -618,76 +530,13 @@ export default function PredictionPage() {
           </div>
         )}
 
-        {/* 支付弹窗 */}
-        {showPayment && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-8 max-w-md w-full border border-white/20 shadow-2xl">
-              <div className="text-center">
-                <div className="flex justify-center mb-4">
-                  <Smartphone className="w-16 h-16 text-green-400" />
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-4">微信支付</h3>
-                <p className="text-gray-300 mb-6">完整AI美本录取预测报告</p>
-                
-                <div className="bg-white/10 rounded-2xl p-6 mb-6">
-                  <div className="text-center mb-4">
-                    <div className="text-3xl font-bold text-white mb-2">￥68.8</div>
-                    <div className="text-gray-400 line-through">原价 ￥128</div>
-                  </div>
-                  
-                  <div className="space-y-3 text-left">
-                    <div className="flex items-center text-gray-300">
-                      <Unlock className="w-4 h-4 mr-2 text-green-400" />
-                      <span>详细命理五行分析</span>
-                    </div>
-                    <div className="flex items-center text-gray-300">
-                      <Unlock className="w-4 h-4 mr-2 text-green-400" />
-                      <span>15所大学完整推荐清单</span>
-                    </div>
-                    <div className="flex items-center text-gray-300">
-                      <Unlock className="w-4 h-4 mr-2 text-green-400" />
-                      <span>录取可能性深度分析</span>
-                    </div>
-                  </div>
-                </div>
 
-                <div className="space-y-4">
-                  <Button
-                    onClick={createPayment}
-                    disabled={paymentLoading}
-                    className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 rounded-2xl text-lg shadow-2xl transition-all duration-300"
-                  >
-                    {paymentLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        处理支付中...
-                      </>
-                    ) : (
-                      <>
-                        <Smartphone className="mr-2 h-5 w-5" />
-                        微信支付 ￥68.8
-                      </>
-                    )}
-                  </Button>
-
-                  <Button
-                    onClick={() => setShowPayment(false)}
-                    variant="outline"
-                    className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-2xl py-3"
-                  >
-                    取消
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
         
         {/* Footer */}
         <footer className="mt-16 text-center">
-          <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
-            <p className="text-gray-300 mb-2 text-lg font-medium">© 2024 AI美国大学录取预测系统</p>
-            <p className="text-gray-400">融合传统智慧与现代科技，为您的求学之路保驾护航</p>
+          <div className="bg-blue-50/70 backdrop-blur-sm rounded-2xl p-8 border border-blue-200/30">
+            <p className="text-gray-700 mb-2 text-lg font-medium">© 2024 AI美国大学录取预测系统</p>
+            <p className="text-gray-600">融合传统智慧与现代科技，为您的求学之路保驾护航</p>
           </div>
         </footer>
       </div>

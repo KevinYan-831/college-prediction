@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { predictionRequestSchema, paymentSchema } from "@shared/schema";
+import { predictionRequestSchema, type PredictionRequest } from "@shared/schema";
 import axios from "axios";
 import { getUniversitiesByLevel } from "./university-rankings";
 import { storage } from "./storage";
@@ -27,11 +27,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const sessionId = randomUUID();
       
-      // 返回合并结果（添加付费状态）
+      // 返回合并结果
       const result = {
         fortuneAnalysis: fortuneResponse,
         universityPredictions: universityResponse,
-        isPaid: false,
         sessionId
       };
       
@@ -49,40 +48,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // 创建支付订单
-  app.post("/api/payment/create", async (req, res) => {
-    try {
-      const validatedData = paymentSchema.parse(req.body);
-      const orderId = randomUUID();
-      
-      // 模拟微信支付URL生成
-      const paymentResult = {
-        paymentUrl: `weixin://wxpay/bizpayurl?pr=${orderId}`,
-        orderId,
-        amount: validatedData.amount
-      };
-      
-      await storage.savePayment(validatedData.sessionId, paymentResult);
-      res.json(paymentResult);
-    } catch (error) {
-      console.error("创建支付订单失败:", error);
-      res.status(500).json({ error: "支付服务暂时不可用" });
-    }
-  });
 
-  // 支付成功回调（模拟）
-  app.post("/api/payment/callback", async (req, res) => {
-    try {
-      const { sessionId } = req.body;
-      await storage.markAsPaid(sessionId);
-      
-      const updatedResult = await storage.getPrediction(sessionId);
-      res.json(updatedResult);
-    } catch (error) {
-      console.error("支付回调处理失败:", error);
-      res.status(500).json({ error: "支付处理失败" });
-    }
-  });
 
   // 获取预测结果
   app.get("/api/prediction/:sessionId", async (req, res) => {
@@ -321,7 +287,7 @@ function getElementByYear(year: number) {
 }
 
 // 调用DeepSeek API
-async function callDeepSeekAPI(data: any) {
+async function callDeepSeekAPI(data: PredictionRequest) {
   try {
     const apiKey = process.env.DEEPSEEK_API_KEY || "sk-fee27e4244b54277b1e1868002f843f3";
     
@@ -486,7 +452,7 @@ function getMaterialLevelText(level: string): string {
 }
 
 // 默认大学预测结果 - 根据实际水平智能推荐
-function getDefaultUniversityPredictions(data: any) {
+function getDefaultUniversityPredictions(data: PredictionRequest) {
   // 使用新的排名系统推荐合适的大学
   const recommendedUniversities = getUniversitiesByLevel(
     data.materialLevel, 
@@ -607,7 +573,7 @@ function getUniversityFortuneAnalysis(universityName: string): any {
 }
 
 // 移除原来的商科特殊处理逻辑
-function getOldDefaultUniversityPredictions(data: any) {
+function getOldDefaultUniversityPredictions(data: PredictionRequest) {
   const baseScore = getBaseScore(data);
   const isBusiness = data.major.toLowerCase().includes('business') || 
                      data.major.toLowerCase().includes('商科') ||
