@@ -115,12 +115,14 @@ The application is designed for easy deployment on platforms like Replit, Vercel
 - ✓ **Complete Free Access**: All 15 university recommendations now shown without payment
 - ✓ **Enhanced Loading Experience**: Added OFFERSTUDIO branding and website promotion during AI analysis
 
-### UI/UX Updates
-- ✓ Changed background from dark purple/pink to light blue/indigo gradients
-- ✓ Updated all cards from dark transparent to light white/blue themed
-- ✓ Modified text colors from white/gray to gray-800/gray-600 for better readability
-- ✓ Enhanced form inputs with white backgrounds and blue accents
-- ✓ Added OFFERSTUDIO promotional banner in loading states
+### UI/UX Updates (最新：橙色主题)
+- ✓ **全新橙色主题**：采用OFFERSTUDIO网站的橙色、黄色、白色、黑色配色方案
+- ✓ **背景渐变**：从蓝色系改为温暖的橙色/黄色/琥珀色渐变
+- ✓ **卡片设计**：所有卡片改为白色半透明背景配橙色边框
+- ✓ **表单元素**：输入框、选择器等采用橙色焦点色和边框
+- ✓ **按钮颜色**：主按钮为橙色到黄色渐变，符合OFFERSTUDIO风格
+- ✓ **加载状态**：进度条和指示器改为橙色系
+- ✓ **结果展示**：命理分析和大学推荐卡片采用橙色主题
 
 ### Technical Changes
 - ✓ Removed payment-related schemas and API endpoints
