@@ -353,6 +353,12 @@ async function callDeepSeekAPI(data: PredictionRequest) {
     
     // 构建基于心仪院校的命理录取分析提示词
     const dreamUniversitiesList = data.dreamUniversities.filter(u => u.trim() !== "").join("、");
+    const isBusiness = data.major.toLowerCase().includes('business') || 
+                       data.major.toLowerCase().includes('商科') ||
+                       data.major.toLowerCase().includes('商业') ||
+                       data.major.toLowerCase().includes('finance') ||
+                       data.major.toLowerCase().includes('management');
+    
     const prompt = `作为精通美国大学本科录取和传统命理学的专家，请根据以下学生信息进行详细分析：
 
 【学生档案】
@@ -362,26 +368,43 @@ async function callDeepSeekAPI(data: PredictionRequest) {
 - 心仪院校列表：${dreamUniversitiesList}
 
 【分析任务】
-请基于该学生的生辰八字和命理特征，分析其是否能够被心仪院校列表中的每所大学录取。
+基于该学生的生辰八字和命理特征，分析其被心仪院校录取的可能性，并给出realistic的录取概率等级。
 
 【命理分析要求】
-1. 根据出生年份${data.year}分析五行属性（金木水火土）
-2. 根据出生月份${data.month}月分析季节特征对性格的影响  
-3. 根据出生时辰${data.hour}:${data.minute}分析个人特质
+1. 根据出生年份${data.year}分析五行属性和性格特征
+2. 根据出生月份${data.month}月分析季节影响和学习能力  
+3. 根据出生时辰${data.hour}:${data.minute}分析个人天赋和适应性
+4. 结合性别${data.gender === "male" ? "男性" : "女性"}的命理特质
 
-【录取分析要求】
-针对学生提供的每所心仪院校，进行命理匹配度分析：
-- 该校地理位置的风水特征如何与学生五行相配
-- 学校的学术氛围如何适合学生的性格特质
-- 基于命理因素预测录取可能性
-- 提供详细的命理学录取分析理由
+【录取概率评估标准】
+请根据以下因素综合评估录取概率：
+- 命理匹配度（五行、方位、个性特质）
+- 专业申请难度（商科、工程、人文等难度不同）
+- 大学竞争激烈程度（顶尖/中等/一般）
+- 性别和专业的历史录取数据考量
 
-⚠️ 关键要求（必须100%严格遵循）：
+录取概率等级：
+- 极高：命理高度匹配，专业适合，大学门槛相对较低
+- 较高：命理较好匹配，有一定优势
+- 中等：命理一般匹配，需要努力
+- 较低：命理匹配度不高，申请有一定困难
+- 极低：命理不匹配或大学门槛极高
 
-1. 只分析学生提供的心仪院校列表，不要推荐其他大学
-2. 每所大学的分析必须结合具体的命理因素
-3. 必须确认每所大学确实提供该学生申请的本科专业
-4. 如果某所大学不提供该专业，请明确说明并建议相近专业
+${isBusiness ? `
+【商科申请特别注意】
+以下大学本科没有商学院或Business Administration专业，如果学生申请商科需要特别说明：
+- Harvard University (只有Economics)
+- Stanford University (只有Economics, Management Science & Engineering)  
+- Princeton University (只有Economics)
+- Yale University (只有Economics)
+- MIT (只有Management)
+- Caltech (没有商科)
+- University of Chicago (只有Economics)
+- Northwestern University (Kellogg商学院只有研究生项目)
+- Johns Hopkins University (没有本科商学院)
+
+如果学生选择了这些大学但申请商科，请在分析中说明该校没有商科本科项目，但可以申请Economics等相关专业，并评估该替代专业的录取概率。
+` : ''}
 
 请严格按照以下JSON格式返回：
 [
@@ -390,32 +413,18 @@ async function callDeepSeekAPI(data: PredictionRequest) {
     "chineseName": "对应中文名称", 
     "major": "${data.major}",
     "location": "城市，州名",
-    "reasons": "详细的命理录取分析：根据您${data.year}年${data.month}月${data.day}日${data.hour}:${data.minute}出生的八字，五行属性为X，性格特质Y。该校位于Z地区，地理风水与您的命格如何匹配，学术氛围如何适合您的性格，预测录取可能性及具体理由。至少200字详细分析。"
+    "admissionProbability": "极高/较高/中等/较低/极低",
+    "reasons": "详细的命理录取分析和概率评估理由。必须包含：1）基于生辰八字的命理分析（五行属性、性格特质等）2）该校地理位置与学生命格的匹配度 3）学校学术氛围与学生特质的契合度 4）专业申请难度评估 5）综合录取概率判断理由。至少200字分析。",
+    "specialNote": "如果是商科申请但该校无商学院，在此说明替代专业建议；否则为空字符串"
   }
 ]
 
-重要提醒：
-1. 只返回学生心仪院校列表中的大学
-2. 如果某所大学不存在或名称错误，请在reasons中说明
-3. 专业名称必须准确，与该大学实际开设的本科专业一致
-4. 根據生辰八字的五行屬性分析學生的性格和學習特質
-5. 結合命理因素解釋為什麼某個地區或學校適合該學生
-
-請返回JSON格式數組，只分析學生提供的心仪院校（不要顯示錄取概率百分比）：
-[
-  {
-    "name": "英文校名",
-    "chineseName": "中文校名",
-    "major": "確實存在的本科專業名稱",
-    "location": "城市，州名",
-    "reasons": "详细说明基于命理分析的录取可能性。每所大学必须使用完全不同的命理角度，严禁重复。必须包含：1）基于出生年份${data.year}、月份${data.month}、日期${data.day}、时辰${data.hour}的具体五行命盘分析 2）该校地理位置的独特风水格局与学生八字的深度匹配分析 3）学校的学术氛围、校园布局如何与学生的命理特质形成最佳互补 4）基于命理因素预测录取可能性。每所大学必须用不同维度：如纳音五行、十二生肖、八卦方位、二十四节气、天干地支组合等，确保每个推荐理由在命理分析角度上完全独特，至少180字"
-  }
-]
-
-重要提醒：
-1. 只分析學生提供的心儀院校，不要推薦額外的大學  
-2. 如果某所心儀院校沒有學生申請的專業，請在分析中說明並建議相近專業
-3. 专业名称必须100%准确，与该大学实际开设的本科专业一致
+重要要求：
+1. 录取概率必须realistic，不能都是"较高"，要根据实际情况分配各个等级
+2. 顶尖大学（哈佛、斯坦福等）录取概率一般为"较低"或"极低"
+3. 中等大学录取概率可以是"中等"或"较高"  
+4. 商科申请难度通常比理工科高，要相应调整概率
+5. 每所大学的命理分析角度必须不同，避免重复
 
 请返回准确的JSON格式数组。`;
 
@@ -510,7 +519,9 @@ function getDefaultUniversityPredictions(data: PredictionRequest) {
     chineseName: getChineseName(universityName),
     major: data.major,
     location: getUniversityLocation(universityName),
-    reasons: generateDefaultAdmissionAnalysis(data, universityName)
+    admissionProbability: calculateRealisticProbability(data, universityName),
+    reasons: generateDefaultAdmissionAnalysis(data, universityName),
+    specialNote: checkBusinessMajorCompatibility(data.major, universityName)
   }));
 }
 
@@ -678,6 +689,91 @@ function getUniversityFortuneAnalysis(universityName: string): any {
   };
   
   return locationAnalysis[universityName] || locationAnalysis["default"];
+}
+
+// 计算realistic的录取概率
+function calculateRealisticProbability(data: PredictionRequest, universityName: string): string {
+  // 定义大学层次
+  const topTierUniversities = [
+    "Harvard University", "Stanford University", "Massachusetts Institute of Technology",
+    "Yale University", "Princeton University", "Columbia University", "University of Pennsylvania",
+    "University of Chicago", "Duke University", "Northwestern University", "Cornell University",
+    "Brown University", "Dartmouth College", "Vanderbilt University", "Rice University"
+  ];
+  
+  const midTierUniversities = [
+    "University of California--Berkeley", "University of California--Los Angeles",
+    "University of Michigan--Ann Arbor", "New York University", "Carnegie Mellon University",
+    "University of Southern California", "Georgetown University", "Emory University",
+    "University of Virginia", "University of North Carolina--Chapel Hill", "Boston University",
+    "Northeastern University", "University of Florida", "University of Texas at Austin",
+    "Georgia Institute of Technology", "University of Washington"
+  ];
+  
+  // 专业难度评估
+  const isBusiness = data.major.toLowerCase().includes('business') || 
+                     data.major.toLowerCase().includes('商科') ||
+                     data.major.toLowerCase().includes('finance') ||
+                     data.major.toLowerCase().includes('management');
+  
+  const isSTEM = data.major.toLowerCase().includes('engineering') ||
+                 data.major.toLowerCase().includes('computer') ||
+                 data.major.toLowerCase().includes('math') ||
+                 data.major.toLowerCase().includes('science');
+  
+  // 基础概率评估
+  let probabilityScore = 3; // 中等
+  
+  // 根据大学层次调整
+  if (topTierUniversities.includes(universityName)) {
+    probabilityScore = Math.max(1, probabilityScore - 2); // 顶尖大学降低概率
+  } else if (midTierUniversities.includes(universityName)) {
+    probabilityScore = Math.max(2, probabilityScore - 1); // 中等大学略降概率
+  }
+  
+  // 根据专业难度调整
+  if (isBusiness) {
+    probabilityScore = Math.max(1, probabilityScore - 1); // 商科竞争激烈
+  } else if (isSTEM) {
+    probabilityScore = Math.min(5, probabilityScore + 1); // STEM相对容易些
+  }
+  
+  // 根据命理因素随机调整（模拟命理匹配度）
+  const birthMonth = data.month;
+  const birthYear = data.year;
+  const luckyFactor = (birthMonth + birthYear) % 3; // 简单的"命理"调整
+  
+  if (luckyFactor === 0) probabilityScore = Math.min(5, probabilityScore + 1);
+  else if (luckyFactor === 1) probabilityScore = Math.max(1, probabilityScore - 1);
+  
+  // 转换为文字描述
+  const probabilityLevels = ["极低", "较低", "中等", "较高", "极高"];
+  return probabilityLevels[probabilityScore - 1];
+}
+
+// 检查商科专业兼容性
+function checkBusinessMajorCompatibility(major: string, universityName: string): string {
+  const isBusiness = major.toLowerCase().includes('business') || 
+                     major.toLowerCase().includes('商科') ||
+                     major.toLowerCase().includes('商业') ||
+                     major.toLowerCase().includes('finance') ||
+                     major.toLowerCase().includes('management');
+  
+  if (!isBusiness) return "";
+  
+  const noBusinessSchools: Record<string, string> = {
+    "Harvard University": "该校本科没有商学院，建议申请Economics专业",
+    "Stanford University": "该校本科没有Business专业，建议申请Economics或Management Science & Engineering",
+    "Princeton University": "该校本科没有商学院，建议申请Economics专业",
+    "Yale University": "该校本科没有商学院，建议申请Economics专业", 
+    "Massachusetts Institute of Technology": "该校本科只有Management专业，可考虑申请",
+    "California Institute of Technology": "该校没有商科专业，建议申请Economics专业",
+    "University of Chicago": "该校本科没有商学院，建议申请Economics专业",
+    "Northwestern University": "Kellogg商学院只招收研究生，本科建议申请Economics",
+    "Johns Hopkins University": "该校没有本科商学院，建议申请Economics专业"
+  };
+  
+  return noBusinessSchools[universityName] || "";
 }
 
 

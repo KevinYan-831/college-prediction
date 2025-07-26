@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { predictionRequestSchema, type PredictionRequest, type PredictionResult } from "@shared/schema";
-import { GraduationCap, Calendar, Languages, Edit, Wind, University, Loader2, RotateCcw, MapPin, FileText, Download, Plus, X, Star } from "lucide-react";
+import { GraduationCap, Calendar, Languages, Edit, Wind, University, Loader2, RotateCcw, MapPin, FileText, Download, Plus, X, Star, AlertTriangle } from "lucide-react";
 import * as htmlToImage from 'html-to-image';
 
 export default function PredictionPage() {
@@ -513,14 +513,29 @@ export default function PredictionPage() {
                           <h4 className="font-bold text-xl text-gray-900 mb-2">{university.chineseName}</h4>
                           <p className="text-gray-700">{university.name} - {university.major}</p>
                         </div>
-                        <span className="px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-orange-500 to-yellow-500 text-white shadow-lg">
-                          推荐录取
+                        <span className={`px-4 py-2 rounded-full text-sm font-semibold shadow-lg ${
+                          university.admissionProbability === '极高' ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white' :
+                          university.admissionProbability === '较高' ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white' :
+                          university.admissionProbability === '中等' ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white' :
+                          university.admissionProbability === '较低' ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white' :
+                          'bg-gradient-to-r from-red-500 to-red-600 text-white'
+                        }`}>
+                          录取概率：{university.admissionProbability || '中等'}
                         </span>
                       </div>
                       <div className="flex items-center text-gray-600 mb-4">
                         <MapPin className="mr-2" size={16} />
                         <span className="font-medium">{university.location}</span>
                       </div>
+                      {university.specialNote && (
+                        <div className="mb-4 p-4 bg-red-50/80 border-l-4 border-red-400 rounded-xl">
+                          <div className="flex items-center mb-2">
+                            <AlertTriangle className="text-red-500 mr-2" size={16} />
+                            <span className="font-semibold text-red-700">专业提示</span>
+                          </div>
+                          <p className="text-red-800 text-sm">{university.specialNote}</p>
+                        </div>
+                      )}
                       {university.reasons && (
                         <p className="text-gray-800 leading-relaxed bg-orange-50/50 p-4 rounded-xl">{university.reasons}</p>
                       )}

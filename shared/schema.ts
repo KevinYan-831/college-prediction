@@ -37,7 +37,9 @@ export const universityPredictionSchema = z.object({
   major: z.string(),
   location: z.string(),
   ranking: z.number().optional(),
-  reasons: z.string().optional()
+  reasons: z.string().optional(),
+  admissionProbability: z.string().optional(),
+  specialNote: z.string().optional()
 });
 
 // 完整预测结果
