@@ -185,53 +185,48 @@ async function callGuguDataAPI(
         const fortuneAnalysis = data.运势分析 || {};
         const bodyFeatures = fortuneAnalysis.体貌特征 || {};
         
+        // 简化处理，使用完整分析文字
+        const fullAnalysis = data.融合分析文字 || '';
+        
+        // 让分析更口语化
+        const casualAnalysis = fullAnalysis
+          .replace(/您的八字/g, '你的八字')
+          .replace(/显示您/g, '显示你')
+          .replace(/预示/g, '说明')
+          .replace(/建议/g, '我建议')
+          .replace(/需注意/g, '要注意')
+          .replace(/应有/g, '会有')
+          .replace(/宜/g, '最好')
+          .replace(/需谨记/g, '要记住')
+          .replace(/纵观全局/g, '总的来说');
+
         return {
-          analysis: `【体貌特征】
-面貌：${bodyFeatures.面貌 || ''}
-身材：${bodyFeatures.身材 || ''}
-气质：${bodyFeatures.气质 || ''}
-特别标记：${bodyFeatures.特别之处 || ''}
-
-【婚姻感情】
-婚期：${fortuneAnalysis.婚姻?.婚期 || ''}
-配偶特征：${fortuneAnalysis.婚姻?.配偶特征 || ''}
-感情波折：${fortuneAnalysis.婚姻?.感情波折 || ''}
-注意事项：${fortuneAnalysis.婚姻?.再婚可能 || ''}
-
-【健康状况】  
-主要问题：${fortuneAnalysis.健康?.主要问题 || ''}
-危险期：${fortuneAnalysis.健康?.危险期 || ''}
-
-【综合评价】
-${data.综合评价 || ''}`,
+          analysis: casualAnalysis,
           
           fiveElements: `八字：${data.八字 || ''}
-五行：${data.五行 || ''}
+五行配置：${data.五行 || ''}
 命宫：${data.命宫 || ''}
 身宫：${data.身宫 || ''}`,
           
-          academicFortune: `【学业运势详解】
-能力特点：${fortuneAnalysis.学业?.能力 || ''}
-潜力与短板：${fortuneAnalysis.学业?.潜力与短板 || ''}
-
-【财运轨迹】
-财运能力：${fortuneAnalysis.财运?.能力 || ''}
-收入水平：${fortuneAnalysis.财运?.收入水平 || ''}
-赚钱方式：${fortuneAnalysis.财运?.赚钱方式 || ''}
-
-【融合分析详解】
-${data.融合分析文字 || ''}`,
+          academicFortune: `【学业发展】
+${fortuneAnalysis.学业?.关键转折 || ''}
+${fortuneAnalysis.学业?.潜力领域 ? `擅长领域：${fortuneAnalysis.学业.潜力领域}` : ''}
+${fortuneAnalysis.学业?.短板 ? `需要加强：${fortuneAnalysis.学业.短板}` : ''}
+${fortuneAnalysis.学业?.重大节点 || ''}`,
           
-          recommendations: `【大运分析】
+          recommendations: `【人生重要时期】
 ${data.大运 && Array.isArray(data.大运) ? 
   data.大运.map((stage: any) => 
-    `${stage.起始}-${stage.终止}年：${stage.运势}`
+    `${stage.起始年份}-${stage.终止年份}年：${stage.运势名称.replace('大运', '').replace('（', ' (').replace('）', ')')}`
   ).join('\n') : ''}
 
-【重大转折点】
+【关键转折年份】
 ${fortuneAnalysis.关键事件 ? fortuneAnalysis.关键事件.map((event: any) => 
   `${event.年份}年：${event.事件}`
-).join('\n') : ''}`
+).join('\n') : ''}
+
+【综合建议】
+${data.综合评价 || ''}`
         };
       } else if (apiResult.code === 200 && apiResult.data) {
         // 备选格式1
