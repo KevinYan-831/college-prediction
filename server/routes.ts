@@ -59,15 +59,12 @@ async function callGuguDataAPI(
     
     console.log(`調用咕咕數據API: ${birthDate} ${birthTime} ${gender}`);
     
-    const response = await axios.post("https://api.gugudata.com/fortune/bazi", {
-      appkey: appKey,
-      birth_date: birthDate,
-      birth_time: birthTime,
-      gender: gender === "male" ? "男" : "女",
-      analysis_type: "comprehensive"
-    }, {
+    const userinfo = `性别：${gender === "male" ? "男" : "女"}，出生日期：${birthDate}，出生时间：${birthTime}`;
+    
+    const response = await axios.post(`https://api.gugudata.com/ai/bazi-fortune-teller?appkey=${appKey}`, 
+      `userinfo=${encodeURIComponent(userinfo)}`, {
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': 'University-Prediction-App/1.0'
       },
       timeout: 15000
@@ -78,22 +75,32 @@ async function callGuguDataAPI(
     console.log("咕咕數據API返回:", JSON.stringify(apiResult, null, 2));
     
     // 如果API成功返回數據，直接使用
-    if (apiResult && (apiResult.code === 0 || apiResult.success === true)) {
-      const data = apiResult.data || apiResult;
+    if (apiResult && apiResult.DataStatus && apiResult.DataStatus.StatusCode === 100) {
+      const data = apiResult.Data;
+      const fortuneAnalysis = data.运势分析 || {};
+      
       return {
-        analysis: data.comprehensive_analysis || data.analysis || data.fortune_analysis || "命盤分析顯示您具有良好的學術潛質",
-        fiveElements: data.five_elements || data.wuxing || data.elements_analysis || "五行平衡，利於學業發展",
-        academicFortune: data.academic_fortune || data.career_fortune || data.study_fortune || "學業運勢較好，適合出國深造", 
-        recommendations: data.recommendations || data.advice || data.suggestions || "建議選擇理工科專業，注重實踐能力培養"
+        analysis: `八字：${data.八字 || ''}
+五行：${data.五行 || ''}
+命宫：${data.命宫 || ''}
+身宫：${data.身宫 || ''}
+
+${data.综合评价 || ''}`,
+        fiveElements: data.五行 || "五行分析中",
+        academicFortune: fortuneAnalysis.学业 || "學業運勢分析中",
+        recommendations: `根據您的八字分析：
+${fortuneAnalysis.学业 ? '學業方面：' + fortuneAnalysis.学业 : ''}
+${fortuneAnalysis.财运 ? '財運方面：' + fortuneAnalysis.财运 : ''}
+${fortuneAnalysis.健康 ? '健康方面：' + fortuneAnalysis.健康 : ''}`
       };
     }
     
-    // 如果API返回格式不符預期，嘗試解析原始數據
+    // 如果API返回格式不符預期，顯示錯誤信息
     return {
-      analysis: JSON.stringify(apiResult, null, 2),
-      fiveElements: "API數據解析中",
-      academicFortune: "運勢分析中",
-      recommendations: "建議生成中"
+      analysis: `API調用狀態：${apiResult?.DataStatus?.StatusDescription || '未知錯誤'}`,
+      fiveElements: `狀態碼：${apiResult?.DataStatus?.StatusCode || 'N/A'}`,
+      academicFortune: "請檢查API調用",
+      recommendations: JSON.stringify(apiResult, null, 2)
     };
     
   } catch (error) {
@@ -180,31 +187,38 @@ async function callDeepSeekAPI(data: any) {
   try {
     const apiKey = process.env.DEEPSEEK_API_KEY || "sk-fee27e4244b54277b1e1868002f843f3";
     
-    // 构建智能提示词
-    const prompt = `作为精通美国大学录取和传统命理学的专家，请根据以下信息预测15所美国本科大学的录取可能性：
+    // 构建智能提示词，特別強調本科專業的準確性
+    const prompt = `作為精通美國大學本科錄取和傳統命理學的專家，請根據以下信息預測15所美國本科大學的錄取可能性：
 
-学生信息：
-- 出生时间：${data.year}年${data.month}月${data.day}日 ${data.hour}:${data.minute}
-- 性别：${data.gender === "male" ? "男" : "女"}
-- 申请专业：${data.major}
-- 语言成绩：${data.testType === "toefl" ? "托福" : "雅思"} ${data.score}分
-- 申请材料水平：${getMaterialLevelText(data.materialLevel)}
+學生信息：
+- 出生時間：${data.year}年${data.month}月${data.day}日 ${data.hour}:${data.minute}（請根據此分析五行命理特質）
+- 性別：${data.gender === "male" ? "男" : "女"}
+- 申請專業：${data.major}
+- 語言成績：${data.testType === "toefl" ? "托福" : "雅思"} ${data.score || '未提供'}分
+- 申請材料水平：${getMaterialLevelText(data.materialLevel)}
 
-重要注意事項：
-1. 請確認每所大學是否提供該專業的本科課程（如哈佛、斯坦福本科無商科）
-2. 根據生辰八字分析該學生的五行屬性和性格特質
-3. 結合命理因素分析學生與不同地區、學校氣場的匹配度
-4. 考慮學生的學術潛力、適合的學習環境和未來發展方向
+⚠️ 關鍵要求（必須嚴格遵循）：
+1. 這是針對美國本科申請的分析，學生是高中生
+2. 必須確認每所大學確實提供該專業的本科學位
+3. 哈佛大學本科沒有商科（Business）專業，只有經濟學（Economics）
+4. 斯坦福大學本科沒有商科專業，只有經濟學和管理科學與工程
+5. 如果學生申請商科，推薦的學校必須確實有本科商科項目
+6. 根據生辰八字的五行屬性分析學生的性格和學習特質
+7. 結合命理因素解釋為什麼某個地區或學校適合該學生
 
-請返回JSON格式的15所大學預測結果，每所大學包含：
-- name: 英文校名
-- chineseName: 中文校名  
-- major: 確實存在的本科專業名稱
-- admissionProbability: 錄取可能性百分比(0-100)
-- location: 所在州/城市
-- reasons: 結合命理分析和學術匹配度的詳細原因（至少50字）
+請返回JSON格式數組，包含15所大學：
+[
+  {
+    "name": "英文校名",
+    "chineseName": "中文校名",
+    "major": "確實存在的本科專業名稱",
+    "admissionProbability": 數字(0-100),
+    "location": "城市，州名",
+    "reasons": "結合命理分析的詳細錄取可能性分析，至少80字，包含五行特質分析"
+  }
+]
 
-請確保包含不同層次的大學：頂尖大學(5所)、優秀大學(5所)、良好大學(5所)。`;
+請確保：頂尖大學(5所)、優秀大學(5所)、良好大學(5所)的分佈，且專業名稱100%準確。`;
 
     const response = await axios.post("https://api.deepseek.com/v1/chat/completions", {
       model: "deepseek-chat",

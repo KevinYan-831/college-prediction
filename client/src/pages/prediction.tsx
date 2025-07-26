@@ -16,6 +16,9 @@ import { GraduationCap, Calendar, Languages, Edit, Wind, University, Loader2, Ro
 export default function PredictionPage() {
   const [results, setResults] = useState<PredictionResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [loadingMessage, setLoadingMessage] = useState("");
+  const [estimatedTime, setEstimatedTime] = useState(20);
   const { toast } = useToast();
 
   const form = useForm<PredictionRequest>({
@@ -31,7 +34,7 @@ export default function PredictionPage() {
       gender: "male",
       major: "",
       testType: "toefl",
-      score: 0,
+      score: undefined,
       materialLevel: "average"
     }
   });
@@ -63,7 +66,49 @@ export default function PredictionPage() {
   const onSubmit = (data: PredictionRequest) => {
     setIsLoading(true);
     setResults(null);
-    predictionMutation.mutate(data);
+    setLoadingProgress(0);
+    setEstimatedTime(20);
+    
+    // 開始進度條動畫
+    const progressInterval = setInterval(() => {
+      setLoadingProgress(prev => {
+        if (prev >= 95) {
+          clearInterval(progressInterval);
+          return 95;
+        }
+        // 前10秒進度較快，後面較慢
+        const increment = prev < 60 ? 8 : prev < 80 ? 4 : 2;
+        return Math.min(prev + increment, 95);
+      });
+      
+      setEstimatedTime(prev => Math.max(prev - 1, 0));
+    }, 1000);
+    
+    // 更新加載消息
+    const messageInterval = setInterval(() => {
+      const messages = [
+        "正在分析您的生辰八字...",
+        "調用命理分析API中...", 
+        "分析五行屬性和性格特質...",
+        "調用AI大學預測API...",
+        "結合命理因素分析適合的大學...",
+        "計算錄取可能性...",
+        "生成個性化推薦理由...",
+        "整理分析結果..."
+      ];
+      setLoadingMessage(messages[Math.floor(Math.random() * messages.length)]);
+    }, 2500);
+    
+    predictionMutation.mutate(data, {
+      onSettled: () => {
+        clearInterval(progressInterval);
+        clearInterval(messageInterval);
+        setLoadingProgress(100);
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 500);
+      }
+    });
   };
 
   const handleReset = () => {
@@ -242,7 +287,7 @@ export default function PredictionPage() {
                               type="number" 
                               placeholder="如：105" 
                               {...field}
-                              onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                              onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
                             />
                           </FormControl>
                           <FormMessage />
@@ -303,7 +348,7 @@ export default function PredictionPage() {
           </CardContent>
         </Card>
 
-        {/* Loading State */}
+        {/* Enhanced Loading State */}
         {isLoading && (
           <Card className="mb-8">
             <CardContent className="p-8">
@@ -311,16 +356,36 @@ export default function PredictionPage() {
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
                   <Loader2 className="h-8 w-8 text-primary animate-spin" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">AI正在分析中...</h3>
-                <p className="text-gray-600 mb-4">正在并行调用命理分析和大学预测API</p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">AI正在智能分析中...</h3>
+                <p className="text-gray-600 mb-4">{loadingMessage}</p>
+                
+                {/* Progress Bar */}
+                <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
+                  <div 
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-1000 ease-in-out"
+                    style={{ width: `${loadingProgress}%` }}
+                  ></div>
+                </div>
+                
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-sm text-gray-600">完成進度：{loadingProgress}%</span>
+                  <span className="text-sm text-gray-600">
+                    預計剩餘：{estimatedTime > 0 ? estimatedTime + ' 秒' : '即將完成'}
+                  </span>
+                </div>
+                
                 <div className="space-y-2">
                   <div className="flex items-center justify-center space-x-2">
-                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <div className={`w-3 h-3 rounded-full ${loadingProgress > 20 ? 'bg-green-500' : 'bg-gray-300'} ${loadingProgress <= 20 ? 'animate-pulse' : ''}`}></div>
                     <span className="text-sm text-gray-600">命理分析API</span>
                   </div>
                   <div className="flex items-center justify-center space-x-2">
-                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm text-gray-600">大学预测API</span>
+                    <div className={`w-3 h-3 rounded-full ${loadingProgress > 60 ? 'bg-green-500' : 'bg-gray-300'} ${loadingProgress > 20 && loadingProgress <= 60 ? 'animate-pulse' : ''}`}></div>
+                    <span className="text-sm text-gray-600">大学預測API</span>
+                  </div>
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className={`w-3 h-3 rounded-full ${loadingProgress > 90 ? 'bg-green-500' : 'bg-gray-300'} ${loadingProgress > 60 && loadingProgress <= 90 ? 'animate-pulse' : ''}`}></div>
+                    <span className="text-sm text-gray-600">結果整理</span>
                   </div>
                 </div>
               </div>
