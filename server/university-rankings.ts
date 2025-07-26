@@ -69,8 +69,87 @@ export const USNEWS_TOP50_LIBERAL_ARTS_COLLEGES = [
   "Wofford College", "Allegheny College", "Bard College"
 ];
 
+// 大学专业数据库 - 精确记录每所大学的本科专业
+export const UNIVERSITY_MAJORS: Record<string, string[]> = {
+  // 顶尖综合性大学（有商科）
+  "Harvard University": ["business", "economics", "computer science", "engineering", "liberal arts", "pre-med"],
+  "Stanford University": ["business", "computer science", "engineering", "economics", "liberal arts"],
+  "University of Pennsylvania": ["business", "economics", "engineering", "computer science", "liberal arts"],
+  "Columbia University": ["business", "economics", "engineering", "computer science", "liberal arts"],
+  "New York University": ["business", "economics", "computer science", "liberal arts"],
+  "University of Southern California": ["business", "computer science", "engineering", "economics"],
+  "Boston University": ["business", "computer science", "engineering", "economics", "liberal arts"],
+  
+  // 顶尖理工科大学（无商科本科）
+  "Massachusetts Institute of Technology": ["computer science", "engineering", "economics"],
+  "California Institute of Technology": ["engineering", "computer science"],
+  "Georgia Institute of Technology": ["engineering", "computer science"],
+  "Carnegie Mellon University": ["computer science", "engineering", "economics"],
+  
+  // 顶尖文理学院（通常无商科本科）
+  "University of Chicago": ["economics", "liberal arts", "computer science"],
+  "Duke University": ["economics", "engineering", "computer science", "liberal arts"],
+  "Johns Hopkins University": ["engineering", "computer science", "pre-med", "liberal arts"],
+  
+  // 州立大学（通常有商科）
+  "University of California--Berkeley": ["business", "computer science", "engineering", "economics"],
+  "University of California--Los Angeles": ["business", "computer science", "engineering", "economics"],
+  "University of Michigan--Ann Arbor": ["business", "computer science", "engineering", "economics"],
+  "University of Texas at Austin": ["business", "computer science", "engineering", "economics"],
+  "University of Florida": ["business", "computer science", "engineering", "economics"],
+  "University of Illinois Urbana-Champaign": ["business", "computer science", "engineering", "economics"],
+  "University of Washington": ["business", "computer science", "engineering", "economics"],
+  "Ohio State University": ["business", "computer science", "engineering", "economics"],
+  "Purdue University": ["business", "computer science", "engineering", "economics"],
+  "University of Wisconsin--Madison": ["business", "computer science", "engineering", "economics"],
+  "University of Virginia": ["business", "computer science", "economics", "liberal arts"],
+  "University of North Carolina--Chapel Hill": ["business", "computer science", "economics", "liberal arts"],
+  "University of Georgia": ["business", "computer science", "economics"],
+  "University of Central Florida": ["business", "computer science", "engineering"],
+  "Florida State University": ["business", "computer science", "economics"],
+  "University of South Carolina": ["business", "computer science", "economics"],
+  "Auburn University": ["business", "computer science", "engineering"],
+  "University of Alabama--Tuscaloosa": ["business", "computer science", "economics"],
+  "Arizona State University": ["business", "computer science", "engineering", "economics"],
+  "University of Arizona": ["business", "computer science", "engineering", "economics"],
+};
+
+// 根据专业筛选合适的大学
+export function getUniversitiesForMajor(major: string): string[] {
+  const majorKey = getMajorKey(major);
+  const suitableUniversities: string[] = [];
+  
+  Object.entries(UNIVERSITY_MAJORS).forEach(([university, majors]) => {
+    if (majors.includes(majorKey)) {
+      suitableUniversities.push(university);
+    }
+  });
+  
+  return suitableUniversities;
+}
+
+// 将中文专业名转换为标准化的英文key
+function getMajorKey(major: string): string {
+  const majorLower = major.toLowerCase();
+  if (majorLower.includes('business') || majorLower.includes('商科') || majorLower.includes('管理') || majorLower.includes('金融')) {
+    return 'business';
+  } else if (majorLower.includes('computer') || majorLower.includes('计算机') || majorLower.includes('软件')) {
+    return 'computer science';
+  } else if (majorLower.includes('engineering') || majorLower.includes('工程')) {
+    return 'engineering';
+  } else if (majorLower.includes('economics') || majorLower.includes('经济')) {
+    return 'economics';
+  } else if (majorLower.includes('liberal') || majorLower.includes('文科') || majorLower.includes('人文')) {
+    return 'liberal arts';
+  }
+  return 'liberal arts'; // 默认归类为文科
+}
+
 // 根据申请材料水平和成绩推荐合适排名的大学
 export function getUniversitiesByLevel(materialLevel: string, score: number, testType: string, major: string) {
+  // 首先根据专业筛选合适的大学
+  const suitableUniversities = getUniversitiesForMajor(major);
+  
   const isBusiness = major.toLowerCase().includes('business') || 
                      major.toLowerCase().includes('商科') ||
                      major.toLowerCase().includes('商业');
