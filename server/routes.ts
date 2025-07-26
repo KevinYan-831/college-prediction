@@ -58,9 +58,10 @@ async function callGuguDataAPI(
     const birthDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
     const birthTime = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
     
-    console.log(`調用咕咕數據API: ${birthDate} ${birthTime} ${gender}`);
-    
     const userinfo = `我是${gender === "male" ? "男性" : "女性"}，我的公历出生日期是${birthDate}，出生时间是${birthTime}。`;
+    
+    console.log(`调用咕咕数据API: ${birthDate} ${birthTime} ${gender}`);
+    console.log(`userinfo参数: ${userinfo}`);
     
     const response = await axios.post(`https://api.gugudata.com/ai/bazi-fortune-teller?appkey=${appKey}`, {
         userinfo: userinfo
@@ -129,13 +130,24 @@ ${data.大运.slice(0, 3).map(d => `${d.年份}: ${d.大运} (${d.十神})`).joi
       };
     }
     
-    // 如果API返回格式不符预期，显示错误信息
+    // 如果API返回格式不符预期，显示详细的调试信息
+    console.log("咕咕数据API调用失败，完整返回:", JSON.stringify(apiResult, null, 2));
+    
     return {
-      analysis: `API调用状态：${apiResult?.DataStatus?.StatusDescription || '未知错误'}
-完整返回数据：${JSON.stringify(apiResult, null, 2)}`,
-      fiveElements: `状态码：${apiResult?.DataStatus?.StatusCode || 'N/A'}`,
-      academicFortune: "请检查API调用",
-      recommendations: `请求参数：${apiResult?.DataStatus?.RequestParameter || ''}`
+      analysis: `【API调用状态】
+状态码：${apiResult?.DataStatus?.StatusCode || 'N/A'}
+状态描述：${apiResult?.DataStatus?.StatusDescription || '未知错误'}
+请求参数：${apiResult?.DataStatus?.RequestParameter || ''}
+
+【调试信息】
+完整API返回数据：
+${JSON.stringify(apiResult, null, 2)}
+
+【临时分析】
+基于您的出生信息进行基础分析...`,
+      fiveElements: `API调用状态码：${apiResult?.DataStatus?.StatusCode || 'N/A'}`,
+      academicFortune: "API调用异常，请检查咕咕数据服务",
+      recommendations: "请联系技术支持检查API配置"
     };
     
   } catch (error) {
@@ -147,10 +159,38 @@ ${data.大运.slice(0, 3).map(d => `${d.年份}: ${d.大运} (${d.十神})`).joi
     const elementAnalysis = getElementByYear(year);
     
     return {
-      analysis: `根据您的出生信息（${year}年${month}月${day}日${hour}时${minute}分），${elementAnalysis.analysis}。${season.analysis}${timeAnalysis.analysis}这些因素结合显示您在学术领域具有独特优势，适合深造发展。`,
-      fiveElements: `${elementAnalysis.element}，${season.element}，整体五行配置${elementAnalysis.balance}`,
-      academicFortune: `${timeAnalysis.fortune}，${season.fortune}，整体学业运势向好，特别适合海外求学。`,
-      recommendations: `基于您的命理特质，建议选择${elementAnalysis.major}相关专业，发挥您的${elementAnalysis.strength}优势。`
+      analysis: `【八字命盘】
+八字：暂无（API调用异常）
+五行：${elementAnalysis.element}
+
+【体貌特征】
+基于您的出生年份和时辰分析，您体型中等，面容清秀，眼神较为锐利，给人一种聪明伶俐的感觉。${elementAnalysis.element}特质明显。
+
+【学业运势】
+您在学业上表现较为出色，${elementAnalysis.analysis}。${timeAnalysis.analysis}特别适合在理工科或${elementAnalysis.major}领域发展，海外求学运势良好。
+
+【事业发展】
+${timeAnalysis.fortune}，事业上会有较好的发展机会。您的${elementAnalysis.strength}优势明显，适合在技术创新或学术研究领域发展。
+
+【财运状况】
+整体财运稳定，通过学术成就和专业技能可获得良好收入。${season.analysis}
+
+【婚姻感情】
+感情运势平稳，建议专注学业发展，婚姻方面不必过于着急。
+
+【健康状况】
+身体状况总体良好，注意用眼卫生和作息规律，避免过度疲劳。
+
+【总体评价】
+您的命盘显示具有良好的学术天赋和发展潜力，${elementAnalysis.balance}，适合深造发展。特别在计算机科学领域有较大发展空间。`,
+      fiveElements: `五行配置：${elementAnalysis.element}，${season.element}，整体五行配置${elementAnalysis.balance}`,
+      academicFortune: `学业运势向好，${timeAnalysis.fortune}，${season.fortune}，特别适合海外求学。`,
+      recommendations: `【大运分析】
+当前阶段：适合求学深造的黄金时期
+未来发展：专业技能将成为您的核心竞争力
+
+【专业建议】
+基于您的命理特质，强烈建议选择${elementAnalysis.major}相关专业，发挥您的${elementAnalysis.strength}优势。计算机科学领域特别适合您的发展。`
     };
   }
 }
