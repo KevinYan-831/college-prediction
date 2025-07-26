@@ -448,11 +448,11 @@ export default function PredictionPage() {
                   命理分析结果
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-8">
+              <CardContent className="p-4 sm:p-8">
                 <div className="space-y-6">
-                  <div className="bg-gradient-to-r from-orange-50 to-red-50 border-l-4 border-orange-400 p-6 rounded-2xl backdrop-blur-sm">
-                    <h4 className="font-semibold text-orange-700 mb-3 text-lg">整体分析</h4>
-                    <p className="text-gray-800 leading-relaxed">{results.fortuneAnalysis.analysis}</p>
+                  <div className="bg-gradient-to-r from-orange-50 to-red-50 border-l-4 border-orange-400 p-4 sm:p-6 rounded-2xl backdrop-blur-sm">
+                    <h4 className="font-semibold text-orange-700 mb-3 text-base sm:text-lg">整体分析</h4>
+                    <p className="text-gray-800 leading-relaxed text-sm sm:text-base">{results.fortuneAnalysis.analysis}</p>
                   </div>
                 </div>
               </CardContent>
@@ -460,27 +460,27 @@ export default function PredictionPage() {
 
             {/* OFFERSTUDIO 广告信息 - 中间位置 */}
             <Card className="bg-gradient-to-r from-orange-50 to-yellow-50 backdrop-blur-xl border-orange-200/50 shadow-lg">
-              <CardContent className="p-6">
-                <div className="text-center space-y-4">
-                  <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl mb-4">
-                    <span className="text-white font-bold text-xl">O</span>
+              <CardContent className="p-4 sm:p-6">
+                <div className="text-center space-y-3 sm:space-y-4">
+                  <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl mb-2 sm:mb-4">
+                    <span className="text-white font-bold text-lg sm:text-xl">O</span>
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900">OFFERSTUDIO</h3>
-                  <p className="text-gray-700 text-sm leading-relaxed">
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900">OFFERSTUDIO</h3>
+                  <p className="text-gray-700 text-xs sm:text-sm leading-relaxed px-2 sm:px-0">
                     专业帮助申请美本的同学们制作个人网站和活动网站
                   </p>
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                  <div className="flex flex-col gap-2 sm:gap-3 justify-center items-center">
                     <a 
                       href="https://offerstudiowebsite.wixstudio.com/official" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="px-4 py-2 bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-lg hover:from-orange-600 hover:to-yellow-600 transition-all duration-300 text-sm font-medium"
+                      className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-lg hover:from-orange-600 hover:to-yellow-600 transition-all duration-300 text-xs sm:text-sm font-medium text-center"
                     >
                       🌐 访问官网
                     </a>
-                    <div className="flex items-center gap-2 text-gray-600 text-sm">
+                    <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-gray-600 text-xs sm:text-sm">
                       <span>💬 微信联系：</span>
-                      <span className="font-mono bg-orange-100 px-3 py-1 rounded-lg text-orange-800 font-semibold">TauPsc-0317</span>
+                      <span className="font-mono bg-orange-100 px-2 sm:px-3 py-1 rounded-lg text-orange-800 font-semibold text-xs sm:text-sm">TauPsc-0317</span>
                     </div>
                   </div>
                 </div>
@@ -495,17 +495,17 @@ export default function PredictionPage() {
                   美国大学录取预测
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-8">
-                <div className="space-y-6">
+              <CardContent className="p-4 sm:p-8">
+                <div className="space-y-4 sm:space-y-6">
                   {/* 显示所有大学 */}
                   {results.universityPredictions.map((university, index) => (
-                    <div key={index} className="bg-white/80 backdrop-blur-lg border border-orange-200/50 rounded-2xl p-6 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h4 className="font-bold text-xl text-gray-900 mb-2">{university.chineseName}</h4>
-                          <p className="text-gray-700">{university.name} - {university.major}</p>
+                    <div key={index} className="bg-white/80 backdrop-blur-lg border border-orange-200/50 rounded-2xl p-4 sm:p-6 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
+                        <div className="flex-1">
+                          <h4 className="font-bold text-lg sm:text-xl text-gray-900 mb-2">{university.chineseName}</h4>
+                          <p className="text-gray-700 text-sm sm:text-base">{university.name} - {university.major}</p>
                         </div>
-                        <span className={`px-4 py-2 rounded-full text-sm font-semibold shadow-lg ${
+                        <span className={`self-start px-3 py-2 rounded-full text-xs sm:text-sm font-semibold shadow-lg whitespace-nowrap ${
                           university.admissionProbability === '极高' ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white' :
                           university.admissionProbability === '较高' ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white' :
                           university.admissionProbability === '中等' ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white' :
@@ -529,7 +529,7 @@ export default function PredictionPage() {
                         </div>
                       )}
                       {university.reasons && (
-                        <p className="text-gray-800 leading-relaxed bg-orange-50/50 p-4 rounded-xl">{university.reasons}</p>
+                        <p className="text-gray-800 leading-relaxed bg-orange-50/50 p-3 sm:p-4 rounded-xl text-sm sm:text-base">{university.reasons}</p>
                       )}
                     </div>
                   ))}
@@ -541,27 +541,27 @@ export default function PredictionPage() {
 
             {/* OFFERSTUDIO 广告信息 */}
             <Card className="bg-gradient-to-r from-orange-50 to-yellow-50 backdrop-blur-xl border-orange-200/50 shadow-lg">
-              <CardContent className="p-6">
-                <div className="text-center space-y-4">
-                  <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl mb-4">
-                    <span className="text-white font-bold text-xl">O</span>
+              <CardContent className="p-4 sm:p-6">
+                <div className="text-center space-y-3 sm:space-y-4">
+                  <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl mb-2 sm:mb-4">
+                    <span className="text-white font-bold text-lg sm:text-xl">O</span>
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900">OFFERSTUDIO</h3>
-                  <p className="text-gray-700 text-sm leading-relaxed">
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900">OFFERSTUDIO</h3>
+                  <p className="text-gray-700 text-xs sm:text-sm leading-relaxed px-2 sm:px-0">
                     专业帮助申请美本的同学们制作个人网站和活动网站
                   </p>
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                  <div className="flex flex-col gap-2 sm:gap-3 justify-center items-center">
                     <a 
                       href="https://offerstudiowebsite.wixstudio.com/official" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="px-4 py-2 bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-lg hover:from-orange-600 hover:to-yellow-600 transition-all duration-300 text-sm font-medium"
+                      className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-lg hover:from-orange-600 hover:to-yellow-600 transition-all duration-300 text-xs sm:text-sm font-medium text-center"
                     >
                       🌐 访问官网
                     </a>
-                    <div className="flex items-center gap-2 text-gray-600 text-sm">
+                    <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-gray-600 text-xs sm:text-sm">
                       <span>💬 微信联系：</span>
-                      <span className="font-mono bg-orange-100 px-3 py-1 rounded-lg text-orange-800 font-semibold">TauPsc-0317</span>
+                      <span className="font-mono bg-orange-100 px-2 sm:px-3 py-1 rounded-lg text-orange-800 font-semibold text-xs sm:text-sm">TauPsc-0317</span>
                     </div>
                   </div>
                 </div>
