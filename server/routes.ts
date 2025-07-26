@@ -148,14 +148,17 @@ async function callGuguDataAPI(
     console.log(`userinfo参数: ${userinfo}`);
     console.log(`API Key: ${appKey}`);
     
-    const response = await axios.post(`https://api.gugudata.com/ai/bazi-fortune-teller?appkey=${appKey}`, {
-        userinfo: userinfo
-      }, {
+    // 按照GuguData API文档要求，使用form格式提交
+    const formData = new URLSearchParams();
+    formData.append('userinfo', userinfo);
+    
+    const response = await axios.post(`https://api.gugudata.com/ai/bazi-fortune-teller?appkey=${appKey}`, 
+      formData, {
       headers: {
-        'Content-Type': 'application/json; charset=utf-8',
+        'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': 'University-Prediction-App/1.0'
       },
-      timeout: 30000 // 增加超时时间到30秒
+      timeout: 120000 // 120秒超时，API需要90+秒处理时间
     });
     
     // 处理咕咕数据API的返回结果
