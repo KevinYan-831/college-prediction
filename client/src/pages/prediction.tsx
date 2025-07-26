@@ -307,14 +307,14 @@ export default function PredictionPage() {
                               placeholder="如：105" 
                               {...field}
                               className="bg-white/90 border-orange-200 text-gray-800 placeholder:text-gray-400 focus:bg-white focus:border-orange-400 rounded-xl h-12"
-                              value={field.value === 0 ? "" : field.value || ""}
+                              value={field.value || ""}
                               onChange={(e) => {
                                 const value = e.target.value;
                                 if (value === "") {
-                                  field.onChange(undefined);
+                                  field.onChange(0);
                                 } else {
                                   const numValue = parseInt(value);
-                                  if (!isNaN(numValue)) {
+                                  if (!isNaN(numValue) && numValue >= 0) {
                                     field.onChange(numValue);
                                   }
                                 }

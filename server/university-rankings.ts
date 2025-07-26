@@ -139,8 +139,13 @@ export const UNIVERSITY_MAJORS: Record<string, string[]> = {
   // 有顶尖商学院的大学（从排名中确认）
   "University of Pennsylvania": ["business", "economics", "engineering", "computer science", "liberal arts"],
   "Massachusetts Institute of Technology": ["business", "computer science", "engineering", "economics"], // MIT Sloan有本科
-  "University of California--Berkeley": ["business", "computer science", "engineering", "economics"],
-  "University of Michigan--Ann Arbor": ["business", "computer science", "engineering", "economics"],
+  "University of California--Berkeley": ["business", "computer science", "engineering", "economics", "liberal arts", "environmental science"],
+  "University of California--Los Angeles": ["business", "computer science", "engineering", "economics", "liberal arts"],
+  "University of California--San Diego": ["computer science", "engineering", "economics", "liberal arts", "environmental science"],
+  "University of California--Davis": ["business", "engineering", "economics", "liberal arts", "environmental science"],
+  "University of California--Irvine": ["business", "computer science", "engineering", "economics", "liberal arts"],
+  "University of California--Santa Barbara": ["business", "computer science", "engineering", "economics", "liberal arts", "environmental science"],
+  "University of Michigan--Ann Arbor": ["business", "computer science", "engineering", "economics", "liberal arts"],
   "New York University": ["business", "economics", "computer science", "liberal arts"],
   "Carnegie Mellon University": ["business", "computer science", "engineering", "economics"],
   "University of North Carolina--Chapel Hill": ["business", "computer science", "economics", "liberal arts"],
@@ -292,11 +297,17 @@ export function getUniversitiesByLevel(materialLevel: string, score: number, tes
     recommendedUniversities = [...recommendedUniversities, ...secondTier.slice(0, 7)];
     
   } else if (materialLevel === "good" && testType === "toefl" && score >= 105) {
-    // 优秀水平 - 推荐排名20-50的大学
+    // 较好水平+105+ - 推荐排名10-40的优秀大学，包括加州系统
+    const excellentSchools = ["University of California--Berkeley", "University of California--Los Angeles", 
+                             "University of California--San Diego", "University of California--Santa Barbara",
+                             "University of California--Davis", "University of California--Irvine",
+                             "University of Michigan--Ann Arbor", "New York University", "Carnegie Mellon University",
+                             "University of North Carolina--Chapel Hill", "University of Illinois Urbana-Champaign", 
+                             "Boston University", "University of Washington", "Purdue University", 
+                             "University of Wisconsin--Madison", "University of Virginia", "Georgia Institute of Technology"];
+    
     const highTier = candidates.filter(uni => 
-      !["University of Pennsylvania", "Harvard University", "Stanford University", 
-        "Massachusetts Institute of Technology", "Princeton University"].includes(uni) &&
-      BUSINESS_SCHOOL_RANKINGS.slice(5, 40).includes(uni)
+      excellentSchools.includes(uni) || BUSINESS_SCHOOL_RANKINGS.slice(3, 35).includes(uni)
     );
     recommendedUniversities = highTier.slice(0, 15);
     
