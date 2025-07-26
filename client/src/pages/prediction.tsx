@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { predictionRequestSchema, type PredictionRequest, type PredictionResult } from "@shared/schema";
-import { GraduationCap, Calendar, Languages, Edit, Wind, University, Loader2, RotateCcw, MapPin, Lock, Unlock, CreditCard, Smartphone } from "lucide-react";
+import { GraduationCap, Calendar, Languages, Edit, Wind, University, Loader2, RotateCcw, MapPin, FileText } from "lucide-react";
 
 export default function PredictionPage() {
   const [results, setResults] = useState<PredictionResult | null>(null);
@@ -329,30 +329,72 @@ export default function PredictionPage() {
                 </div>
 
                 {/* 申请材料水平 */}
-                <FormField
-                  control={form.control}
-                  name="materialLevel"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-800 font-medium">申请材料整体水平</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="bg-white/90 border-orange-200 text-gray-800 focus:bg-white focus:border-orange-400 rounded-xl h-12">
-                            <SelectValue placeholder="请选择整体水平" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="bg-white border-orange-200">
-                          <SelectItem value="very-poor" className="text-gray-800 focus:bg-orange-50">极差</SelectItem>
-                          <SelectItem value="poor" className="text-gray-800 focus:bg-orange-50">较差</SelectItem>
-                          <SelectItem value="average" className="text-gray-800 focus:bg-orange-50">一般</SelectItem>
-                          <SelectItem value="good" className="text-gray-800 focus:bg-orange-50">较好</SelectItem>
-                          <SelectItem value="excellent" className="text-gray-800 focus:bg-orange-50">极好</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 backdrop-blur-sm rounded-2xl p-6 border border-orange-200/30">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                    <FileText className="text-amber-600 mr-3" size={20} />
+                    申请材料整体水平评估
+                  </h3>
+                  <FormField
+                    control={form.control}
+                    name="materialLevel"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-800 font-medium mb-3 block">
+                          请根据以下标准客观评估您的申请材料整体水平：
+                        </FormLabel>
+                        <div className="mb-4 p-4 bg-white/50 rounded-xl border border-orange-100">
+                          <div className="text-sm text-gray-700 space-y-2">
+                            <div><span className="font-semibold text-red-600">极差:</span> GPA &lt; 3.0，无突出活动经历，无竞赛奖项</div>
+                            <div><span className="font-semibold text-orange-600">较差:</span> GPA 3.0-3.3，有基础活动参与，少量校级奖项</div>
+                            <div><span className="font-semibold text-yellow-600">一般:</span> GPA 3.3-3.7，有一定活动经历，有州级或地区性奖项</div>
+                            <div><span className="font-semibold text-green-600">较好:</span> GPA 3.7-3.9，有显著活动领导经历，有国家级奖项或知名竞赛奖项</div>
+                            <div><span className="font-semibold text-emerald-600">极好:</span> GPA 3.9+，有卓越活动成就和领导力，有顶级竞赛奖项(如USAMO、Intel ISEF等)</div>
+                          </div>
+                        </div>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="bg-white/90 border-orange-200 text-gray-800 focus:bg-white focus:border-orange-400 rounded-xl h-12">
+                              <SelectValue placeholder="请选择您的整体水平" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent className="bg-white border-orange-200">
+                            <SelectItem value="very-poor" className="text-gray-800 focus:bg-orange-50">
+                              <div className="flex flex-col">
+                                <span className="font-medium">极差</span>
+                                <span className="text-xs text-gray-500">GPA &lt; 3.0，无突出经历</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="poor" className="text-gray-800 focus:bg-orange-50">
+                              <div className="flex flex-col">
+                                <span className="font-medium">较差</span>
+                                <span className="text-xs text-gray-500">GPA 3.0-3.3，基础活动</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="average" className="text-gray-800 focus:bg-orange-50">
+                              <div className="flex flex-col">
+                                <span className="font-medium">一般</span>
+                                <span className="text-xs text-gray-500">GPA 3.3-3.7，有地区奖项</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="good" className="text-gray-800 focus:bg-orange-50">
+                              <div className="flex flex-col">
+                                <span className="font-medium">较好</span>
+                                <span className="text-xs text-gray-500">GPA 3.7-3.9，有国家级奖项</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="excellent" className="text-gray-800 focus:bg-orange-50">
+                              <div className="flex flex-col">
+                                <span className="font-medium">极好</span>
+                                <span className="text-xs text-gray-500">GPA 3.9+，顶级竞赛奖项</span>
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
 
 
