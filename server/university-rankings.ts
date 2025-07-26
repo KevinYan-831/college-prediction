@@ -316,20 +316,32 @@ export function getUniversitiesByLevel(materialLevel: string, score: number, tes
     }
     
   } else if (testType === "toefl" && score >= 110) {
-    // 托福110-114 - 推荐前30商学院，避开最顶尖的宾大MIT等
-    const suitableBusinessSchools = candidates.filter(uni => 
-      BUSINESS_SCHOOL_RANKINGS.slice(3, 25).includes(uni) // 跳过前3（宾大、斯坦福、沃顿等）
-    );
-    
+    // 托福110-114 - 可以推荐包括密歇根、NYU等优秀学校
     if (materialLevel === "excellent") {
-      // 极好材料 - 可以冲击部分顶尖商学院
+      // 极好材料 - 可以冲击顶尖商学院
       const topTierSchools = candidates.filter(uni => 
-        ["University of Michigan--Ann Arbor", "New York University", "University of California--Berkeley",
-         "University of Southern California", "Carnegie Mellon University", "Georgetown University"].includes(uni)
+        ["University of Michigan--Ann Arbor", "New York University", "University of Southern California",
+         "Boston University", "Carnegie Mellon University", "Georgetown University",
+         "University of Rochester", "Northeastern University", "Case Western Reserve University",
+         "Tulane University", "University of Miami", "Syracuse University",
+         "Fordham University", "American University", "University of Connecticut"].includes(uni)
       );
-      recommendedUniversities = [...topTierSchools.slice(0, 10), ...suitableBusinessSchools.slice(10, 15)];
+      recommendedUniversities = topTierSchools.slice(0, 15);
+    } else if (materialLevel === "good") {
+      // 较好材料 - 推荐密歇根、NYU等前30学校
+      const goodTierSchools = candidates.filter(uni => 
+        ["University of Michigan--Ann Arbor", "New York University", "Boston University",
+         "University of Rochester", "Northeastern University", "Case Western Reserve University",
+         "Tulane University", "University of Miami", "Syracuse University",
+         "Fordham University", "American University", "University of Connecticut",
+         "University of South Carolina", "University of Iowa", "Arizona State University"].includes(uni)
+      );
+      recommendedUniversities = goodTierSchools.slice(0, 15);
     } else {
-      // 其他材料 - 主要推荐前25商学院
+      // 其他材料 - 主要推荐前30商学院
+      const suitableBusinessSchools = candidates.filter(uni => 
+        BUSINESS_SCHOOL_RANKINGS.slice(8, 30).includes(uni)
+      );
       recommendedUniversities = suitableBusinessSchools.slice(0, 15);
     }
     

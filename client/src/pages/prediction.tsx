@@ -76,17 +76,17 @@ export default function PredictionPage() {
     
     const progressInterval = setInterval(() => {
       setLoadingProgress(prev => {
-        if (prev >= 80) {
+        if (prev >= 95) {
           clearInterval(progressInterval);
-          return 80;
+          return 95;
         }
-        // 平均分布的进度增加：每次2-3%
-        const increment = 2.5;
-        return Math.min(prev + increment, 80);
+        // 100秒内均匀分布进度：每秒约1%
+        const increment = 1;
+        return Math.min(prev + increment, 95);
       });
       
       setEstimatedTime(prev => Math.max(prev - 1, 0));
-    }, 1500);
+    }, 1000); // 每秒更新一次
     
     const messageInterval = setInterval(() => {
       const messages = [
@@ -486,7 +486,7 @@ export default function PredictionPage() {
                 <div className="flex justify-between items-center mb-8">
                   <span className="text-gray-600 font-medium">完成进度：{loadingProgress}%</span>
                   <span className="text-gray-600 font-medium">
-                    预计剩余：{estimatedTime > 0 ? estimatedTime + ' 秒' : '即将完成'}
+                    预计剩余：{estimatedTime > 0 ? estimatedTime + ' 秒' : '即将生成结果'}
                   </span>
                 </div>
                 
