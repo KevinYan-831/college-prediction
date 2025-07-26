@@ -64,12 +64,78 @@ export const predictions = pgTable("predictions", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Top 50 Universities table
+export const top50Universities = pgTable("top50_universities", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  chineseName: text("chinese_name").notNull(),
+  ranking: integer("ranking").notNull(),
+  location: text("location").notNull(),
+  state: text("state").notNull(),
+  acceptanceRate: text("acceptance_rate"),
+  avgSAT: text("avg_sat"),
+  avgACT: text("avg_act"),
+  tuition: text("tuition"),
+  majors: text("majors").array().default([]),
+});
+
+// Top 40 Liberal Arts Colleges table
+export const top40LiberalArts = pgTable("top40_liberal_arts", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  chineseName: text("chinese_name").notNull(),
+  ranking: integer("ranking").notNull(),
+  location: text("location").notNull(),
+  state: text("state").notNull(),
+  acceptanceRate: text("acceptance_rate"),
+  avgSAT: text("avg_sat"),
+  avgACT: text("avg_act"),
+  tuition: text("tuition"),
+  majors: text("majors").array().default([]),
+});
+
+// Top 30 Undergraduate Business Schools table
+export const top30BusinessSchools = pgTable("top30_business_schools", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  chineseName: text("chinese_name").notNull(),
+  ranking: integer("ranking").notNull(),
+  location: text("location").notNull(),
+  state: text("state").notNull(),
+  acceptanceRate: text("acceptance_rate"),
+  avgSAT: text("avg_sat"),
+  avgACT: text("avg_act"),
+  tuition: text("tuition"),
+  businessMajors: text("business_majors").array().default([]),
+});
+
 // Insert schemas
 export const insertPredictionSchema = createInsertSchema(predictions).omit({ 
   id: true, 
   createdAt: true 
 });
 
+export const insertTop50UniversitySchema = createInsertSchema(top50Universities).omit({ 
+  id: true 
+});
+
+export const insertTop40LiberalArtsSchema = createInsertSchema(top40LiberalArts).omit({ 
+  id: true 
+});
+
+export const insertTop30BusinessSchoolSchema = createInsertSchema(top30BusinessSchools).omit({ 
+  id: true 
+});
+
 // Types
 export type Prediction = typeof predictions.$inferSelect;
 export type InsertPrediction = z.infer<typeof insertPredictionSchema>;
+
+export type Top50University = typeof top50Universities.$inferSelect;
+export type InsertTop50University = z.infer<typeof insertTop50UniversitySchema>;
+
+export type Top40LiberalArts = typeof top40LiberalArts.$inferSelect;
+export type InsertTop40LiberalArts = z.infer<typeof insertTop40LiberalArtsSchema>;
+
+export type Top30BusinessSchool = typeof top30BusinessSchools.$inferSelect;
+export type InsertTop30BusinessSchool = z.infer<typeof insertTop30BusinessSchoolSchema>;
