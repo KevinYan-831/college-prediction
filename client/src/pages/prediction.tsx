@@ -72,16 +72,17 @@ export default function PredictionPage() {
     
     const progressInterval = setInterval(() => {
       setLoadingProgress(prev => {
-        if (prev >= 95) {
+        if (prev >= 90) {
           clearInterval(progressInterval);
-          return 95;
+          return 90;
         }
-        const increment = prev < 60 ? 8 : prev < 80 ? 4 : 2;
-        return Math.min(prev + increment, 95);
+        // 更平缓的进度增加：前期较快，后期较慢
+        const increment = prev < 30 ? 5 : prev < 60 ? 3 : prev < 80 ? 2 : 1;
+        return Math.min(prev + increment, 90);
       });
       
       setEstimatedTime(prev => Math.max(prev - 1, 0));
-    }, 1000);
+    }, 1200);
     
     const messageInterval = setInterval(() => {
       const messages = [
@@ -101,10 +102,11 @@ export default function PredictionPage() {
       onSettled: () => {
         clearInterval(progressInterval);
         clearInterval(messageInterval);
+        // 快速完成最后的10%进度
         setLoadingProgress(100);
         setTimeout(() => {
           setIsLoading(false);
-        }, 500);
+        }, 800);
       }
     });
   };
@@ -395,15 +397,15 @@ export default function PredictionPage() {
                 
                 <div className="space-y-4">
                   <div className="flex items-center justify-center space-x-3 p-3 rounded-xl bg-white/5">
-                    <div className={`w-4 h-4 rounded-full ${loadingProgress > 20 ? 'bg-gradient-to-r from-green-400 to-green-500 shadow-lg' : 'bg-white/20'} ${loadingProgress <= 20 ? 'animate-pulse' : ''}`}></div>
+                    <div className={`w-4 h-4 rounded-full ${loadingProgress > 30 ? 'bg-gradient-to-r from-green-400 to-green-500 shadow-lg' : 'bg-white/20'} ${loadingProgress <= 30 ? 'animate-pulse' : ''}`}></div>
                     <span className="text-gray-200 font-medium">命理分析API</span>
                   </div>
                   <div className="flex items-center justify-center space-x-3 p-3 rounded-xl bg-white/5">
-                    <div className={`w-4 h-4 rounded-full ${loadingProgress > 60 ? 'bg-gradient-to-r from-green-400 to-green-500 shadow-lg' : 'bg-white/20'} ${loadingProgress > 20 && loadingProgress <= 60 ? 'animate-pulse' : ''}`}></div>
+                    <div className={`w-4 h-4 rounded-full ${loadingProgress > 70 ? 'bg-gradient-to-r from-green-400 to-green-500 shadow-lg' : 'bg-white/20'} ${loadingProgress > 30 && loadingProgress <= 70 ? 'animate-pulse' : ''}`}></div>
                     <span className="text-gray-200 font-medium">大学预测API</span>
                   </div>
                   <div className="flex items-center justify-center space-x-3 p-3 rounded-xl bg-white/5">
-                    <div className={`w-4 h-4 rounded-full ${loadingProgress > 90 ? 'bg-gradient-to-r from-green-400 to-green-500 shadow-lg' : 'bg-white/20'} ${loadingProgress > 60 && loadingProgress <= 90 ? 'animate-pulse' : ''}`}></div>
+                    <div className={`w-4 h-4 rounded-full ${loadingProgress >= 100 ? 'bg-gradient-to-r from-green-400 to-green-500 shadow-lg' : 'bg-white/20'} ${loadingProgress > 70 && loadingProgress < 100 ? 'animate-pulse' : ''}`}></div>
                     <span className="text-gray-200 font-medium">结果整理</span>
                   </div>
                 </div>
