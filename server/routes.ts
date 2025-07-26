@@ -20,7 +20,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // 并行调用两个API
       const [fortuneResponse, universityResponse] = await Promise.all([
         // 调用咕咕数据API进行命理分析
-        callGuguDataAPI(year, month, day, hour, minute, gender),
+        callGuguDataAPI(year, month, day, hour, minute, gender, major),
         // 调用DeepSeek API进行大学预测
         callDeepSeekAPI(validatedData)
       ]);
@@ -78,7 +78,8 @@ async function callGuguDataAPI(
   day: number, 
   hour: number, 
   minute: number, 
-  gender: string
+  gender: string,
+  major: string = ''
 ) {
   try {
     const appKey = process.env.GUGUDATA_APPKEY || "6QLXPBKYH6Y9LRPVF73V34WQDF32ZL2S";
@@ -474,8 +475,17 @@ async function callDeepSeekAPI(data: PredictionRequest) {
       console.error("解析AI回复失败:", parseError);
       console.log("尝试提取JSON部分...");
       
-      // 尝试从回复中提取JSON部分
-      const jsonMatch = aiResponse.match(/\[[\s\S]*\]/);
+      // 尝试从回复中提取JSON部分，处理markdown格式
+      let jsonContent = aiResponse;
+      
+      // 移除markdown代码块标记
+      if (jsonContent.includes('```json')) {
+        jsonContent = jsonContent.replace(/```json\s*\n?/g, '').replace(/\n?\s*```/g, '');
+      } else if (jsonContent.includes('```')) {
+        jsonContent = jsonContent.replace(/```\s*\n?/g, '').replace(/\n?\s*```/g, '');
+      }
+      
+      const jsonMatch = jsonContent.match(/\[[\s\S]*\]/);
       if (jsonMatch) {
         try {
           const universities = JSON.parse(jsonMatch[0]);

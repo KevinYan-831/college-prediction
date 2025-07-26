@@ -196,8 +196,16 @@ export const UNIVERSITY_MAJORS: Record<string, string[]> = {
   "University of Vermont": ["environmental science", "liberal arts"],
   "Colorado State University": ["environmental science", "engineering"],
   "Oregon State University": ["environmental science", "engineering"],
-  "University of New Hampshire": ["environmental science"],
+  "University of New Hampshire": ["environmental science", "liberal arts"],
   "University of Maine": ["environmental science", "engineering"],
+  "University of Nevada--Las Vegas": ["liberal arts", "business"],
+  "University of New Mexico": ["liberal arts", "engineering"],
+  "University of Hawaii at Manoa": ["liberal arts", "environmental science"],
+  "Portland State University": ["liberal arts", "engineering"],
+  "University of Oregon": ["liberal arts", "business"],
+  "Washington State University": ["liberal arts", "engineering", "business"],
+  "University of Idaho": ["liberal arts", "engineering"],
+  "University of Montana": ["liberal arts", "environmental science"],
 };
 
 // 根据专业筛选合适的大学
@@ -227,6 +235,22 @@ function getMajorKey(major: string): string {
     return 'economics';
   } else if (majorLower.includes('环境') || majorLower.includes('environmental')) {
     return 'environmental science';
+  } else if (majorLower.includes('社会') || majorLower.includes('sociology')) {
+    return 'liberal arts';
+  } else if (majorLower.includes('心理') || majorLower.includes('psychology')) {
+    return 'liberal arts';
+  } else if (majorLower.includes('历史') || majorLower.includes('history')) {
+    return 'liberal arts';
+  } else if (majorLower.includes('政治') || majorLower.includes('political')) {
+    return 'liberal arts';
+  } else if (majorLower.includes('英语') || majorLower.includes('english')) {
+    return 'liberal arts';
+  } else if (majorLower.includes('哲学') || majorLower.includes('philosophy')) {
+    return 'liberal arts';
+  } else if (majorLower.includes('艺术') || majorLower.includes('art')) {
+    return 'liberal arts';
+  } else if (majorLower.includes('传媒') || majorLower.includes('media') || majorLower.includes('communication')) {
+    return 'liberal arts';
   } else if (majorLower.includes('liberal') || majorLower.includes('文科') || majorLower.includes('人文')) {
     return 'liberal arts';
   }
