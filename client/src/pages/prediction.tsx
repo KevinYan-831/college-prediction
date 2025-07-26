@@ -131,19 +131,37 @@ export default function PredictionPage() {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* 大太极图 - 右上角 */}
         <div className="absolute -top-20 -right-20 w-80 h-80 opacity-5">
-          <div className="w-full h-full rounded-full bg-gradient-to-br from-gray-800 to-gray-600 relative">
-            <div className="absolute top-0 left-1/2 w-1/2 h-full bg-gradient-to-br from-amber-100 to-white rounded-r-full"></div>
-            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-1/4 h-1/4 bg-gray-800 rounded-full"></div>
-            <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 w-1/4 h-1/4 bg-white rounded-full"></div>
+          <div className="w-full h-full rounded-full bg-black relative overflow-hidden">
+            {/* 白色S形部分 */}
+            <div className="absolute inset-0">
+              <div className="w-full h-1/2 bg-white relative">
+                <div className="absolute bottom-0 left-1/2 w-1/2 h-full bg-black rounded-full -translate-x-1/2 translate-y-1/2"></div>
+              </div>
+              <div className="w-full h-1/2 bg-black relative">
+                <div className="absolute top-0 left-1/2 w-1/2 h-full bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+              </div>
+            </div>
+            {/* 小圆点 */}
+            <div className="absolute top-1/4 left-1/2 w-1/4 h-1/4 bg-black rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+            <div className="absolute bottom-1/4 left-1/2 w-1/4 h-1/4 bg-white rounded-full -translate-x-1/2 translate-y-1/2"></div>
           </div>
         </div>
         
         {/* 小太极图 - 左下角 */}
         <div className="absolute -bottom-10 -left-10 w-40 h-40 opacity-10">
-          <div className="w-full h-full rounded-full bg-gradient-to-br from-red-800 to-red-600 relative">
-            <div className="absolute top-0 left-1/2 w-1/2 h-full bg-gradient-to-br from-amber-200 to-yellow-100 rounded-r-full"></div>
-            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-1/4 h-1/4 bg-red-800 rounded-full"></div>
-            <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 w-1/4 h-1/4 bg-yellow-100 rounded-full"></div>
+          <div className="w-full h-full rounded-full bg-red-800 relative overflow-hidden">
+            {/* 金色S形部分 */}
+            <div className="absolute inset-0">
+              <div className="w-full h-1/2 bg-amber-100 relative">
+                <div className="absolute bottom-0 left-1/2 w-1/2 h-full bg-red-800 rounded-full -translate-x-1/2 translate-y-1/2"></div>
+              </div>
+              <div className="w-full h-1/2 bg-red-800 relative">
+                <div className="absolute top-0 left-1/2 w-1/2 h-full bg-amber-100 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+              </div>
+            </div>
+            {/* 小圆点 */}
+            <div className="absolute top-1/4 left-1/2 w-1/4 h-1/4 bg-red-800 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+            <div className="absolute bottom-1/4 left-1/2 w-1/4 h-1/4 bg-amber-100 rounded-full -translate-x-1/2 translate-y-1/2"></div>
           </div>
         </div>
         
@@ -168,10 +186,19 @@ export default function PredictionPage() {
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="text-center">
             <div className="flex items-center justify-center mb-3">
-              <div className="w-12 h-12 mr-4 rounded-full bg-gradient-to-br from-amber-600 to-red-600 relative shadow-lg">
-                <div className="absolute top-0 left-1/2 w-1/2 h-full bg-gradient-to-br from-amber-100 to-white rounded-r-full"></div>
-                <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-1/4 h-1/4 bg-gradient-to-br from-amber-600 to-red-600 rounded-full"></div>
-                <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 w-1/4 h-1/4 bg-white rounded-full"></div>
+              <div className="w-12 h-12 mr-4 rounded-full bg-black relative shadow-lg overflow-hidden">
+                {/* 标题太极图 - 正确的S形 */}
+                <div className="absolute inset-0">
+                  <div className="w-full h-1/2 bg-white relative">
+                    <div className="absolute bottom-0 left-1/2 w-1/2 h-full bg-black rounded-full -translate-x-1/2 translate-y-1/2"></div>
+                  </div>
+                  <div className="w-full h-1/2 bg-black relative">
+                    <div className="absolute top-0 left-1/2 w-1/2 h-full bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+                  </div>
+                </div>
+                {/* 小圆点 */}
+                <div className="absolute top-1/4 left-1/2 w-1/4 h-1/4 bg-black rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+                <div className="absolute bottom-1/4 left-1/2 w-1/4 h-1/4 bg-white rounded-full -translate-x-1/2 translate-y-1/2"></div>
               </div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-800 via-red-700 to-amber-900 bg-clip-text text-transparent">
                 AI美本录取算命大师
@@ -411,10 +438,19 @@ export default function PredictionPage() {
             <CardContent className="p-8">
               <div className="text-center">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-amber-100 to-red-100 rounded-full mb-4 border-2 border-amber-200/50">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-600 to-red-600 relative animate-spin">
-                    <div className="absolute top-0 left-1/2 w-1/2 h-full bg-gradient-to-br from-amber-100 to-white rounded-r-full"></div>
-                    <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-1/4 h-1/4 bg-gradient-to-br from-amber-600 to-red-600 rounded-full"></div>
-                    <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 w-1/4 h-1/4 bg-white rounded-full"></div>
+                  <div className="w-8 h-8 rounded-full bg-black relative animate-spin overflow-hidden">
+                    {/* 加载太极图 - 正确的S形 */}
+                    <div className="absolute inset-0">
+                      <div className="w-full h-1/2 bg-white relative">
+                        <div className="absolute bottom-0 left-1/2 w-1/2 h-full bg-black rounded-full -translate-x-1/2 translate-y-1/2"></div>
+                      </div>
+                      <div className="w-full h-1/2 bg-black relative">
+                        <div className="absolute top-0 left-1/2 w-1/2 h-full bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+                      </div>
+                    </div>
+                    {/* 小圆点 */}
+                    <div className="absolute top-1/4 left-1/2 w-1/4 h-1/4 bg-black rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+                    <div className="absolute bottom-1/4 left-1/2 w-1/4 h-1/4 bg-white rounded-full -translate-x-1/2 translate-y-1/2"></div>
                   </div>
                 </div>
                 <h3 className="text-lg font-semibold bg-gradient-to-r from-amber-800 to-red-700 bg-clip-text text-transparent mb-2">AI算命大师分析中...</h3>
