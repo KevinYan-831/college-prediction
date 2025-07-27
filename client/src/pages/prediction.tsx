@@ -7,11 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { predictionRequestSchema, type PredictionRequest, type PredictionResult } from "@shared/schema";
-import { GraduationCap, Calendar, Languages, Edit, Wind, University, Loader2, RotateCcw, MapPin, FileText, Download, Plus, X, Star, AlertTriangle } from "lucide-react";
+import { GraduationCap, Calendar, Languages, Edit, Wind, University, Loader2, RotateCcw, MapPin, FileText, Download, Plus, X, Star, AlertTriangle, Info } from "lucide-react";
 import * as htmlToImage from 'html-to-image';
 
 export default function PredictionPage() {
@@ -443,9 +444,12 @@ export default function PredictionPage() {
               {/* 命理分析结果 */}
               <Card className="bg-white/90 backdrop-blur-xl border-orange-200/50 shadow-2xl overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-orange-500/10 to-red-500/10 backdrop-blur-xl border-b border-orange-200/30">
-                <CardTitle className="flex items-center text-gray-900 text-xl">
-                  <Wind className="mr-3 text-orange-600" size={24} />
-                  命理分析结果
+                <CardTitle className="flex items-center justify-between text-gray-900 text-xl">
+                  <div className="flex items-center">
+                    <Wind className="mr-3 text-orange-600" size={24} />
+                    命理分析结果
+                  </div>
+                  <InfoModal />
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4 sm:p-8">
@@ -613,6 +617,102 @@ export default function PredictionPage() {
         </footer>
       </div>
     </div>
+  );
+}
+
+// 命理分析信息弹窗组件
+function InfoModal() {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="h-8 w-8 p-0 hover:bg-orange-100/50 rounded-full"
+        >
+          <Info className="h-4 w-4 text-orange-600" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-white border-orange-200">
+        <DialogHeader>
+          <DialogTitle className="flex items-center text-orange-800">
+            <Info className="mr-2 h-5 w-5" />
+            盲派八字算命分析逻辑
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 text-sm text-gray-700 leading-relaxed">
+          <div className="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-400">
+            <p className="font-medium text-orange-800 mb-2">什么是盲派八字算命？</p>
+            <p>盲派八字算命是中国传统命理学的一个分支，它以阴阳五行为基础，通过分析一个人的出生时间（八字）来推测其命运轨迹。盲派命理的特点是强调实用口诀和快速推演，并有独特的理论体系，如宾主、体用、做功等。盲派命理的传承主要依靠盲人口传心授，因此带有一定的神秘色彩。</p>
+          </div>
+          
+          <div>
+            <h4 className="font-semibold text-gray-800 mb-3">核心概念：</h4>
+            <div className="space-y-3">
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <h5 className="font-medium text-gray-800">八字</h5>
+                <p>由出生年、月、日、时的天干地支组合而成，共八个字，是命理分析的基础。</p>
+              </div>
+              
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <h5 className="font-medium text-gray-800">阴阳五行</h5>
+                <p>构成命理分析的基本元素，包括金、木、水、火、土五行，以及阴阳两种属性。</p>
+              </div>
+              
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <h5 className="font-medium text-gray-800">十神</h5>
+                <p>对五行的生克关系进行细分，用来分析六亲关系、性格特点、事业财运等。</p>
+              </div>
+              
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <h5 className="font-medium text-gray-800">宾主、体用、做功</h5>
+                <p>盲派命理特有的推演规则，用于分析命局的吉凶、强弱、以及命运的起伏变化。</p>
+              </div>
+              
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <h5 className="font-medium text-gray-800">口诀</h5>
+                <p>盲派命理中，用简短的口诀来辅助推算，帮助快速得出结论。</p>
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <h4 className="font-semibold text-gray-800 mb-3">盲派八字算命的特点：</h4>
+            <div className="space-y-2">
+              <div className="flex items-start gap-2">
+                <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                <div>
+                  <span className="font-medium">快速推演：</span>
+                  <span>盲派命理强调快速、直接地推断命运，不拘泥于复杂的分析过程。</span>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-2">
+                <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                <div>
+                  <span className="font-medium">实用性强：</span>
+                  <span>盲派命理在实际应用中，能够较准确地推断六亲、婚姻、事业、财运等。</span>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-2">
+                <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                <div>
+                  <span className="font-medium">口传心授：</span>
+                  <span>盲派命理的传承方式使得其理论和技巧带有一定的独特性和神秘性。</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
+            <p className="text-blue-800">
+              <strong>注意：</strong>本系统采用GuguData API接口，基于盲派八字理论进行命理分析。分析结果仅供参考，不应作为人生决策的唯一依据。
+            </p>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
