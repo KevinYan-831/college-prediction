@@ -457,7 +457,10 @@ export default function PredictionPage() {
                   <div className="bg-gradient-to-r from-orange-50 to-red-50 border-l-4 border-orange-400 p-4 sm:p-6 rounded-2xl backdrop-blur-sm">
                     <h4 className="font-semibold text-orange-700 mb-3 text-base sm:text-lg">整体分析</h4>
                     {results.fortuneAnalysis.analysis ? (
-                      <div className="text-gray-800 leading-relaxed text-sm sm:text-base whitespace-pre-wrap">{results.fortuneAnalysis.analysis}</div>
+                      <div className="text-gray-800 leading-7 text-sm sm:text-base whitespace-pre-line break-words max-w-none"
+                           style={{ lineHeight: '1.8', wordBreak: 'break-word', textAlign: 'justify' }}>
+                        {results.fortuneAnalysis.analysis}
+                      </div>
                     ) : (
                       <div className="text-gray-500 text-sm italic">分析数据暂时无法显示，请稍后重试</div>
                     )}
@@ -714,7 +717,7 @@ function InfoModal() {
           
           <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
             <p className="text-blue-800">
-              <strong>注意：</strong>本系统采用GuguData API接口，基于盲派八字理论进行命理分析。分析结果仅供参考，不应作为人生决策的唯一依据。
+              <strong>注意：</strong>本系统基于盲派八字理论进行命理分析。分析结果仅供参考，不应作为人生决策的唯一依据。
             </p>
           </div>
         </div>
