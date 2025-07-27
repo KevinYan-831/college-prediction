@@ -529,6 +529,47 @@ async function callDeepSeekAPI(data: PredictionRequest) {
                        data.major.toLowerCase().includes('finance') ||
                        data.major.toLowerCase().includes('management');
     
+    // 计算具体的五行属性
+    const getYearStem = (year: number) => {
+      const stems = ['庚', '辛', '壬', '癸', '甲', '乙', '丙', '丁', '戊', '己'];
+      return stems[(year - 4) % 10];
+    };
+    
+    const getYearBranch = (year: number) => {
+      const branches = ['申', '酉', '戌', '亥', '子', '丑', '寅', '卯', '辰', '巳', '午', '未'];
+      return branches[(year - 4) % 12];
+    };
+    
+    const getElementFromStem = (stem: string) => {
+      const stemElements = {
+        '甲': '木', '乙': '木', '丙': '火', '丁': '火', '戊': '土', 
+        '己': '土', '庚': '金', '辛': '金', '壬': '水', '癸': '水'
+      };
+      return stemElements[stem as keyof typeof stemElements];
+    };
+    
+    const getElementFromBranch = (branch: string) => {
+      const branchElements = {
+        '子': '水', '丑': '土', '寅': '木', '卯': '木', '辰': '土', '巳': '火',
+        '午': '火', '未': '土', '申': '金', '酉': '金', '戌': '土', '亥': '水'
+      };
+      return branchElements[branch as keyof typeof branchElements];
+    };
+    
+    const yearStem = getYearStem(data.year);
+    const yearBranch = getYearBranch(data.year);
+    const yearStemElement = getElementFromStem(yearStem);
+    const yearBranchElement = getElementFromBranch(yearBranch);
+    
+    const monthBranches = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑'];
+    const monthBranch = monthBranches[data.month - 1];
+    const monthElement = getElementFromBranch(monthBranch);
+    
+    const hourBranches = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+    const hourIndex = Math.floor(data.hour / 2);
+    const hourBranch = hourBranches[hourIndex];
+    const hourElement = getElementFromBranch(hourBranch);
+
     const prompt = `作为精通美国大学本科录取和传统命理学的专家，请根据以下学生信息进行详细分析：
 
 【学生档案】
@@ -537,15 +578,33 @@ async function callDeepSeekAPI(data: PredictionRequest) {
 - 申请专业：${data.major}
 - 心仪院校列表：${dreamUniversitiesList}
 
+【精确八字五行分析】
+- 年柱：${yearStem}${yearBranch}（${yearStemElement}${yearBranchElement}）
+- 月令：${monthBranch}月（${monthElement}）
+- 时柱：${hourBranch}时（${hourElement}）
+- 日主五行：需根据年月日时综合判断
+- 命局五行强弱：${yearStemElement}、${monthElement}、${hourElement}的相互作用
+
 【分析任务】
-基于该学生的生辰八字和命理特征，重点分析五行属性与目标大学的地理方位、学校气场、学术氛围的匹配度，据此预测录取概率。请深度运用传统命理学的五行相生相克理论，而非现代大学排名体系。
+基于该学生的准确八字五行配置，重点分析其五行属性与目标大学的地理方位、学校气场、学术氛围的匹配度，据此预测录取概率。必须根据具体的五行强弱进行个性化分析，不可套用模板。
 
 【深度命理分析要求】
-1. 年柱分析：${data.year}年天干地支五行属性，决定根基性格和家庭背景对学业的影响
-2. 月柱分析：${data.month}月令对应的季节五行，影响学习方式和专业天赋
-3. 时柱分析：${data.hour}:${data.minute}对应时辰的五行属性，决定个人能力和发展潜力
-4. 性别命理：${data.gender === "male" ? "男性阳刚" : "女性阴柔"}特质与学校文化的匹配度
-5. 地理方位学：分析学生五行与各州地理方位（东木、南火、西金、北水、中土）的相生相克关系
+必须严格根据以下具体五行配置进行个性化分析：
+1. 年柱${yearStem}${yearBranch}（${yearStemElement}${yearBranchElement}）：根基性格特质
+2. 月令${monthElement}：${data.month}月令主导的学习方式和专业天赋
+3. 时柱${hourElement}：${hourBranch}时决定的个人能力和发展潜力
+4. 五行强弱判断：
+   - 如果${monthElement}与${yearStemElement}相同，该五行偏旺
+   - 如果${hourElement}与主要五行相生，力量增强
+   - 如果三个五行互相制克，需要平衡调和
+5. 专业匹配分析：
+   - 木旺：适合生物、环境、文学、教育类专业
+   - 火旺：适合计算机、电子、传媒、化学类专业  
+   - 土旺：适合地质、建筑、农业、管理类专业
+   - 金旺：适合机械、金融、医学、法律类专业
+   - 水旺：适合海洋、物流、心理、哲学类专业
+
+【重要】每个学生的分析必须完全不同，严禁使用相同的五行描述。
 
 【录取概率评估标准】
 请重点基于命理匹配度来评估录取概率，权重分配如下：
@@ -600,17 +659,23 @@ ${isBusiness ? `
     "major": "${data.major}",
     "location": "城市，州名",
     "admissionProbability": "极高/较高/中等/较低/极低",
-    "reasons": "详细的命理录取分析和概率评估理由。重点分析：1）学生五行属性与学校地理方位的匹配度（东西南北方位学说）2）学生命格特质与学校文化气场的相性 3）生辰八字显示的学习天赋与该校学术特色的契合度 4）命理显示的人际关系能力与该校社交环境的匹配 5）基于以上命理因素的综合录取概率判断，大学排名仅作次要参考。至少200字深度命理分析。",
+    "reasons": "基于学生具体五行配置${yearStemElement}${yearBranchElement}-${monthElement}-${hourElement}的录取分析。必须包含：1）该学生五行主导属性（${monthElement}月令）与学校地理方位的具体匹配度 2）${yearStemElement}年干体现的性格特质与该校文化的契合度 3）${hourElement}时柱显示的天赋能力与该校学术优势的对应关系 4）五行生克关系对录取运势的影响 5）综合命理匹配度评估。每个学生的分析角度必须根据其独特五行配置进行，严禁套用模板。至少200字个性化命理分析。",
     "specialNote": "如果是商科申请但该校无商学院，在此说明替代专业建议；否则为空字符串"
   }
 ]
 
 重要要求：
-1. 主要基于命理匹配度评估，不要被大学排名主导判断
-2. 如果学生五行与学校方位高度匹配，即使是顶尖大学也可以给"较高"概率
-3. 如果命理不匹配，即使是普通大学也要给"较低"概率
-4. 重点分析五行相生相克、地理方位、学校气场与学生的匹配度
-5. 每所大学必须从不同命理角度分析，体现专业的命理预测能力
+1. 必须根据该学生的具体五行配置（${yearStemElement}${yearBranchElement}-${monthElement}-${hourElement}）进行个性化分析
+2. 不同五行属性的学生分析结果必须完全不同，严禁使用通用模板
+3. 每个大学的分析必须体现该学生五行与学校的具体匹配关系
+4. 如果该学生五行与某校地理方位高度匹配，给予"较高"或"极高"概率
+5. 如果该学生五行与某校相克，必须给予"较低"或"极低"概率
+6. 分析中必须明确提及该学生的具体五行特征，不可泛泛而谈
+
+【检验标准】
+- 分析中必须出现学生的具体五行属性（${yearStemElement}、${monthElement}、${hourElement}）
+- 不同出生时间的学生应该得到完全不同的五行分析结果
+- 禁止所有学生都被分析为"火旺"或任何单一五行属性
 
 请返回准确的JSON格式数组。`;
 
