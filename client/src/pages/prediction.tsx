@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -456,7 +456,11 @@ export default function PredictionPage() {
                 <div className="space-y-6">
                   <div className="bg-gradient-to-r from-orange-50 to-red-50 border-l-4 border-orange-400 p-4 sm:p-6 rounded-2xl backdrop-blur-sm">
                     <h4 className="font-semibold text-orange-700 mb-3 text-base sm:text-lg">整体分析</h4>
-                    <p className="text-gray-800 leading-relaxed text-sm sm:text-base">{results.fortuneAnalysis.analysis}</p>
+                    {results.fortuneAnalysis.analysis ? (
+                      <div className="text-gray-800 leading-relaxed text-sm sm:text-base whitespace-pre-wrap">{results.fortuneAnalysis.analysis}</div>
+                    ) : (
+                      <div className="text-gray-500 text-sm italic">分析数据暂时无法显示，请稍后重试</div>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -639,6 +643,9 @@ function InfoModal() {
             <Info className="mr-2 h-5 w-5" />
             盲派八字算命分析逻辑
           </DialogTitle>
+          <DialogDescription>
+            了解本系统使用的传统命理分析方法和理论基础
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 text-sm text-gray-700 leading-relaxed">
           <div className="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-400">
