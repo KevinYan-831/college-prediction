@@ -425,18 +425,18 @@ export default function PredictionPage() {
             </div>
             
             {/* 结果内容区域，将被截图 */}
-            <div ref={resultsRef} className="bg-white p-6 sm:p-8 rounded-2xl space-y-6 sm:space-y-8">
+            <div ref={resultsRef} className="bg-white p-8 rounded-2xl space-y-8">
               {/* 标题 */}
-              <div className="text-center mb-6 sm:mb-8">
-                <div className="inline-flex items-center justify-center mb-3 sm:mb-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-2xl flex items-center justify-center shadow-lg">
-                    <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-2xl flex items-center justify-center shadow-lg">
+                    <GraduationCap className="w-6 h-6 text-white" />
                   </div>
                 </div>
-                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-orange-600 via-yellow-600 to-amber-600 bg-clip-text text-transparent mb-2">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 via-yellow-600 to-amber-600 bg-clip-text text-transparent mb-2">
                   AI美本录取算命大师
                 </h1>
-                <p className="text-gray-600 text-xs sm:text-sm">
+                <p className="text-gray-600 text-sm">
                   融合传统命理智慧与现代AI技术的专业预测报告
                 </p>
               </div>
@@ -444,30 +444,62 @@ export default function PredictionPage() {
               {/* 命理分析结果 */}
               <Card className="bg-white/90 backdrop-blur-xl border-orange-200/50 shadow-2xl overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-orange-500/10 to-red-500/10 backdrop-blur-xl border-b border-orange-200/30">
-                <CardTitle className="flex items-center text-gray-900 text-lg sm:text-xl">
-                  <Wind className="mr-2 sm:mr-3 text-orange-600" size={20} />
-                  命理分析结果
+                <CardTitle className="flex items-center justify-between text-gray-900 text-xl">
+                  <div className="flex items-center">
+                    <Wind className="mr-3 text-orange-600" size={24} />
+                    命理分析结果
+                  </div>
+                  <InfoModal />
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-3 sm:p-6">
-                <div className="space-y-4 sm:space-y-6">
-                  <div className="bg-gradient-to-r from-orange-50 to-red-50 border-l-4 border-orange-400 p-3 sm:p-6 rounded-2xl backdrop-blur-sm">
-                    <h4 className="font-semibold text-orange-700 mb-2 sm:mb-3 text-sm sm:text-base">整体分析</h4>
+              <CardContent className="p-4 sm:p-8">
+                <div className="space-y-6">
+                  <div className="bg-gradient-to-r from-orange-50 to-red-50 border-l-4 border-orange-400 p-4 sm:p-6 rounded-2xl backdrop-blur-sm">
+                    <h4 className="font-semibold text-orange-700 mb-3 text-base sm:text-lg">整体分析</h4>
                     {results.fortuneAnalysis.analysis ? (
-                      <div className="text-gray-800 leading-6 sm:leading-7 text-xs sm:text-sm whitespace-pre-line break-words max-w-none"
-                           style={{ lineHeight: '1.6', wordBreak: 'break-word', textAlign: 'justify' }}>
+                      <div className="text-gray-800 leading-7 text-sm sm:text-base whitespace-pre-line break-words max-w-none"
+                           style={{ lineHeight: '1.8', wordBreak: 'break-word', textAlign: 'justify' }}>
                         {results.fortuneAnalysis.analysis}
                       </div>
                     ) : (
-                      <div className="text-gray-500 text-xs sm:text-sm italic">分析数据暂时无法显示，请稍后重试</div>
+                      <div className="text-gray-500 text-sm italic">分析数据暂时无法显示，请稍后重试</div>
                     )}
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-              {/* 大学录取预测结果 */}
-              <Card className="bg-white/90 backdrop-blur-xl border-orange-200/50 shadow-2xl overflow-hidden">
+            {/* OFFERSTUDIO 广告信息 - 中间位置 */}
+            <Card className="bg-gradient-to-r from-orange-50 to-yellow-50 backdrop-blur-xl border-orange-200/50 shadow-lg">
+              <CardContent className="p-4 sm:p-6">
+                <div className="text-center space-y-3 sm:space-y-4">
+                  <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl mb-2 sm:mb-4">
+                    <span className="text-white font-bold text-lg sm:text-xl">O</span>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900">OFFERSTUDIO</h3>
+                  <p className="text-gray-700 text-xs sm:text-sm leading-relaxed px-2 sm:px-0">
+                    专业帮助申请美本的同学们制作个人网站和活动网站
+                  </p>
+                  <div className="flex flex-col gap-2 sm:gap-3 justify-center items-center">
+                    <a 
+                      href="https://offerstudiowebsite.wixstudio.com/official" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-lg hover:from-orange-600 hover:to-yellow-600 transition-all duration-300 text-xs sm:text-sm font-medium text-center"
+                    >
+                      🌐 访问官网
+                    </a>
+                    <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-gray-600 text-xs sm:text-sm">
+                      <span>💬 微信联系：</span>
+                      <span className="font-mono bg-orange-100 px-2 sm:px-3 py-1 rounded-lg text-orange-800 font-semibold text-xs sm:text-sm">TauPsc-0317</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 大学录取预测结果 */}
+            <Card className="bg-white/90 backdrop-blur-xl border-orange-200/50 shadow-2xl overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-yellow-500/10 to-amber-500/10 backdrop-blur-xl border-b border-orange-200/30">
                 <CardTitle className="flex items-center text-gray-900 text-xl">
                   <University className="mr-3 text-yellow-600" size={24} />
@@ -517,9 +549,8 @@ export default function PredictionPage() {
                 </div>
               </CardContent>
             </Card>
-            </div>
 
-            {/* OFFERSTUDIO 广告信息 - 移到截图区域外 */}
+            {/* OFFERSTUDIO 广告信息 */}
             <Card className="bg-gradient-to-r from-orange-50 to-yellow-50 backdrop-blur-xl border-orange-200/50 shadow-lg">
               <CardContent className="p-4 sm:p-6">
                 <div className="text-center space-y-3 sm:space-y-4">
@@ -547,6 +578,8 @@ export default function PredictionPage() {
                 </div>
               </CardContent>
             </Card>
+            
+            </div>
 
             {/* 底部按钮组 */}
             <div className="space-y-4 px-2">
