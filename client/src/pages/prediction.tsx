@@ -517,9 +517,38 @@ export default function PredictionPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* OFFERSTUDIO 广告信息 - 包含在截图中，优化显示格式 */}
+            <Card className="bg-gradient-to-r from-orange-50 to-yellow-50 backdrop-blur-xl border-orange-200/50 shadow-lg mt-4">
+              <CardContent className="p-4">
+                <div className="text-center space-y-3">
+                  <div className="inline-flex items-center justify-center w-8 h-8 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl">
+                    <span className="text-white font-bold text-base">O</span>
+                  </div>
+                  <h3 className="text-base font-bold text-gray-900">OFFERSTUDIO</h3>
+                  <p className="text-gray-700 text-xs leading-relaxed px-2">
+                    专业帮助申请美本的同学们制作个人网站和活动网站
+                  </p>
+                  <div className="flex flex-col gap-2 items-center">
+                    <a 
+                      href="https://offerstudiowebsite.wixstudio.com/official" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center w-24 h-8 bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-md text-xs font-medium whitespace-nowrap"
+                    >
+                      🌐 访问官网
+                    </a>
+                    <div className="flex flex-col items-center gap-1 text-gray-600 text-xs">
+                      <span>💬 微信联系</span>
+                      <span className="font-mono bg-orange-100 px-2 py-1 rounded text-orange-800 font-semibold text-xs">TauPsc-0317</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
             </div>
 
-            {/* OFFERSTUDIO 广告信息 - 移到截图区域外 */}
+            {/* 页面显示的OFFERSTUDIO广告 - 不在截图中 */}
             <Card className="bg-gradient-to-r from-orange-50 to-yellow-50 backdrop-blur-xl border-orange-200/50 shadow-lg">
               <CardContent className="p-4 sm:p-6">
                 <div className="text-center space-y-3 sm:space-y-4">
