@@ -57,7 +57,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             academicFortune: "暂无法提供命理建议",
             recommendations: "请稍后重试或联系客服"
           },
-          universityPredictions: universityResponse,
+          universityPredictions: universityResponse || [],
           sessionId,
           error: "GuguData API调用失败：" + fortuneError.message
         };
@@ -70,8 +70,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // 正常返回合并结果
       const result = {
-        fortuneAnalysis: fortuneResponse,
-        universityPredictions: universityResponse,
+        fortuneAnalysis: fortuneResponse || {
+          analysis: "命理分析暂时无法获取",
+          fiveElements: "暂无",
+          academicFortune: "暂无",
+          recommendations: "暂无"
+        },
+        universityPredictions: universityResponse || [],
         sessionId
       };
       
@@ -677,14 +682,15 @@ ${isBusiness ? `
 - 不同出生时间的学生应该得到完全不同的五行分析结果
 - 禁止所有学生都被分析为"火旺"或任何单一五行属性
 
-请返回准确的JSON格式数组。`;
+重要：必须返回纯净的JSON数组，不要使用markdown代码块包装，不要添加任何解释文字。格式示例：
+[{"name":"University Name",...}]`;
 
     const response = await axios.post("https://api.deepseek.com/v1/chat/completions", {
       model: "deepseek-chat",
       messages: [
         {
           role: "system",
-          content: "你是一个专业的美国大学录取顾问，擅长根据学生背景预测录取可能性。请返回准确的JSON格式数据。"
+          content: "你是一个专业的美国大学录取顾问，擅长根据学生背景预测录取可能性。请严格按照要求返回纯净的JSON格式数据，不要包含任何markdown标记、代码块或额外文字说明。"
         },
         {
           role: "user", 
@@ -707,43 +713,88 @@ ${isBusiness ? `
     const aiResponse = response.data.choices[0].message.content;
     console.log("DeepSeek原始回复:", aiResponse);
     
-    // 尝试解析JSON
+    // 强化的JSON解析逻辑
+    let universities: any[] = [];
+    
     try {
-      const universities = JSON.parse(aiResponse);
-      
+      // 首先尝试直接解析
+      universities = JSON.parse(aiResponse);
       if (Array.isArray(universities) && universities.length > 0) {
-        console.log(`成功解析到${universities.length}所大学推荐`);
-        return universities.slice(0, 15); // 限制最多15所
-      } else {
-        throw new Error("AI返回数据格式不正确");
+        console.log(`成功直接解析到${universities.length}所大学推荐`);
+        return universities.slice(0, 15);
       }
-    } catch (parseError) {
-      console.error("解析AI回复失败:", parseError);
-      console.log("尝试提取JSON部分...");
+    } catch (directParseError) {
+      console.log("直接解析失败，尝试提取JSON...");
       
-      // 尝试从回复中提取JSON部分，处理markdown格式
-      let jsonContent = aiResponse;
+      // 尝试多种方式提取JSON
+      let jsonContent = aiResponse.trim();
       
-      // 移除markdown代码块标记
+      // 方法1: 移除markdown代码块
       if (jsonContent.includes('```json')) {
-        jsonContent = jsonContent.replace(/```json\s*\n?/g, '').replace(/\n?\s*```/g, '');
+        jsonContent = jsonContent.replace(/```json\s*/g, '').replace(/\s*```/g, '');
       } else if (jsonContent.includes('```')) {
-        jsonContent = jsonContent.replace(/```\s*\n?/g, '').replace(/\n?\s*```/g, '');
+        jsonContent = jsonContent.replace(/```[a-zA-Z]*\s*/g, '').replace(/\s*```/g, '');
       }
       
-      const jsonMatch = jsonContent.match(/\[[\s\S]*\]/);
-      if (jsonMatch) {
-        try {
-          const universities = JSON.parse(jsonMatch[0]);
-          console.log(`从文本中提取并解析到${universities.length}所大学`);
-          return universities.slice(0, 15);
-        } catch (e) {
-          console.error("提取JSON也失败:", e);
+      // 方法2: 使用更宽泛的正则表达式匹配JSON数组
+      const jsonMatches = [
+        jsonContent.match(/\[[\s\S]*?\]/g),
+        jsonContent.match(/\[[\s\S]*?\]/g),
+        aiResponse.match(/\[[\s\S]*?\]/g)
+      ];
+      
+      for (const matches of jsonMatches) {
+        if (matches && matches.length > 0) {
+          for (const match of matches) {
+            try {
+              const parsed = JSON.parse(match);
+              if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].name) {
+                console.log(`成功提取并解析到${parsed.length}所大学`);
+                return parsed.slice(0, 15);
+              }
+            } catch (e) {
+              continue; // 尝试下一个匹配
+            }
+          }
         }
       }
       
-      // 如果AI解析失败，使用默认推荐但保留AI的部分分析内容
-      console.log("使用默认大学推荐逻辑");
+      // 方法3: 尝试修复常见的JSON格式问题
+      try {
+        // 移除可能的前后缀文本
+        const lines = aiResponse.split('\n');
+        let jsonStartIndex = -1;
+        let jsonEndIndex = -1;
+        
+        for (let i = 0; i < lines.length; i++) {
+          if (lines[i].trim().startsWith('[')) {
+            jsonStartIndex = i;
+            break;
+          }
+        }
+        
+        for (let i = lines.length - 1; i >= 0; i--) {
+          if (lines[i].trim().endsWith(']')) {
+            jsonEndIndex = i;
+            break;
+          }
+        }
+        
+        if (jsonStartIndex !== -1 && jsonEndIndex !== -1) {
+          const jsonLines = lines.slice(jsonStartIndex, jsonEndIndex + 1);
+          const cleanJson = jsonLines.join('\n');
+          universities = JSON.parse(cleanJson);
+          
+          if (Array.isArray(universities) && universities.length > 0) {
+            console.log(`通过行解析成功提取到${universities.length}所大学`);
+            return universities.slice(0, 15);
+          }
+        }
+      } catch (lineParseError) {
+        console.log("行解析也失败");
+      }
+      
+      console.log("所有JSON解析方法都失败，使用默认推荐");
       return getDefaultUniversityPredictions(data);
     }
     
