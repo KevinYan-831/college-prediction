@@ -95,6 +95,7 @@ export default function PredictionPage() {
   });
 
   const onSubmit = (data: PredictionRequest) => {
+    console.log("Form submitted successfully with data:", data);
     setIsLoading(true);
     setResults(null);
     setLoadingProgress(0);
@@ -249,7 +250,14 @@ export default function PredictionPage() {
           </CardHeader>
           <CardContent className="p-4 sm:p-8">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
+                console.log("Form validation failed:", errors);
+                toast({
+                  title: "表单验证失败",
+                  description: "请检查并填写所有必填项",
+                  variant: "destructive"
+                });
+              })} className="space-y-6">
                 {/* 生辰八字输入 */}
                 <div className="bg-gradient-to-r from-orange-500/10 to-yellow-500/10 backdrop-blur-sm rounded-2xl p-3 sm:p-6 border border-orange-200/30">
                   <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center">
@@ -813,21 +821,21 @@ function DreamUniversitiesField({ form }: { form: any }) {
 
   const addUniversity = () => {
     const current = form.getValues("dreamUniversities");
-    form.setValue("dreamUniversities", [...current, ""]);
+    form.setValue("dreamUniversities", [...current, ""], { shouldValidate: true });
   };
 
   const removeUniversity = (index: number) => {
     const current = form.getValues("dreamUniversities");
     if (current.length > 1) {
       const updated = current.filter((_: string, i: number) => i !== index);
-      form.setValue("dreamUniversities", updated);
+      form.setValue("dreamUniversities", updated, { shouldValidate: true });
     }
   };
 
   const updateUniversity = (index: number, value: string) => {
     const current = form.getValues("dreamUniversities");
     current[index] = value;
-    form.setValue("dreamUniversities", [...current]);
+    form.setValue("dreamUniversities", [...current], { shouldValidate: true });
   };
 
   // 热门大学列表供快速选择
@@ -845,13 +853,22 @@ function DreamUniversitiesField({ form }: { form: any }) {
     "University of Washington", "University of Illinois Urbana-Champaign"
   ];
 
+  const fieldError = form.formState.errors.dreamUniversities;
+
   return (
     <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 backdrop-blur-sm rounded-2xl p-6 border border-orange-200/30">
       <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
         <Star className="text-amber-600 mr-3" size={20} />
         你的心仪院校列表
       </h3>
-      
+
+      {fieldError && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4" />
+          <span>{fieldError.message as string}</span>
+        </div>
+      )}
+
       <div className="space-y-4">
         {dreamUniversities.map((university: string, index: number) => (
           <div key={index} className="flex items-center gap-3">
