@@ -653,7 +653,7 @@ export default function PredictionPage() {
                     </a>
                     <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-gray-600 text-xs sm:text-sm">
                       <span>💬 微信联系：</span>
-                      <span className="font-mono bg-orange-100 px-2 sm:px-3 py-1 rounded-lg text-orange-800 font-semibold text-xs sm:text-sm">TauPsc-0317</span>
+                      <span className="font-mono bg-orange-100 px-2 sm:px-3 py-1 rounded-lg text-orange-800 font-semibold text-xs sm:text-sm">OFFERSTUDIO2025</span>
                     </div>
                   </div>
                 </div>
