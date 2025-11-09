@@ -1,0 +1,417 @@
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI美国大学录取预测 - 智能分析系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: '#2563EB',
+                    secondary: '#DC2626',
+                    accent: '#F59E0B'
+                }
+            }
+        }
+    };
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- @COMPONENT: Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-4xl mx-auto px-4 py-6">
+            <div class="text-center">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                    <i class="fas fa-graduation-cap text-primary mr-3"></i>
+                    AI美国大学录取预测系统
+                </h1>
+                <p class="text-gray-600">结合传统命理与现代AI，为您提供精准的大学录取预测</p>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: Header -->
+
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <!-- @COMPONENT: InputForm -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
+                <i class="fas fa-edit text-primary mr-3"></i>
+                输入信息
+            </h2>
+            
+            <form id="predictionForm" class="space-y-6">
+                <!-- 生辰八字输入 -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-calendar-alt text-secondary mr-2"></i>
+                        生辰八字信息
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <div>
+                            <label for="year" class="block text-sm font-medium text-gray-700 mb-1">出生年份</label>
+                            <input type="number" id="year" name="year" min="1950" max="2010" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                   placeholder="如：2000" data-mock="true">
+                        </div>
+                        <div>
+                            <label for="month" class="block text-sm font-medium text-gray-700 mb-1">出生月份</label>
+                            <select id="month" name="month" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <option value="">选择月份</option>
+                                <option value="1">1月</option>
+                                <option value="2">2月</option>
+                                <option value="3">3月</option>
+                                <option value="4">4月</option>
+                                <option value="5">5月</option>
+                                <option value="6">6月</option>
+                                <option value="7">7月</option>
+                                <option value="8">8月</option>
+                                <option value="9">9月</option>
+                                <option value="10">10月</option>
+                                <option value="11">11月</option>
+                                <option value="12">12月</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="day" class="block text-sm font-medium text-gray-700 mb-1">出生日期</label>
+                            <input type="number" id="day" name="day" min="1" max="31"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                   placeholder="如：15" data-mock="true">
+                        </div>
+                        <div>
+                            <label for="hour" class="block text-sm font-medium text-gray-700 mb-1">出生时辰</label>
+                            <input type="number" id="hour" name="hour" min="0" max="23"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                   placeholder="如：14" data-mock="true">
+                        </div>
+                        <div>
+                            <label for="minute" class="block text-sm font-medium text-gray-700 mb-1">出生分钟</label>
+                            <input type="number" id="minute" name="minute" min="0" max="59"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                   placeholder="如：30" data-mock="true">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 基本信息 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="gender" class="block text-sm font-medium text-gray-700 mb-2">性别</label>
+                        <select id="gender" name="gender" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="">请选择性别</option>
+                            <option value="male">男</option>
+                            <option value="female">女</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="major" class="block text-sm font-medium text-gray-700 mb-2">申请专业</label>
+                        <input type="text" id="major" name="major"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="如：计算机科学" data-mock="true">
+                    </div>
+                </div>
+
+                <!-- 语言成绩 -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-language text-accent mr-2"></i>
+                        语言成绩
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="testType" class="block text-sm font-medium text-gray-700 mb-2">考试类型</label>
+                            <select id="testType" name="testType" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <option value="">选择考试类型</option>
+                                <option value="toefl">托福 (TOEFL)</option>
+                                <option value="ielts">雅思 (IELTS)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="score" class="block text-sm font-medium text-gray-700 mb-2">分数</label>
+                            <input type="number" id="score" name="score"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                   placeholder="如：105" data-mock="true">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 申请材料水平 -->
+                <div>
+                    <label for="materialLevel" class="block text-sm font-medium text-gray-700 mb-2">申请材料整体水平</label>
+                    <select id="materialLevel" name="materialLevel" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option value="">请选择整体水平</option>
+                        <option value="very-poor">极差</option>
+                        <option value="poor">较差</option>
+                        <option value="average">一般</option>
+                        <option value="good">较好</option>
+                        <option value="excellent">极好</option>
+                    </select>
+                </div>
+
+                <!-- 提交按钮 -->
+                <div class="pt-4">
+                    <button type="submit" id="submitBtn" 
+                            class="w-full bg-primary hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-md transition duration-200 flex items-center justify-center"
+                            data-event="click:handleSubmit">
+                        <i class="fas fa-magic mr-2"></i>
+                        开始AI预测分析
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- @END_COMPONENT: InputForm -->
+
+        <!-- @COMPONENT: LoadingState -->
+        <div id="loadingSection" class="hidden bg-white rounded-lg shadow-md p-8 mb-8">
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+                    <i class="fas fa-spinner fa-spin text-2xl text-primary"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">AI正在分析中...</h3>
+                <p class="text-gray-600 mb-4">正在并行调用命理分析和大学预测API</p>
+                <div class="space-y-2">
+                    <div class="flex items-center justify-center space-x-2">
+                        <div id="guguStatus" class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                        <span class="text-sm text-gray-600">命理分析API</span>
+                    </div>
+                    <div class="flex items-center justify-center space-x-2">
+                        <div id="deepseekStatus" class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                        <span class="text-sm text-gray-600">大学预测API</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: LoadingState -->
+
+        <!-- @COMPONENT: ResultsSection -->
+        <div id="resultsSection" class="hidden space-y-6">
+            <!-- 命理分析结果 -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4">
+                    <h3 class="text-xl font-semibold text-white flex items-center">
+                        <i class="fas fa-yin-yang mr-3"></i>
+                        命理分析结果
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div id="fortuneResult" class="prose max-w-none">
+                        <!-- API返回的命理分析内容将显示在这里 -->
+                        <div data-mock="true" class="space-y-4">
+                            <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded">
+                                <h4 class="font-semibold text-red-800 mb-2">五行分析</h4>
+                                <p class="text-red-700">根据您的生辰八字，五行属性为木火土金水的平衡组合...</p>
+                            </div>
+                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+                                <h4 class="font-semibold text-yellow-800 mb-2">学业运势</h4>
+                                <p class="text-yellow-700">命盘显示您在学术方面具有较强的潜力，适合深造...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 大学录取预测结果 -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+                    <h3 class="text-xl font-semibold text-white flex items-center">
+                        <i class="fas fa-university mr-3"></i>
+                        美国大学录取预测
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div id="universityResult">
+                        <!-- API返回的大学预测列表将显示在这里 -->
+                        <div data-mock="true" class="space-y-4">
+                            <!-- @MAP: universities.map(university => ( -->
+                            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="font-semibold text-lg text-gray-900">哈佛大学</h4>
+                                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                                        录取可能性: 75%
+                                    </span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-2">Harvard University - 计算机科学专业</p>
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>
+                                    <span>剑桥，马萨诸塞州</span>
+                                </div>
+                            </div>
+                            <!-- @END_MAP )) -->
+                            
+                            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="font-semibold text-lg text-gray-900">斯坦福大学</h4>
+                                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                                        录取可能性: 68%
+                                    </span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-2">Stanford University - 计算机科学专业</p>
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>
+                                    <span>斯坦福，加利福尼亚州</span>
+                                </div>
+                            </div>
+
+                            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="font-semibold text-lg text-gray-900">麻省理工学院</h4>
+                                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
+                                        录取可能性: 45%
+                                    </span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-2">MIT - 计算机科学专业</p>
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>
+                                    <span>剑桥，马萨诸塞州</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 重新预测按钮 -->
+            <div class="text-center">
+                <button id="resetBtn" 
+                        class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-6 rounded-md transition duration-200"
+                        data-event="click:handleReset">
+                    <i class="fas fa-redo mr-2"></i>
+                    重新预测
+                </button>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: ResultsSection -->
+    </main>
+
+    <!-- @COMPONENT: Footer -->
+    <footer class="bg-white border-t mt-12">
+        <div class="max-w-4xl mx-auto px-4 py-6">
+            <div class="text-center text-gray-600">
+                <p class="mb-2">© 2024 AI美国大学录取预测系统</p>
+                <p class="text-sm">结合传统智慧与现代科技，为您的求学之路保驾护航</p>
+            </div>
+        </div>
+    </footer>
+    <!-- @END_COMPONENT: Footer -->
+
+    <script>
+        (function() {
+            // TODO: Implement business logic, API calls, and state management
+            
+            // @STATE: isLoading:boolean = false
+            // @STATE: currentResults:object = null
+            
+            const form = document.getElementById('predictionForm');
+            const loadingSection = document.getElementById('loadingSection');
+            const resultsSection = document.getElementById('resultsSection');
+            const submitBtn = document.getElementById('submitBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            
+            // @FUNCTIONALITY: Form validation and submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 表单验证
+                const requiredFields = ['year', 'month', 'day', 'hour', 'minute', 'gender', 'major', 'testType', 'score', 'materialLevel'];
+                let isValid = true;
+                
+                requiredFields.forEach(field => {
+                    const element = document.getElementById(field);
+                    if (!element.value.trim()) {
+                        element.classList.add('border-red-500');
+                        isValid = false;
+                    } else {
+                        element.classList.remove('border-red-500');
+                    }
+                });
+                
+                if (!isValid) {
+                    alert('请填写所有必填字段');
+                    return;
+                }
+                
+                // 显示加载状态
+                showLoading();
+                
+                // TODO: 实际的API调用逻辑
+                // 模拟API调用
+                simulateApiCalls();
+            });
+            
+            function showLoading() {
+                loadingSection.classList.remove('hidden');
+                resultsSection.classList.add('hidden');
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50');
+            }
+            
+            function hideLoading() {
+                loadingSection.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50');
+            }
+            
+            // @FUNCTIONALITY: Simulate parallel API calls
+            function simulateApiCalls() {
+                const guguStatus = document.getElementById('guguStatus');
+                const deepseekStatus = document.getElementById('deepseekStatus');
+                
+                // 模拟第一个API调用
+                setTimeout(() => {
+                    guguStatus.classList.remove('bg-gray-300');
+                    guguStatus.classList.add('bg-green-500');
+                }, 1500);
+                
+                // 模拟第二个API调用
+                setTimeout(() => {
+                    deepseekStatus.classList.remove('bg-gray-300');
+                    deepseekStatus.classList.add('bg-green-500');
+                    
+                    // 所有API调用完成
+                    setTimeout(() => {
+                        hideLoading();
+                        showResults();
+                    }, 500);
+                }, 2000);
+            }
+            
+            function showResults() {
+                resultsSection.classList.remove('hidden');
+                // 滚动到结果区域
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            // @FUNCTIONALITY: Reset form and hide results
+            resetBtn.addEventListener('click', function() {
+                form.reset();
+                resultsSection.classList.add('hidden');
+                
+                // 重置状态指示器
+                document.getElementById('guguStatus').className = 'w-3 h-3 bg-gray-300 rounded-full';
+                document.getElementById('deepseekStatus').className = 'w-3 h-3 bg-gray-300 rounded-full';
+                
+                // 滚动回表单顶部
+                form.scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            // @FUNCTIONALITY: Real-time form validation
+            const inputs = form.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    if (this.hasAttribute('required') && !this.value.trim()) {
+                        this.classList.add('border-red-500');
+                    } else {
+                        this.classList.remove('border-red-500');
+                    }
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

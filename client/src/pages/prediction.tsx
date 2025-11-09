@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -12,11 +12,15 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { predictionRequestSchema, type PredictionRequest, type PredictionResult } from "@shared/schema";
-import { GraduationCap, Calendar, Languages, Edit, Wind, University, Loader2, RotateCcw, MapPin, FileText, Download, Plus, X, Star, AlertTriangle, Info } from "lucide-react";
+import { GraduationCap, Calendar, Languages, Edit, Wind, University, Loader2, RotateCcw, MapPin, FileText, Download, Plus, X, Star, AlertTriangle, Info, Lock, LogOut, User, Sparkles } from "lucide-react";
 import * as htmlToImage from 'html-to-image';
+import { useAuth } from "@/contexts/AuthContext";
+import { UnlockCodeInput } from "@/components/UnlockCodeInput";
 
 export default function PredictionPage() {
+  const { user, signOut, checkIfPredictionUnlocked } = useAuth();
   const [results, setResults] = useState<PredictionResult | null>(null);
+  const [isUnlocked, setIsUnlocked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingMessage, setLoadingMessage] = useState("");
@@ -43,6 +47,28 @@ export default function PredictionPage() {
     }
   });
 
+  // Check unlock status when results change
+  useEffect(() => {
+    const checkUnlock = async () => {
+      if (results?.sessionId) {
+        const unlocked = await checkIfPredictionUnlocked(results.sessionId);
+        setIsUnlocked(unlocked);
+      }
+    };
+    checkUnlock();
+  }, [results, checkIfPredictionUnlocked]);
+
+  const handleUnlockSuccess = async () => {
+    if (results?.sessionId) {
+      const unlocked = await checkIfPredictionUnlocked(results.sessionId);
+      setIsUnlocked(unlocked);
+    }
+  };
+
+  const handleLogout = async () => {
+    await signOut();
+  };
+
   const predictionMutation = useMutation({
     mutationFn: async (data: PredictionRequest) => {
       const response = await apiRequest("POST", "/api/predict", data);
@@ -51,6 +77,7 @@ export default function PredictionPage() {
     onSuccess: (data: PredictionResult) => {
       setResults(data);
       setIsLoading(false);
+      setIsUnlocked(false); // Reset unlock status for new prediction
       toast({
         title: "预测完成",
         description: "AI分析结果已生成",
@@ -179,6 +206,25 @@ export default function PredictionPage() {
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-yellow-200/40 to-amber-200/40 rounded-full blur-3xl"></div>
       
       <div className="relative z-10 container mx-auto px-2 sm:px-6 py-4 sm:py-8">
+        {/* User Profile Header */}
+        <div className="flex justify-end mb-4 px-2">
+          <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg border border-orange-200/50">
+            <div className="flex items-center gap-2">
+              <User className="h-4 w-4 text-amber-600" />
+              <span className="text-sm font-medium text-gray-700">{user?.email}</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="h-8 px-3 hover:bg-orange-100 rounded-full"
+            >
+              <LogOut className="h-4 w-4 mr-1" />
+              退出
+            </Button>
+          </div>
+        </div>
+
         <header className="text-center mb-6 sm:mb-12 px-2">
           <div className="inline-flex items-center justify-center mb-4 sm:mb-6">
             <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-2xl flex items-center justify-center shadow-2xl">
@@ -499,15 +545,50 @@ export default function PredictionPage() {
             </Card>
 
             {/* 大学录取预测结果 */}
-            <Card className="bg-white/90 backdrop-blur-xl border-orange-200/50 shadow-2xl overflow-hidden">
+            <Card className="bg-white/90 backdrop-blur-xl border-orange-200/50 shadow-2xl overflow-hidden relative">
               <CardHeader className="bg-gradient-to-r from-yellow-500/10 to-amber-500/10 backdrop-blur-xl border-b border-orange-200/30">
-                <CardTitle className="flex items-center text-gray-900 text-xl">
-                  <University className="mr-3 text-yellow-600" size={24} />
-                  美国大学录取预测
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center text-gray-900 text-xl">
+                    <University className="mr-3 text-yellow-600" size={24} />
+                    美国大学录取预测
+                  </CardTitle>
+                  {!isUnlocked && (
+                    <div className="flex items-center gap-2 text-amber-600">
+                      <Lock className="h-5 w-5" />
+                      <span className="text-sm font-semibold">需解锁</span>
+                    </div>
+                  )}
+                </div>
               </CardHeader>
-              <CardContent className="p-4 sm:p-8">
-                <div className="space-y-4 sm:space-y-6">
+              <CardContent className="p-4 sm:p-8 relative">
+                {/* Unlock overlay */}
+                {!isUnlocked && (
+                  <div className="absolute inset-0 z-20 backdrop-blur-md bg-white/60 flex items-center justify-center p-6">
+                    <div className="text-center space-y-6 max-w-md">
+                      <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full shadow-2xl">
+                        <Lock className="h-10 w-10 text-white" />
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="text-2xl font-bold text-gray-900">解锁完整AI大学预测</h3>
+                        <p className="text-gray-600">
+                          包含{results.universityPredictions.length}所院校的详细录取分析、命理契合度评估及专业建议
+                        </p>
+                      </div>
+                      <div className="space-y-3 pt-4">
+                        <UnlockCodeInput
+                          sessionId={results.sessionId || ''}
+                          onUnlockSuccess={handleUnlockSuccess}
+                        />
+                        <div className="flex items-start gap-2 text-sm text-amber-700 bg-amber-50 p-3 rounded-lg">
+                          <Sparkles className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                          <p>联系管理员获取您的专属解锁码，每个解锁码与您的账户绑定</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className={`space-y-4 sm:space-y-6 ${!isUnlocked ? 'filter blur-sm' : ''}`}>
                   {/* 显示所有大学 */}
                   {results.universityPredictions.map((university, index) => (
                     <div key={index} className="bg-white/80 backdrop-blur-lg border border-orange-200/50 rounded-2xl p-4 sm:p-6 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
