@@ -111,7 +111,7 @@ export function UnlockCodeInput({ sessionId, onUnlockSuccess, children }: Unlock
               <div className="text-sm">
                 <p className="font-semibold text-amber-900">如何获取解锁码？</p>
                 <p className="text-amber-700 mt-1">
-                  请联系管理员获取解锁码。解锁后即可查看完整的大学预测分析。
+                  请联系管理员获取解锁码。解锁后即可查看完整的大学预测分析。VX: OFFERSTUDIO2025
                 </p>
               </div>
             </div>

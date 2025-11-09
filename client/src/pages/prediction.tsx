@@ -442,7 +442,7 @@ export default function PredictionPage() {
                     </a>
                     <div className="flex items-center gap-2 text-gray-600 text-sm">
                       <span>💬 微信联系创始人：</span>
-                      <span className="font-mono bg-orange-100 px-2 py-1 rounded text-orange-800 font-semibold">TauPsc-0317</span>
+                      <span className="font-mono bg-orange-100 px-2 py-1 rounded text-orange-800 font-semibold">OFFERSTUDIO2025</span>
                     </div>
                   </div>
                 </div>
