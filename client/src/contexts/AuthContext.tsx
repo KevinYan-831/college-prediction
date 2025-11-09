@@ -87,16 +87,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      // First, verify the unlock code exists and belongs to this user
+      // First, verify the unlock code exists (not user-specific)
       const { data: codeData, error: codeError } = await supabase
         .from('unlock_codes')
         .select('*')
         .eq('code', unlockCode.toUpperCase().trim())
-        .eq('user_id', user.id)
         .single();
 
       if (codeError || !codeData) {
-        return { success: false, error: '无效的解锁码或解锁码不属于您的账户' };
+        return { success: false, error: '无效的解锁码' };
       }
 
       // Check if code is already used
@@ -109,13 +108,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, error: '此解锁码已过期' };
       }
 
-      // Check if this prediction is already unlocked
+      // Check if this prediction is already unlocked for this user
       const alreadyUnlocked = await checkIfPredictionUnlocked(sessionId);
       if (alreadyUnlocked) {
         return { success: false, error: '此预测已解锁' };
       }
 
-      // Create unlock record
+      // Mark code as used (atomic update to prevent race conditions)
+      const { error: updateError } = await supabase
+        .from('unlock_codes')
+        .update({
+          is_used: true,
+          used_at: new Date().toISOString(),
+          user_id: user.id,
+        })
+        .eq('id', codeData.id)
+        .eq('is_used', false);
+
+      if (updateError) {
+        return { success: false, error: '此解锁码已被使用' };
+      }
+
+      // Create unlock record for this user
       const { error: unlockError } = await supabase
         .from('user_unlocked_predictions')
         .insert({
@@ -127,20 +141,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (unlockError) {
         console.error('Error creating unlock record:', unlockError);
         return { success: false, error: '解锁失败，请重试' };
-      }
-
-      // Mark code as used
-      const { error: updateError } = await supabase
-        .from('unlock_codes')
-        .update({
-          is_used: true,
-          used_at: new Date().toISOString(),
-        })
-        .eq('id', codeData.id);
-
-      if (updateError) {
-        console.error('Error updating code status:', updateError);
-        // Don't fail the unlock if just the status update fails
       }
 
       return { success: true };

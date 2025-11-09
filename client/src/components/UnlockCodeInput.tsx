@@ -82,7 +82,7 @@ export function UnlockCodeInput({ sessionId, onUnlockSuccess, children }: Unlock
             解锁AI大学预测
           </DialogTitle>
           <DialogDescription>
-            输入您的专属解锁码以查看完整的AI大学录取预测报告
+            输入解锁码以查看完整的AI大学录取预测报告
           </DialogDescription>
         </DialogHeader>
 
@@ -111,7 +111,7 @@ export function UnlockCodeInput({ sessionId, onUnlockSuccess, children }: Unlock
               <div className="text-sm">
                 <p className="font-semibold text-amber-900">如何获取解锁码？</p>
                 <p className="text-amber-700 mt-1">
-                  请联系管理员获取您的专属解锁码。每个解锁码仅限使用一次，与您的账户绑定。
+                  请联系管理员获取解锁码。解锁后即可查看完整的大学预测分析。
                 </p>
               </div>
             </div>
