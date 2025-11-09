@@ -257,10 +257,20 @@ export default function PredictionPage() {
           <CardContent className="p-4 sm:p-8">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
-                console.log("Form validation failed:", errors);
+                console.log("=== FORM VALIDATION FAILED ===");
+                console.log("All errors:", errors);
+                console.log("Current form values:", form.getValues());
+
+                // Show specific error messages
+                const errorMessages = Object.entries(errors).map(([field, error]: [string, any]) => {
+                  return `${field}: ${error.message || JSON.stringify(error)}`;
+                }).join('\n');
+
+                console.log("Error messages:\n", errorMessages);
+
                 toast({
                   title: "表单验证失败",
-                  description: "请检查并填写所有必填项",
+                  description: errorMessages || "请检查并填写所有必填项",
                   variant: "destructive"
                 });
               })} className="space-y-6">

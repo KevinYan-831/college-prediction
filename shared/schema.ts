@@ -3,10 +3,10 @@ import { pgTable, serial, text, integer, timestamp, jsonb } from "drizzle-orm/pg
 import { createInsertSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 
-// 预测请求数据结构  
+// 预测请求数据结构
 export const predictionRequestSchema = z.object({
   // 生辰八字
-  year: z.number().min(1950).max(2010),
+  year: z.number().min(1950).max(new Date().getFullYear()),
   month: z.number().min(1).max(12),
   day: z.number().min(1).max(31),
   hour: z.number().min(0).max(23),
