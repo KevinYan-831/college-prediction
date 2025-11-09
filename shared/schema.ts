@@ -19,9 +19,7 @@ export const predictionRequestSchema = z.object({
   major: z.string().min(1),
   
   // 心仪院校列表
-  dreamUniversities: z.array(z.string()).max(20).default([])
-    .transform(arr => arr.filter(s => s.trim() !== ""))
-    .refine(arr => arr.length >= 1, { message: "请至少填写一所心仪院校" })
+  dreamUniversities: z.array(z.string()).min(1).max(20)
 });
 
 // 命理分析结果

@@ -95,7 +95,13 @@ export default function PredictionPage() {
   });
 
   const onSubmit = (data: PredictionRequest) => {
-    console.log("Form submitted successfully with data:", data);
+    // Filter out empty universities before submitting
+    const filteredData = {
+      ...data,
+      dreamUniversities: data.dreamUniversities.filter(u => u.trim() !== "")
+    };
+
+    console.log("Form submitted successfully with data:", filteredData);
     setIsLoading(true);
     setResults(null);
     setLoadingProgress(0);
@@ -130,7 +136,7 @@ export default function PredictionPage() {
       setLoadingMessage(messages[Math.floor(Math.random() * messages.length)]);
     }, 2500);
     
-    predictionMutation.mutate(data, {
+    predictionMutation.mutate(filteredData, {
       onSettled: () => {
         clearInterval(progressInterval);
         clearInterval(messageInterval);
