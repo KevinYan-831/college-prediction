@@ -61,89 +61,67 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const checkIfPredictionUnlocked = async (sessionId: string): Promise<boolean> => {
-    if (!user) return false;
+    if (!user || !session) return false;
 
-    const { data, error } = await supabase
-      .from('user_unlocked_predictions')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('session_id', sessionId)
-      .single();
+    try {
+      const token = (session as any).access_token as string | undefined;
+      if (!token) return false;
 
-    if (error) {
+      const resp = await fetch(`/api/unlocked/${encodeURIComponent(sessionId)}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!resp.ok) {
+        // treat non-OK as locked
+        return false;
+      }
+
+      const body = await resp.json().catch(() => ({ unlocked: false }));
+      return !!body.unlocked;
+    } catch (error) {
       console.error('Error checking unlock status:', error);
       return false;
     }
-
-    return !!data;
   };
 
   const unlockPrediction = async (
     sessionId: string,
     unlockCode: string
   ): Promise<{ success: boolean; error?: string }> => {
-    if (!user) {
+    if (!user || !session) {
       return { success: false, error: 'User not authenticated' };
     }
 
     try {
-      // First, verify the unlock code exists (not user-specific)
-      const { data: codeData, error: codeError } = await supabase
-        .from('unlock_codes')
-        .select('*')
-        .eq('code', unlockCode.toUpperCase().trim())
-        .single();
-
-      if (codeError || !codeData) {
-        return { success: false, error: '无效的解锁码' };
+      // Call server-side unlock endpoint which uses the service-role key
+      const token = (session as any).access_token as string | undefined;
+      if (!token) {
+        return { success: false, error: 'User not authenticated' };
       }
 
-      // Check if code is already used
-      if (codeData.is_used) {
-        return { success: false, error: '此解锁码已被使用' };
+      const resp = await fetch('/api/unlock', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ sessionId, unlockCode }),
+      });
+
+      const body = await resp.json().catch(() => ({}));
+
+      if (!resp.ok) {
+        return { success: false, error: body?.error || '解锁失败' };
       }
 
-      // Check if code is expired
-      if (codeData.expires_at && new Date(codeData.expires_at) < new Date()) {
-        return { success: false, error: '此解锁码已过期' };
+      if (body && body.success) {
+        return { success: true };
       }
 
-      // Check if this prediction is already unlocked for this user
-      const alreadyUnlocked = await checkIfPredictionUnlocked(sessionId);
-      if (alreadyUnlocked) {
-        return { success: false, error: '此预测已解锁' };
-      }
-
-      // Mark code as used (atomic update to prevent race conditions)
-      const { error: updateError } = await supabase
-        .from('unlock_codes')
-        .update({
-          is_used: true,
-          used_at: new Date().toISOString(),
-          user_id: user.id,
-        })
-        .eq('id', codeData.id)
-        .eq('is_used', false);
-
-      if (updateError) {
-        return { success: false, error: '此解锁码已被使用' };
-      }
-
-      // Create unlock record for this user
-      const { error: unlockError } = await supabase
-        .from('user_unlocked_predictions')
-        .insert({
-          user_id: user.id,
-          session_id: sessionId,
-          unlock_code_id: codeData.id,
-        });
-
-      if (unlockError) {
-        console.error('Error creating unlock record:', unlockError);
-        return { success: false, error: '解锁失败，请重试' };
-      }
-
-      return { success: true };
+      return { success: false, error: body?.error || '解锁失败' };
     } catch (error) {
       console.error('Unlock error:', error);
       return { success: false, error: '解锁过程中发生错误' };

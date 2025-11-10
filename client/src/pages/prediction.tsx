@@ -75,6 +75,7 @@ export default function PredictionPage() {
       return response.json();
     },
     onSuccess: (data: PredictionResult) => {
+      console.log('API result:', data);
       setResults(data);
       setIsLoading(false);
       setIsUnlocked(false); // Reset unlock status for new prediction
@@ -526,15 +527,45 @@ export default function PredictionPage() {
                 <div className="space-y-6">
                   <div className="bg-gradient-to-r from-orange-50 to-red-50 border-l-4 border-orange-400 p-4 sm:p-6 rounded-2xl backdrop-blur-sm">
                     <h4 className="font-semibold text-orange-700 mb-3 text-base sm:text-lg">整体分析</h4>
-                    {results.fortuneAnalysis.analysis ? (
-                      <div className="text-gray-800 leading-7 text-sm sm:text-base whitespace-pre-line break-words max-w-none"
-                           style={{ lineHeight: '1.8', wordBreak: 'break-word', textAlign: 'justify' }}>
-                        {results.fortuneAnalysis.analysis}
-                      </div>
-                    ) : (
-                      <div className="text-gray-500 text-sm italic">分析数据暂时无法显示，请稍后重试</div>
-                    )}
+                    {(() => {
+                      const analysisText = (results.fortuneAnalysis.analysis || '').toString().trim() ||
+                        (results.fortuneAnalysis.fiveElements || '').toString().trim() ||
+                        (results.fortuneAnalysis.recommendations || '').toString().trim();
+                      if (analysisText) {
+                        return (
+                          <div className="text-gray-800 leading-7 text-sm sm:text-base whitespace-pre-wrap break-words max-w-none"
+                               style={{ lineHeight: '1.8', wordBreak: 'break-word' }}>
+                            {analysisText}
+                          </div>
+                        );
+                      }
+                      return <div className="text-gray-500 text-sm italic">分析数据暂时无法显示，请稍后重试</div>;
+                    })()}
                   </div>
+                  {results.fortuneAnalysis.fiveElements && (
+                    <div className="bg-gradient-to-r from-yellow-50 to-amber-50 border-l-4 border-yellow-400 p-4 sm:p-6 rounded-2xl backdrop-blur-sm">
+                      <h4 className="font-semibold text-yellow-700 mb-3 text-base sm:text-lg">五行分析</h4>
+                      <div className="text-gray-800 leading-7 text-sm sm:text-base whitespace-pre-wrap break-words max-w-none" style={{ lineHeight: '1.8', wordBreak: 'break-word' }}>
+                        {results.fortuneAnalysis.fiveElements}
+                      </div>
+                    </div>
+                  )}
+                  {results.fortuneAnalysis.academicFortune && (
+                    <div className="bg-gradient-to-r from-blue-50 to-sky-50 border-l-4 border-blue-400 p-4 sm:p-6 rounded-2xl backdrop-blur-sm">
+                      <h4 className="font-semibold text-blue-700 mb-3 text-base sm:text-lg">学业运势</h4>
+                      <div className="text-gray-800 leading-7 text-sm sm:text-base whitespace-pre-wrap break-words max-w-none" style={{ lineHeight: '1.8', wordBreak: 'break-word' }}>
+                        {results.fortuneAnalysis.academicFortune}
+                      </div>
+                    </div>
+                  )}
+                  {results.fortuneAnalysis.recommendations && (
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-400 p-4 sm:p-6 rounded-2xl backdrop-blur-sm">
+                      <h4 className="font-semibold text-green-700 mb-3 text-base sm:text-lg">建议 / 详细分节</h4>
+                      <div className="text-gray-800 leading-7 text-sm sm:text-base whitespace-pre-wrap break-words max-w-none" style={{ lineHeight: '1.8', wordBreak: 'break-word' }}>
+                        {results.fortuneAnalysis.recommendations}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -612,7 +643,7 @@ export default function PredictionPage() {
                   </div>
                 )}
 
-                <div className={`space-y-4 sm:space-y-6 ${!isUnlocked ? 'filter blur-sm' : ''}`}>
+                <div className={`space-y-4 sm:space-y-6 ${isUnlocked ? '' : 'filter blur-sm'}`}>
                   {/* 显示所有大学 */}
                   {results.universityPredictions.map((university, index) => (
                     <div key={index} className="bg-white/80 backdrop-blur-lg border border-orange-200/50 rounded-2xl p-4 sm:p-6 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">

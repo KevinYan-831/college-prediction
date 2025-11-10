@@ -2,9 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { predictionRequestSchema, type PredictionRequest } from "@shared/schema";
 import axios from "axios";
-import { getUniversitiesByLevel } from "./university-rankings";
 import { storage } from "./storage";
 import { randomUUID } from "crypto";
+import { supabaseAdmin } from "./supabaseAdmin";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -113,6 +113,121 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Secure unlock endpoint - validates code and marks it used atomically using the service role key
+  app.post('/api/unlock', async (req, res) => {
+    try {
+      // Expect Authorization: Bearer <access_token>
+      const authHeader = (req.headers.authorization || '') as string;
+      if (!authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ success: false, error: '未授权' });
+      }
+
+      const accessToken = authHeader.split(' ')[1];
+
+      // Verify user via Supabase admin client
+      const { data: userRes, error: userErr } = await supabaseAdmin.auth.getUser(accessToken);
+      if (userErr || !userRes?.user) {
+        console.error('Unable to verify user token:', userErr);
+        return res.status(401).json({ success: false, error: '未授权' });
+      }
+      const user = userRes.user;
+
+      const { sessionId, unlockCode } = req.body as { sessionId?: string; unlockCode?: string };
+      if (!sessionId || !unlockCode) {
+        return res.status(400).json({ success: false, error: '缺少参数' });
+      }
+
+      const normalized = unlockCode.toUpperCase().trim();
+
+      // Find the code (service role bypasses RLS)
+      const { data: codeData, error: codeError } = await supabaseAdmin
+        .from('unlock_codes')
+        .select('*')
+        .eq('code', normalized)
+        .single();
+
+      if (codeError || !codeData) {
+        console.log('Unlock attempt - code not found:', normalized, codeError);
+        return res.status(404).json({ success: false, error: '无效的解锁码' });
+      }
+
+      if (codeData.is_used) {
+        return res.status(409).json({ success: false, error: '此解锁码已被使用' });
+      }
+
+      if (codeData.expires_at && new Date(codeData.expires_at) < new Date()) {
+        return res.status(400).json({ success: false, error: '此解锁码已过期' });
+      }
+
+      // Atomic update: mark code as used only if is_used is still false
+      const { error: updateError, data: updateResult } = await supabaseAdmin
+        .from('unlock_codes')
+        .update({ is_used: true, used_at: new Date().toISOString(), user_id: user.id })
+        .eq('id', codeData.id)
+        .eq('is_used', false);
+
+      if (updateError) {
+        console.error('Failed to mark code used:', updateError);
+        return res.status(409).json({ success: false, error: '此解锁码已被使用' });
+      }
+
+      // Create the user_unlocked_predictions record
+      const { error: unlockError } = await supabaseAdmin
+        .from('user_unlocked_predictions')
+        .insert({ user_id: user.id, session_id: sessionId, unlock_code_id: codeData.id });
+
+      if (unlockError) {
+        console.error('Error creating unlock record:', unlockError);
+        return res.status(500).json({ success: false, error: '解锁失败，请重试' });
+      }
+
+      return res.json({ success: true });
+    } catch (error) {
+      console.error('Unlock endpoint error:', error);
+      return res.status(500).json({ success: false, error: '解锁过程中发生错误' });
+    }
+  });
+
+  // Check whether a session has already been unlocked for the current user
+  app.get('/api/unlocked/:sessionId', async (req, res) => {
+    try {
+      const authHeader = (req.headers.authorization || '') as string;
+      if (!authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ unlocked: false, error: '未授权' });
+      }
+
+      const accessToken = authHeader.split(' ')[1];
+      const { data: userRes, error: userErr } = await supabaseAdmin.auth.getUser(accessToken);
+      if (userErr || !userRes?.user) {
+        return res.status(401).json({ unlocked: false, error: '未授权' });
+      }
+
+      const user = userRes.user;
+      const { sessionId } = req.params;
+      if (!sessionId) {
+        return res.status(400).json({ unlocked: false, error: '缺少 sessionId' });
+      }
+
+      const { data, error } = await supabaseAdmin
+        .from('user_unlocked_predictions')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('session_id', sessionId)
+        .single();
+
+      if (error) {
+        // If no rows found, treat as locked. Return success with unlocked=false.
+        console.log('Unlocked check - no unlock record:', { user: user.id, sessionId, error });
+        return res.json({ unlocked: false });
+      }
+
+      return res.json({ unlocked: !!data });
+    } catch (error) {
+      console.error('Unlocked check error:', error);
+      return res.status(500).json({ unlocked: false, error: '内部错误' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
@@ -185,14 +300,36 @@ async function callGuguDataAPI(
         // GuguData API标准格式 - 根据API文档解析
         data = apiResult.Data;
         console.log("提取的完整数据:", JSON.stringify(data, null, 2));
-        
-        // 直接使用完整的融合分析文字作为主要内容，避免字段匹配问题
-        const mainAnalysis = data.融合分析文字 || '';
+
+        // 获取主分析并在缺失时重试
+        let mainAnalysis = data.融合分析文字 || data.综合评价 || '';
+        if (!mainAnalysis || !mainAnalysis.trim()) {
+          console.warn('融合分析文字为空，准备重试...');
+          try {
+            await new Promise(r => setTimeout(r, 500));
+            const retryResp = await axios.post(`https://api.gugudata.com/ai/bazi-fortune-teller?appkey=${appKey}`, formData, {
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'User-Agent': 'University-Prediction-App/1.0'
+              },
+              timeout: 120000
+            });
+            const retryData = retryResp.data?.Data;
+            if (retryData) {
+              data = retryData;
+              const retryMain = data.融合分析文字 || data.综合评价 || '';
+              if (retryMain.trim()) mainAnalysis = retryMain;
+            }
+          } catch (e: any) {
+            console.warn('重试获取融合分析失败:', e?.message || e);
+          }
+        }
+
         const fortuneAnalysis = data.运势分析 || {};
         const bodyFeatures = fortuneAnalysis.体貌特征 || {};
 
-        // 口语化处理
-        const casualAnalysis = mainAnalysis
+        // 口语化处理主分析，保持简洁（只作为概览）
+        const casualMain = (mainAnalysis || '')
           .replace(/您的/g, '你的')
           .replace(/您/g, '你')
           .replace(/建议/g, '我建议')
@@ -200,28 +337,43 @@ async function callGuguDataAPI(
           .replace(/需要/g, '要')
           .replace(/应当/g, '应该')
           .replace(/宜/g, '最好')
-          .replace(/忌/g, '避免');
+          .replace(/忌/g, '避免')
+          .trim();
+
+        // 构建推荐与详细分节（不重复主分析）
+        const recommendationSections: string[] = [];
+        const bodyFeaturesCombined = [bodyFeatures.面貌, bodyFeatures.身材, bodyFeatures.特别标记]
+          .filter(Boolean).join('；');
+        if (fortuneAnalysis.体貌特征 || bodyFeaturesCombined) {
+          recommendationSections.push(`【体貌特征】\n${fortuneAnalysis.体貌特征 || bodyFeaturesCombined}`);
+        }
+        if (fortuneAnalysis.学业) {
+          recommendationSections.push(`【学业运势详细】\n${fortuneAnalysis.学业}`);
+        }
+        if (fortuneAnalysis.婚姻) {
+          recommendationSections.push(`【婚姻感情】\n${fortuneAnalysis.婚姻}`);
+        }
+        if (fortuneAnalysis.财运) {
+          recommendationSections.push(`【财运状况】\n${fortuneAnalysis.财运}`);
+        }
+        if (fortuneAnalysis.健康) {
+          recommendationSections.push(`【健康状况】\n${fortuneAnalysis.健康}`);
+        }
+        if (Array.isArray(fortuneAnalysis.关键事件) && fortuneAnalysis.关键事件.length) {
+          const eventsStr = fortuneAnalysis.关键事件.map((e: any) => `${e.年份}年：${e.事件}`).join('\n');
+          recommendationSections.push(`【关键事件】\n${eventsStr}`);
+        }
+        if (data.综合评价) {
+          recommendationSections.push(`【综合评价】\n${data.综合评价}`);
+        }
+        if (Array.isArray(data.大运) && data.大运.length) {
+          const daYunStr = data.大运.map((stage: any) => `${stage.起始年份}-${stage.终止年份}年：${stage.运势名称}`).join('\n');
+          recommendationSections.push(`【大运阶段】\n${daYunStr}`);
+        }
+        const recommendationsCombined = recommendationSections.join('\n\n');
 
         return {
-          analysis: casualAnalysis || `【体貌特征】
-面貌：${bodyFeatures.面貌 || ''}
-身材：${bodyFeatures.身材 || ''}
-特别标记：${bodyFeatures.特别标记 || ''}
-
-【学业运势】
-${fortuneAnalysis.学业?.关键转折 || ''}
-
-【婚姻感情】
-${fortuneAnalysis.婚姻?.婚期 || ''}
-
-【财运状况】
-${fortuneAnalysis.财运?.赚钱能力 || ''}
-
-【健康状况】
-${fortuneAnalysis.健康?.薄弱部位 || ''}
-
-【综合评价】
-${data.综合评价 || ''}`,
+          analysis: casualMain || '暂无总体分析',
           
           fiveElements: `八字：${data.八字 || ''}
 五行：${typeof data.五行 === 'object' ? 
@@ -236,30 +388,7 @@ ${fortuneAnalysis.学业?.优势 || ''}
 ${fortuneAnalysis.学业?.短板 || ''}
 ${fortuneAnalysis.学业?.转折点 || ''}`.trim() || '学业运势分析中',
           
-          recommendations: `【大运分析】
-${data.大运 && Array.isArray(data.大运) ? 
-  data.大运.map((stage: any) => 
-    `${stage.起始年份}-${stage.终止年份}年：${stage.运势名称}`
-  ).join('\n') : ''}
-
-【重要转折点】
-${fortuneAnalysis.关键事件 && Array.isArray(fortuneAnalysis.关键事件) ?
-  fortuneAnalysis.关键事件.map((event: any) => `${event.年份}年：${event.事件}`).join('\n') : ''}
-
-【学业建议】
-优势：${fortuneAnalysis.学业?.优势 || ''}
-短板：${fortuneAnalysis.学业?.短板 || ''}
-
-【婚姻建议】
-最佳婚期：${fortuneAnalysis.婚姻?.婚期 || ''}
-配偶特征：${fortuneAnalysis.婚姻?.配偶特征 || ''}
-
-【财运建议】
-财富等级：${fortuneAnalysis.财运?.财富等级 || ''}
-适合行业：${fortuneAnalysis.财运?.行业建议 || ''}
-
-【综合建议】
-${data.综合评价 || ''}`
+          recommendations: recommendationsCombined || '暂无详细分节'
         };
       } else if (apiResult.code === 200 && apiResult.data) {
         // 备选格式1
@@ -274,55 +403,52 @@ ${data.综合评价 || ''}`
         data = apiResult;
         analysis = apiResult?.analysis || apiResult?.分析 || {};
       }
-      
+
       console.log("提取的数据:", JSON.stringify(data, null, 2));
       console.log("提取的分析:", JSON.stringify(analysis, null, 2));
-      
+
+      // 回退路径：同样返回“简洁概览 + 结构化分节”
+      const overview = (analysis.总体评价 || analysis.融合分析文字 || analysis.分析 || data.综合评价 || '')
+        .toString()
+        .replace(/您的/g, '你的')
+        .replace(/您/g, '你')
+        .replace(/建议/g, '我建议')
+        .replace(/需注意/g, '要注意')
+        .replace(/需要/g, '要')
+        .replace(/应当/g, '应该')
+        .replace(/宜/g, '最好')
+        .replace(/忌/g, '避免')
+        .trim();
+
+      const recSections: string[] = [];
+      if (analysis.体貌特征) recSections.push(`【体貌特征】\n${analysis.体貌特征}`);
+      if (analysis.学业) recSections.push(`【学业运势详细】\n${analysis.学业}`);
+      if (analysis.婚姻) recSections.push(`【婚姻感情】\n${analysis.婚姻}`);
+      if (analysis.财运) recSections.push(`【财运状况】\n${analysis.财运}`);
+      if (analysis.健康) recSections.push(`【健康状况】\n${analysis.健康}`);
+      if (Array.isArray(data?.关键事件) && data.关键事件.length) {
+        const ev = data.关键事件.map((e: any) => `${e.年份}年：${e.事件}`).join('\n');
+        recSections.push(`【关键事件】\n${ev}`);
+      }
+      if (data?.综合评价) recSections.push(`【综合评价】\n${data.综合评价}`);
+      if (Array.isArray(data?.大运) && data.大运.length) {
+        const dy = data.大运.map((d: any) => `${d.起始年份 || d.年份?.split('-')?.[0] || ''}-${d.终止年份 || d.年份?.split('-')?.[1] || ''}年：${d.运势名称 || d.大运 || ''}`).join('\n');
+        recSections.push(`【大运阶段】\n${dy}`);
+      }
+
+      const fiveElText = `八字：${data.八字 || ''}
+五行：${typeof data.五行 === 'object' ? 
+  `金${data.五行.金 || 0} 木${data.五行.木 || 0} 水${data.五行.水 || 0} 火${data.五行.火 || 0} 土${data.五行.土 || 0}，${data.五行.强弱 || ''}，${data.五行.喜忌 || ''}` : 
+  (data.五行 || '')}
+命宫：${data.命宫 || ''}
+身宫：${data.身宫 || ''}
+十神配置：年柱${data.十神?.年柱 || ''}，月柱${data.十神?.月柱 || ''}，日柱${data.十神?.日柱 || ''}，时柱${data.十神?.时柱 || ''}`;
+
       return {
-        analysis: `【八字命盘】
-八字：${data.八字 || ''}
-五行：${data.五行 || ''}
-
-【体貌特征】
-${analysis.体貌特征 || '暂无体貌特征分析'}
-
-【学业运势】
-${analysis.学业 || '暂无学业分析'}
-
-【事业发展】
-${analysis.事业 || '暂无事业分析'}
-
-【财运状况】
-${analysis.财运 || '暂无财运分析'}
-
-【婚姻感情】
-${analysis.婚姻 || '暂无婚姻分析'}
-
-【健康状况】
-${analysis.健康 || '暂无健康分析'}
-
-【总体评价】
-${analysis.总体评价 || '命盘分析显示您具有良好的发展潜质'}`,
-        
-        fiveElements: `五行配置：${data.五行 || ''}
-${data.十神 ? `十神配置：年柱${data.十神.年柱}，月柱${data.十神.月柱}，日柱${data.十神.日柱}，时柱${data.十神.时柱}` : ''}`,
-        
-        academicFortune: analysis.学业 || "学业运势分析中",
-        
-        recommendations: `${data.大运 && data.大运.length > 0 ? 
-`【大运分析】
-当前大运：${data.大运.find((d: any) => {
-  const [start, end] = d.年份.split('-').map(Number);
-  const currentYear = new Date().getFullYear();
-  return currentYear >= start && currentYear <= end;
-})?.大运 || '分析中'} (${data.大运.find((d: any) => {
-  const [start, end] = d.年份.split('-').map(Number);
-  const currentYear = new Date().getFullYear();
-  return currentYear >= start && currentYear <= end;
-})?.十神 || ''})
-
-未来十年大运趋势：
-${data.大运.slice(0, 3).map((d: any) => `${d.年份}: ${d.大运} (${d.十神})`).join('\n')}` : '暂无大运分析'}`
+        analysis: overview || '暂无总体分析',
+        fiveElements: fiveElText,
+        academicFortune: (analysis.学业 || '').toString().trim() || '学业运势分析中',
+        recommendations: recSections.join('\n\n') || '暂无详细分节'
       };
     }
     
@@ -330,18 +456,8 @@ ${data.大运.slice(0, 3).map((d: any) => `${d.年份}: ${d.大运} (${d.十神}
     console.log("咕咕数据API调用失败，完整返回:", JSON.stringify(apiResult, null, 2));
     
     return {
-      analysis: `【API调用状态】
-状态码：${apiResult?.DataStatus?.StatusCode || 'N/A'}
-状态描述：${apiResult?.DataStatus?.StatusDescription || '未知错误'}
-请求参数：${apiResult?.DataStatus?.RequestParameter || ''}
-
-【调试信息】
-完整API返回数据：
-${JSON.stringify(apiResult, null, 2)}
-
-【临时分析】
-基于您的出生信息进行基础分析...`,
-      fiveElements: `API调用状态码：${apiResult?.DataStatus?.StatusCode || 'N/A'}`,
+      analysis: `命理服务响应异常，已提供基础信息，请稍后重试。状态码：${apiResult?.DataStatus?.StatusCode || 'N/A'}，描述：${apiResult?.DataStatus?.StatusDescription || '未知错误'}`,
+      fiveElements: '暂无法解析五行配置',
       academicFortune: "API调用异常，请检查咕咕数据服务",
       recommendations: "请联系技术支持检查API配置"
     };

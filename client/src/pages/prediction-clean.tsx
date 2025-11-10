@@ -34,9 +34,7 @@ export default function PredictionPage() {
       birthTime: "",
       gender: "male",
       major: "",
-      testType: "toefl",
-      score: 0,
-      materialLevel: "average"
+      dreamUniversities: ["", "", ""]
     }
   });
 
@@ -46,6 +44,7 @@ export default function PredictionPage() {
       return response.json();
     },
     onSuccess: (data: PredictionResult) => {
+      console.log('API result:', data);
       setResults(data);
       setIsLoading(false);
       toast({
@@ -255,91 +254,7 @@ export default function PredictionPage() {
                   />
                 </div>
 
-                {/* 语言成绩 */}
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                    <Languages className="text-yellow-600 mr-2" size={20} />
-                    语言成绩
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="testType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>考试类型</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="选择考试类型" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="toefl">托福 (TOEFL)</SelectItem>
-                              <SelectItem value="ielts">雅思 (IELTS)</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="score"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>分数</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="number" 
-                              placeholder="如：105" 
-                              {...field}
-                              value={field.value === 0 ? "" : field.value || ""}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                if (value === "") {
-                                  field.onChange(undefined);
-                                } else {
-                                  const numValue = parseInt(value);
-                                  if (!isNaN(numValue)) {
-                                    field.onChange(numValue);
-                                  }
-                                }
-                              }}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-
-                {/* 申请材料水平 */}
-                <FormField
-                  control={form.control}
-                  name="materialLevel"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>申请材料整体水平</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="请选择整体水平" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="very-poor">极差</SelectItem>
-                          <SelectItem value="poor">较差</SelectItem>
-                          <SelectItem value="average">一般</SelectItem>
-                          <SelectItem value="good">较好</SelectItem>
-                          <SelectItem value="excellent">极好</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {/* 心仪院校占位（使用 dreamUniversities 默认值） */}
 
                 {/* 图片上传功能 */}
                 <div className="bg-gray-50 rounded-lg p-4">
@@ -438,9 +353,7 @@ export default function PredictionPage() {
                 
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-sm text-gray-600">完成进度：{loadingProgress}%</span>
-                  <span className="text-sm text-gray-600">
-                    预计剩余：{estimatedTime > 0 ? estimatedTime + ' 秒' : '即将完成'}
-                  </span>
+                  <span className="text-sm text-gray-600">预计剩余：{estimatedTime > 0 ? estimatedTime + ' 秒' : '即将完成'}</span>
                 </div>
                 
                 <div className="space-y-2">
@@ -477,24 +390,34 @@ export default function PredictionPage() {
                 <div className="space-y-4">
                   <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded">
                     <h4 className="font-semibold text-red-800 mb-2">整体分析</h4>
-                    <p className="text-red-700">{results.fortuneAnalysis.analysis}</p>
+                    {(() => {
+                      const analysisText = (results.fortuneAnalysis.analysis || '').toString().trim() ||
+                        (results.fortuneAnalysis.fiveElements || '').toString().trim() ||
+                        (results.fortuneAnalysis.recommendations || '').toString().trim();
+                      const content = analysisText || '暂时无法获取命理分析，请稍后重试。';
+                      return (
+                        <div className="text-red-700 whitespace-pre-wrap break-words" style={{ lineHeight: 1.8 }}>
+                          {content}
+                        </div>
+                      );
+                    })()}
                   </div>
                   {results.fortuneAnalysis.fiveElements && (
                     <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
                       <h4 className="font-semibold text-yellow-800 mb-2">五行分析</h4>
-                      <p className="text-yellow-700">{results.fortuneAnalysis.fiveElements}</p>
+                      <div className="text-yellow-700 whitespace-pre-wrap break-words">{results.fortuneAnalysis.fiveElements}</div>
                     </div>
                   )}
                   {results.fortuneAnalysis.academicFortune && (
                     <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
                       <h4 className="font-semibold text-blue-800 mb-2">学业运势</h4>
-                      <p className="text-blue-700">{results.fortuneAnalysis.academicFortune}</p>
+                      <div className="text-blue-700 whitespace-pre-wrap break-words">{results.fortuneAnalysis.academicFortune}</div>
                     </div>
                   )}
                   {results.fortuneAnalysis.recommendations && (
                     <div className="bg-green-50 border-l-4 border-green-400 p-4 rounded">
                       <h4 className="font-semibold text-green-800 mb-2">建议</h4>
-                      <p className="text-green-700">{results.fortuneAnalysis.recommendations}</p>
+                      <div className="text-green-700 whitespace-pre-wrap break-words">{results.fortuneAnalysis.recommendations}</div>
                     </div>
                   )}
                 </div>
